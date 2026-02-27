@@ -1,0 +1,231 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        // Geist-inspired design tokens
+        ds: {
+          background: {
+            100: 'var(--ds-background-100)',
+            200: 'var(--ds-background-200)',
+          },
+          gray: {
+            100: 'var(--ds-gray-100)',
+            200: 'var(--ds-gray-200)',
+            300: 'var(--ds-gray-300)',
+            400: 'var(--ds-gray-400)',
+            500: 'var(--ds-gray-500)',
+            600: 'var(--ds-gray-600)',
+            700: 'var(--ds-gray-700)',
+            800: 'var(--ds-gray-800)',
+            900: 'var(--ds-gray-900)',
+            1000: 'var(--ds-gray-1000)',
+          },
+          blue: {
+            100: 'var(--ds-blue-100)',
+            200: 'var(--ds-blue-200)',
+            300: 'var(--ds-blue-300)',
+            400: 'var(--ds-blue-400)',
+            500: 'var(--ds-blue-500)',
+            600: 'var(--ds-blue-600)',
+            700: 'var(--ds-blue-700)',
+            800: 'var(--ds-blue-800)',
+            900: 'var(--ds-blue-900)',
+            1000: 'var(--ds-blue-1000)',
+          },
+          red: {
+            100: 'var(--ds-red-100)',
+            200: 'var(--ds-red-200)',
+            400: 'var(--ds-red-400)',
+            600: 'var(--ds-red-600)',
+            700: 'var(--ds-red-700)',
+            900: 'var(--ds-red-900)',
+            1000: 'var(--ds-red-1000)',
+          },
+          amber: {
+            100: 'var(--ds-amber-100)',
+            200: 'var(--ds-amber-200)',
+            400: 'var(--ds-amber-400)',
+            600: 'var(--ds-amber-600)',
+            700: 'var(--ds-amber-700)',
+            900: 'var(--ds-amber-900)',
+            1000: 'var(--ds-amber-1000)',
+          },
+          green: {
+            100: 'var(--ds-green-100)',
+            200: 'var(--ds-green-200)',
+            400: 'var(--ds-green-400)',
+            600: 'var(--ds-green-600)',
+            700: 'var(--ds-green-700)',
+            900: 'var(--ds-green-900)',
+            1000: 'var(--ds-green-1000)',
+          },
+        },
+        // Semantic aliases
+        foreground: 'var(--geist-foreground)',
+        background: 'var(--geist-background)',
+        accents: {
+          1: 'var(--accents-1)',
+          2: 'var(--accents-2)',
+          3: 'var(--accents-3)',
+          4: 'var(--accents-4)',
+          5: 'var(--accents-5)',
+          6: 'var(--accents-6)',
+          7: 'var(--accents-7)',
+          8: 'var(--accents-8)',
+        },
+      },
+      fontFamily: {
+        sans: ['var(--font-geist-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      fontSize: {
+        '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+      },
+      borderRadius: {
+        DEFAULT: '6px',
+        marketing: '8px',
+      },
+      boxShadow: {
+        'ds-small': '0px 1px 2px 0px rgba(0, 0, 0, 0.04)',
+        'ds-border': 'var(--ds-shadow-border)',
+        'ds-border-small': 'var(--ds-shadow-border-small)',
+        'geist-smallest': 'var(--shadow-smallest)',
+        'geist-small': 'var(--shadow-small)',
+        'geist-medium': 'var(--shadow-medium)',
+        'geist-large': 'var(--shadow-large)',
+      },
+      spacing: {
+        'geist-gap': 'var(--geist-space-gap)',
+        'geist-gap-half': 'var(--geist-space-gap-half)',
+        'geist-gap-quarter': 'var(--geist-space-gap-quarter)',
+        'geist-page-margin': 'var(--geist-page-margin)',
+      },
+      maxWidth: {
+        'geist-page': 'var(--geist-page-width)',
+        'ds-page': 'var(--ds-page-width)',
+      },
+      transitionTimingFunction: {
+        'ease-spring': 'cubic-bezier(0.22, 1, 0.36, 1)',
+        'ease-out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'ease-in-out-quart': 'cubic-bezier(0.76, 0, 0.24, 1)',
+      },
+      transitionDuration: {
+        '50': '50ms',
+        '250': '250ms',
+        '350': '350ms',
+        '400': '400ms',
+      },
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(6px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-out': {
+          from: { opacity: '1', transform: 'translateY(0)' },
+          to: { opacity: '0', transform: 'translateY(6px)' },
+        },
+        'fade-in-up': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-in-right': {
+          from: { opacity: '0', transform: 'translateX(20px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        'slide-in-left': {
+          from: { opacity: '0', transform: 'translateX(-20px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        'slide-in-bottom': {
+          from: { opacity: '0', transform: 'translateY(20px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-out-right': {
+          from: { opacity: '1', transform: 'translateX(0)' },
+          to: { opacity: '0', transform: 'translateX(20px)' },
+        },
+        'scale-in': {
+          from: { opacity: '0', transform: 'scale(0.95)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        'scale-out': {
+          from: { opacity: '1', transform: 'scale(1)' },
+          to: { opacity: '0', transform: 'scale(0.95)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'pulse-dot': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
+        'progress-bar': {
+          from: { width: '100%' },
+          to: { width: '0%' },
+        },
+        'count-up': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
+        'ripple': {
+          to: { transform: 'scale(4)', opacity: '0' },
+        },
+        'spin-slow': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        'stagger-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'accordion-down': {
+          from: { height: '0', opacity: '0' },
+          to: { height: 'var(--accordion-height)', opacity: '1' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--accordion-height)', opacity: '1' },
+          to: { height: '0', opacity: '0' },
+        },
+        'toast-progress': {
+          from: { transform: 'scaleX(1)' },
+          to: { transform: 'scaleX(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        'fade-out': 'fade-out 0.2s ease-in',
+        'fade-in-up': 'fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+        'slide-in-right': 'slide-in-right 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        'slide-in-left': 'slide-in-left 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        'slide-in-bottom': 'slide-in-bottom 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+        'slide-out-right': 'slide-out-right 0.25s ease-in',
+        'scale-in': 'scale-in 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
+        'scale-out': 'scale-out 0.15s ease-in',
+        shimmer: 'shimmer 2s infinite linear',
+        'pulse-dot': 'pulse-dot 1.5s ease-in-out infinite',
+        'progress-bar': 'progress-bar linear forwards',
+        'count-up': 'count-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        float: 'float 3s ease-in-out infinite',
+        ripple: 'ripple 0.6s linear',
+        'spin-slow': 'spin-slow 3s linear infinite',
+        'stagger-in': 'stagger-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'accordion-down': 'accordion-down 0.25s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-in',
+        'toast-progress': 'toast-progress linear forwards',
+      },
+    },
+  },
+  plugins: [],
+};

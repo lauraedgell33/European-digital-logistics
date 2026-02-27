@@ -1,0 +1,65 @@
+# Prometheus configuration for European Digital Logistics Platform
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+  external_labels:
+    environment: production
+    platform: european-digital-logistics
+
+scrape_configs:
+  # ── Laravel Backend Metrics ────────────────────────────
+  - job_name: "laravel-backend"
+    metrics_path: /api/health
+    scheme: http
+    static_configs:
+      - targets: ["backend:9000"]
+        labels:
+          service: "logistics-platform"
+          component: "backend"
+
+  # ── Next.js Frontend Metrics ───────────────────────────
+  - job_name: "nextjs-frontend"
+    metrics_path: /api/health
+    scheme: http
+    static_configs:
+      - targets: ["frontend:3000"]
+        labels:
+          service: "logistics-frontend"
+          component: "frontend"
+
+  # ── Nginx Reverse Proxy Metrics ────────────────────────
+  - job_name: "nginx"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["nginx:9113"]
+        labels:
+          service: "nginx-proxy"
+          component: "webserver"
+
+  # ── MySQL Exporter ─────────────────────────────────────
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["mysql-exporter:9104"]
+        labels:
+          service: "mysql"
+          component: "database"
+
+  # ── Redis Exporter ─────────────────────────────────────
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+        labels:
+          service: "redis"
+          component: "cache"
+
+  # ── Node Exporter (Host Metrics) ───────────────────────
+  - job_name: "node"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          service: "host"
+          component: "system"
