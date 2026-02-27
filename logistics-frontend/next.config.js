@@ -2,7 +2,6 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   reactStrictMode: true,
   images: {
     domains: ['localhost', 'api.logistics.eu'],
@@ -30,7 +29,9 @@ const nextConfig = {
   },
   async headers() {
     const isDev = process.env.NODE_ENV === 'development';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Extract origin from API URL for CSP (strip path)
+    const apiFullUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    const apiUrl = (() => { try { const u = new URL(apiFullUrl); return u.origin; } catch { return apiFullUrl; } })();
     const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:6001';
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
