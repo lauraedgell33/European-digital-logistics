@@ -205,4 +205,132 @@ export const pricingApi = {
   calculate: (data: PricingCalculateInput) => api.post('/pricing/calculate', data),
 };
 
+// ── Warehouse API ─────────────────────────────────────
+export const warehouseApi = {
+  list: (params?: Record<string, unknown>) => api.get('/warehouses', { params }),
+  create: (data: Record<string, unknown>) => api.post('/warehouses', data),
+  get: (id: number) => api.get(`/warehouses/${id}`),
+  update: (id: number, data: Record<string, unknown>) => api.put(`/warehouses/${id}`, data),
+  delete: (id: number) => api.delete(`/warehouses/${id}`),
+  search: (params: Record<string, unknown>) => api.get('/warehouses/search', { params }),
+  myWarehouses: () => api.get('/warehouses/my'),
+  book: (id: number, data: Record<string, unknown>) => api.post(`/warehouses/${id}/book`, data),
+  myBookings: () => api.get('/warehouses/bookings/my'),
+  bookingRequests: () => api.get('/warehouses/bookings/requests'),
+  updateBookingStatus: (bookingId: number, data: { status: 'confirmed' | 'cancelled' }) =>
+    api.put(`/warehouses/bookings/${bookingId}/status`, data),
+};
+
+// ── Barometer API ─────────────────────────────────────
+export const barometerApi = {
+  overview: () => api.get('/barometer/overview'),
+  route: (params: { origin_country: string; destination_country: string; months?: number }) =>
+    api.get('/barometer/route', { params }),
+  heatmap: () => api.get('/barometer/heatmap'),
+  priceTrends: (params?: { months?: number }) => api.get('/barometer/price-trends', { params }),
+};
+
+// ── Driving Bans API ──────────────────────────────────
+export const drivingBanApi = {
+  list: (params?: Record<string, unknown>) => api.get('/driving-bans', { params }),
+  active: () => api.get('/driving-bans/active'),
+  checkRoute: (data: { countries: string[]; departure_time?: string }) =>
+    api.post('/driving-bans/check-route', data),
+  types: () => api.get('/driving-bans/types'),
+  countries: () => api.get('/driving-bans/countries'),
+  country: (code: string) => api.get(`/driving-bans/countries/${code}`),
+};
+
+// ── Carbon Footprint API ──────────────────────────────
+export const carbonApi = {
+  calculate: (data: { distance_km: number; vehicle_type: string; fuel_type?: string; weight_kg?: number; load_factor_pct?: number; emission_standard?: string }) =>
+    api.post('/carbon/calculate', data),
+  dashboard: (months?: number) => api.get('/carbon/dashboard', { params: { months } }),
+  forOrder: (orderId: number) => api.get(`/carbon/orders/${orderId}`),
+  calculateForOrder: (orderId: number, data?: Record<string, unknown>) =>
+    api.post(`/carbon/orders/${orderId}`, data),
+  purchaseOffset: (footprintId: number) => api.post(`/carbon/${footprintId}/offset`),
+  emissionFactors: () => api.get('/carbon/emission-factors'),
+};
+
+// ── Lexicon API ───────────────────────────────────────
+export const lexiconApi = {
+  list: (params?: { category?: string; language?: string; tag?: string; search?: string; page?: number }) =>
+    api.get('/lexicon', { params }),
+  get: (slug: string) => api.get(`/lexicon/${slug}`),
+  categories: () => api.get('/lexicon/categories'),
+  popular: (limit?: number) => api.get('/lexicon/popular', { params: { limit } }),
+};
+
+// ── Tracking Share API ────────────────────────────────
+export const trackingShareApi = {
+  create: (data: { shipment_id: number; recipient_name?: string; recipient_email?: string; expires_at?: string; permissions?: string[] }) =>
+    api.post('/tracking-shares', data),
+  forShipment: (shipmentId: number) => api.get(`/tracking-shares/shipment/${shipmentId}`),
+  revoke: (shareId: number) => api.delete(`/tracking-shares/${shareId}`),
+  viewShared: (token: string) => api.get(`/tracking/shared/${token}`),
+};
+
+// ── Price Insights API ────────────────────────────────
+export const priceInsightApi = {
+  route: (params: { origin_country: string; destination_country: string; origin_city?: string; destination_city?: string; vehicle_type?: string; months?: number }) =>
+    api.get('/price-insights/route', { params }),
+  topRoutes: (limit?: number) => api.get('/price-insights/top-routes', { params: { limit } }),
+  heatmap: () => api.get('/price-insights/heatmap'),
+  compare: (routes: { origin_country: string; destination_country: string }[]) =>
+    api.post('/price-insights/compare', { routes }),
+  estimate: (data: { origin_country: string; destination_country: string; distance_km: number; vehicle_type?: string }) =>
+    api.post('/price-insights/estimate', data),
+};
+
+// ── Return Load API ───────────────────────────────────
+export const returnLoadApi = {
+  suggest: (data: { current_country: string; current_city?: string; current_lat?: number; current_lng?: number; destination_country?: string; vehicle_type?: string; max_weight_kg?: number; max_radius_km?: number }) =>
+    api.post('/return-loads/suggest', data),
+  forOrder: (orderId: number) => api.get(`/return-loads/for-order/${orderId}`),
+  emptyLegs: () => api.get('/return-loads/empty-legs'),
+};
+
+// ── Insurance API ─────────────────────────────────────
+export const insuranceApi = {
+  quote: (data: { cargo_value: number; coverage_type: 'basic' | 'all_risk' | 'extended'; distance_km?: number; is_hazardous?: boolean; cargo_type?: string }) =>
+    api.post('/insurance/quote', data),
+  createForOrder: (orderId: number, data: Record<string, unknown>) =>
+    api.post(`/insurance/orders/${orderId}`, data),
+  accept: (quoteId: number) => api.post(`/insurance/${quoteId}/accept`),
+  fileClaim: (quoteId: number, data: { claim_description: string; claim_amount: number }) =>
+    api.post(`/insurance/${quoteId}/claim`, data),
+  myQuotes: (params?: ListParams) => api.get('/insurance/my', { params }),
+  coverageTypes: () => api.get('/insurance/coverage-types'),
+};
+
+// ── Escrow API ────────────────────────────────────────
+export const escrowApi = {
+  list: (params?: { status?: string } & ListParams) => api.get('/escrow', { params }),
+  create: (orderId: number, data: { amount: number; currency?: string }) =>
+    api.post(`/escrow/orders/${orderId}`, data),
+  forOrder: (orderId: number) => api.get(`/escrow/orders/${orderId}`),
+  fund: (escrowId: number, paymentMethod?: string) =>
+    api.post(`/escrow/${escrowId}/fund`, { payment_method: paymentMethod }),
+  release: (escrowId: number) => api.post(`/escrow/${escrowId}/release`),
+  dispute: (escrowId: number, reason: string) =>
+    api.post(`/escrow/${escrowId}/dispute`, { reason }),
+  refund: (escrowId: number) => api.post(`/escrow/${escrowId}/refund`),
+  cancel: (escrowId: number) => api.post(`/escrow/${escrowId}/cancel`),
+};
+
+// ── Debt Collection API ──────────────────────────────
+export const debtCollectionApi = {
+  list: (params?: { status?: string } & ListParams) => api.get('/debt-collection', { params }),
+  create: (data: Record<string, unknown>) => api.post('/debt-collection', data),
+  get: (id: number) => api.get(`/debt-collection/${id}`),
+  stats: () => api.get('/debt-collection/stats'),
+  calculateFee: (amount: number) => api.post('/debt-collection/calculate-fee', { amount }),
+  sendReminder: (id: number) => api.post(`/debt-collection/${id}/reminder`),
+  escalate: (id: number) => api.post(`/debt-collection/${id}/escalate`),
+  markPaid: (id: number, amount: number) => api.post(`/debt-collection/${id}/pay`, { amount }),
+  cancel: (id: number, action: 'cancel' | 'write_off') =>
+    api.post(`/debt-collection/${id}/cancel`, { action }),
+};
+
 export default api;

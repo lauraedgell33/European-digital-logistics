@@ -19,6 +19,17 @@ use App\Http\Controllers\Api\MatchingController;
 use App\Http\Controllers\Api\RoutePlanningController;
 use App\Http\Controllers\Api\PricingController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\WarehouseController;
+use App\Http\Controllers\Api\BarometerController;
+use App\Http\Controllers\Api\DrivingBanController;
+use App\Http\Controllers\Api\CarbonController;
+use App\Http\Controllers\Api\LexiconController;
+use App\Http\Controllers\Api\TrackingShareController;
+use App\Http\Controllers\Api\PriceInsightController;
+use App\Http\Controllers\Api\InsuranceController;
+use App\Http\Controllers\Api\EscrowController;
+use App\Http\Controllers\Api\DebtCollectionController;
+use App\Http\Controllers\Api\ReturnLoadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +59,34 @@ Route::prefix('v1')->group(function () {
     // Device webhook (authenticated via API key)
     Route::post('/webhooks/tracking-device', [TrackingController::class, 'deviceWebhook'])
         ->middleware('throttle:tracking');
+
+    // Public tracking share link (no auth)
+    Route::get('/tracking/shared/{token}', [TrackingShareController::class, 'viewShared']);
+
+    // Public lexicon (no auth)
+    Route::get('/lexicon', [LexiconController::class, 'index']);
+    Route::get('/lexicon/categories', [LexiconController::class, 'categories']);
+    Route::get('/lexicon/popular', [LexiconController::class, 'popular']);
+    Route::get('/lexicon/{slug}', [LexiconController::class, 'show']);
+
+    // Public driving bans (no auth)
+    Route::get('/driving-bans', [DrivingBanController::class, 'index']);
+    Route::get('/driving-bans/active', [DrivingBanController::class, 'active']);
+    Route::get('/driving-bans/types', [DrivingBanController::class, 'types']);
+    Route::get('/driving-bans/countries', [DrivingBanController::class, 'countries']);
+    Route::get('/driving-bans/countries/{countryCode}', [DrivingBanController::class, 'country']);
+    Route::post('/driving-bans/check-route', [DrivingBanController::class, 'checkRoute']);
+
+    // Public carbon calculator (no auth)
+    Route::post('/carbon/calculate', [CarbonController::class, 'calculate']);
+    Route::get('/carbon/emission-factors', [CarbonController::class, 'emissionFactors']);
+
+    // Public price insights (limited, no auth)
+    Route::get('/price-insights/top-routes', [PriceInsightController::class, 'topRoutes']);
+    Route::get('/price-insights/heatmap', [PriceInsightController::class, 'heatmap']);
+
+    // Public insurance coverage types
+    Route::get('/insurance/coverage-types', [InsuranceController::class, 'coverageTypes']);
 });
 
 // Protected routes
@@ -157,5 +196,98 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::get('/', [AuditController::class, 'index']);
         Route::get('/export', [AuditController::class, 'export']);
         Route::get('/summary', [AuditController::class, 'summary']);
+    });
+
+    // ─── Warehousing Exchange ─────────────────────────────────────
+    Route::prefix('warehouses')->group(function () {
+        Route::get('/', [WarehouseController::class, 'index']);
+        Route::post('/', [WarehouseController::class, 'store']);
+        Route::get('/search', [WarehouseController::class, 'search']);
+        Route::get('/my', [WarehouseController::class, 'myWarehouses']);
+        Route::get('/bookings/my', [WarehouseController::class, 'myBookings']);
+        Route::get('/bookings/requests', [WarehouseController::class, 'bookingRequests']);
+        Route::get('/{warehouse}', [WarehouseController::class, 'show']);
+        Route::put('/{warehouse}', [WarehouseController::class, 'update']);
+        Route::delete('/{warehouse}', [WarehouseController::class, 'destroy']);
+        Route::post('/{warehouse}/book', [WarehouseController::class, 'book']);
+        Route::put('/bookings/{booking}/status', [WarehouseController::class, 'updateBookingStatus']);
+    });
+
+    // ─── Transport Barometer ──────────────────────────────────────
+    Route::prefix('barometer')->group(function () {
+        Route::get('/overview', [BarometerController::class, 'overview']);
+        Route::get('/route', [BarometerController::class, 'route']);
+        Route::get('/heatmap', [BarometerController::class, 'heatmap']);
+        Route::get('/price-trends', [BarometerController::class, 'priceTrends']);
+    });
+
+    // ─── Carbon Footprint ─────────────────────────────────────────
+    Route::prefix('carbon')->group(function () {
+        Route::get('/dashboard', [CarbonController::class, 'dashboard']);
+        Route::get('/orders/{order}', [CarbonController::class, 'forOrder']);
+        Route::post('/orders/{order}', [CarbonController::class, 'calculateForOrder']);
+        Route::post('/{footprint}/offset', [CarbonController::class, 'purchaseOffset']);
+    });
+
+    // ─── Tracking Shares ──────────────────────────────────────────
+    Route::prefix('tracking-shares')->group(function () {
+        Route::post('/', [TrackingShareController::class, 'store']);
+        Route::get('/shipment/{shipment}', [TrackingShareController::class, 'forShipment']);
+        Route::delete('/{share}', [TrackingShareController::class, 'revoke']);
+    });
+
+    // ─── Price Insights ───────────────────────────────────────────
+    Route::prefix('price-insights')->group(function () {
+        Route::get('/route', [PriceInsightController::class, 'route']);
+        Route::post('/compare', [PriceInsightController::class, 'compare']);
+        Route::post('/estimate', [PriceInsightController::class, 'estimate']);
+    });
+
+    // ─── Return Load Suggestions ──────────────────────────────────
+    Route::prefix('return-loads')->group(function () {
+        Route::post('/suggest', [ReturnLoadController::class, 'suggest']);
+        Route::get('/for-order/{orderId}', [ReturnLoadController::class, 'forOrder']);
+        Route::get('/empty-legs', [ReturnLoadController::class, 'emptyLegs']);
+    });
+
+    // ─── Insurance ────────────────────────────────────────────────
+    Route::prefix('insurance')->group(function () {
+        Route::post('/quote', [InsuranceController::class, 'quote']);
+        Route::post('/orders/{order}', [InsuranceController::class, 'createForOrder']);
+        Route::post('/{quote}/accept', [InsuranceController::class, 'accept']);
+        Route::post('/{quote}/claim', [InsuranceController::class, 'fileClaim']);
+        Route::get('/my', [InsuranceController::class, 'myQuotes']);
+    });
+
+    // ─── Escrow Payments ──────────────────────────────────────────
+    Route::prefix('escrow')->group(function () {
+        Route::get('/', [EscrowController::class, 'index']);
+        Route::post('/orders/{order}', [EscrowController::class, 'create']);
+        Route::get('/orders/{order}', [EscrowController::class, 'forOrder']);
+        Route::post('/{escrow}/fund', [EscrowController::class, 'fund']);
+        Route::post('/{escrow}/release', [EscrowController::class, 'release']);
+        Route::post('/{escrow}/dispute', [EscrowController::class, 'dispute']);
+        Route::post('/{escrow}/refund', [EscrowController::class, 'refund']);
+        Route::post('/{escrow}/cancel', [EscrowController::class, 'cancel']);
+    });
+
+    // ─── Debt Collection ──────────────────────────────────────────
+    Route::prefix('debt-collection')->group(function () {
+        Route::get('/', [DebtCollectionController::class, 'index']);
+        Route::post('/', [DebtCollectionController::class, 'store']);
+        Route::get('/stats', [DebtCollectionController::class, 'stats']);
+        Route::post('/calculate-fee', [DebtCollectionController::class, 'calculateFee']);
+        Route::get('/{debtCollection}', [DebtCollectionController::class, 'show']);
+        Route::post('/{debtCollection}/reminder', [DebtCollectionController::class, 'sendReminder']);
+        Route::post('/{debtCollection}/escalate', [DebtCollectionController::class, 'escalate']);
+        Route::post('/{debtCollection}/pay', [DebtCollectionController::class, 'markPaid']);
+        Route::post('/{debtCollection}/cancel', [DebtCollectionController::class, 'cancel']);
+    });
+
+    // ─── Lexicon Admin ────────────────────────────────────────────
+    Route::middleware('role:admin')->prefix('admin/lexicon')->group(function () {
+        Route::post('/', [LexiconController::class, 'store']);
+        Route::put('/{article}', [LexiconController::class, 'update']);
+        Route::delete('/{article}', [LexiconController::class, 'destroy']);
     });
 });

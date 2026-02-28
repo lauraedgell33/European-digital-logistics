@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             ShipmentSeeder::class,
             TenderSeeder::class,
             PartnerNetworkSeeder::class,
+            DrivingBanSeeder::class,
+            LexiconSeeder::class,
         ]);
     }
 }
