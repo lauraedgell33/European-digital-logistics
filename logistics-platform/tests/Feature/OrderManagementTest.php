@@ -57,7 +57,7 @@ class OrderManagementTest extends TestCase
             'weight' => 18000,
             'total_price' => 2200,
             'currency' => 'EUR',
-            'payment_terms' => 'net_30',
+            'payment_terms' => '30_days',
         ];
 
         $response = $this->actingAs($this->user, 'sanctum')

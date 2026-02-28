@@ -35,7 +35,7 @@ class OrderTest extends TestCase
             'created_by' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/orders');
 
         $response->assertOk()
@@ -44,7 +44,7 @@ class OrderTest extends TestCase
 
     public function test_can_create_order(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->postJson('/api/v1/orders', [
                 'carrier_id' => $this->carrierCompany->id,
                 'pickup_country' => 'DE',
@@ -84,7 +84,7 @@ class OrderTest extends TestCase
             'created_by' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/v1/orders/{$order->id}");
 
         $response->assertOk()
@@ -100,7 +100,7 @@ class OrderTest extends TestCase
             'created_by' => $otherUser->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/v1/orders/{$order->id}");
 
         $response->assertStatus(403);
@@ -120,7 +120,7 @@ class OrderTest extends TestCase
             'shipper_id' => $otherCompany->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/orders');
 
         $response->assertOk()
@@ -137,8 +137,8 @@ class OrderTest extends TestCase
             'shipper_id' => $this->shipperCompany->id,
         ]);
 
-        $response = $this->actingAs($this->user)
-            ->getJson('/api/v1/orders/statistics');
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson('/api/v1/orders/stats/overview');
 
         $response->assertOk()
             ->assertJsonStructure([

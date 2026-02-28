@@ -32,7 +32,7 @@ class ExportTest extends TestCase
             'shipper_id' => $this->company->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/export/orders/pdf');
 
         $response->assertOk()
@@ -45,7 +45,7 @@ class ExportTest extends TestCase
             'shipper_id' => $this->company->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/export/orders/csv');
 
         $response->assertOk();
@@ -57,7 +57,7 @@ class ExportTest extends TestCase
             'shipper_id' => $this->company->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/v1/export/orders/{$order->id}/pdf");
 
         $response->assertOk()
@@ -66,7 +66,7 @@ class ExportTest extends TestCase
 
     public function test_can_export_analytics_pdf(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/export/analytics/pdf');
 
         $response->assertOk()

@@ -30,7 +30,7 @@ class VehicleTest extends TestCase
     {
         VehicleOffer::factory()->count(3)->create();
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/vehicles');
 
         $response->assertOk()
@@ -41,7 +41,7 @@ class VehicleTest extends TestCase
 
     public function test_can_create_vehicle_offer(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->postJson('/api/v1/vehicles', [
                 'vehicle_type' => 'tautliner',
                 'vehicle_registration' => 'DE-ABC-123',
@@ -71,7 +71,7 @@ class VehicleTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/v1/vehicles/{$offer->id}");
 
         $response->assertOk()

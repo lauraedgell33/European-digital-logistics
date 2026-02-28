@@ -30,7 +30,7 @@ class FreightTest extends TestCase
     {
         FreightOffer::factory()->count(5)->create();
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/freight');
 
         $response->assertOk()
@@ -41,7 +41,7 @@ class FreightTest extends TestCase
 
     public function test_can_create_freight_offer(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->postJson('/api/v1/freight', [
                 'origin_country' => 'DE',
                 'origin_city' => 'Hamburg',
@@ -53,6 +53,7 @@ class FreightTest extends TestCase
                 'weight' => 18000,
                 'volume' => 65,
                 'loading_date' => now()->addDays(5)->format('Y-m-d'),
+                'unloading_date' => now()->addDays(7)->format('Y-m-d'),
                 'vehicle_type' => 'tautliner',
                 'price' => 1800,
                 'currency' => 'EUR',
@@ -72,7 +73,7 @@ class FreightTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson("/api/v1/freight/{$offer->id}");
 
         $response->assertOk()
@@ -89,7 +90,7 @@ class FreightTest extends TestCase
         // Other company's offers
         FreightOffer::factory()->count(2)->create();
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/v1/freight/my/offers');
 
         $response->assertOk()

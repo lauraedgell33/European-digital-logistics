@@ -138,8 +138,13 @@ class ExportController extends Controller
         $avgValue = $completedOrders > 0 ? round($totalRevenue / $completedOrders, 2) : 0;
 
         // Monthly breakdown
+        $driver = config('database.default');
+        $monthExpr = $driver === 'sqlite'
+            ? "strftime('%Y-%m', created_at)"
+            : 'DATE_FORMAT(created_at, "%Y-%m")';
+
         $monthly = (clone $orders)
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as total, SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN status = "completed" THEN total_price ELSE 0 END) as revenue')
+            ->selectRaw("$monthExpr as month, COUNT(*) as total, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN status = 'completed' THEN total_price ELSE 0 END) as revenue")
             ->groupBy('month')
             ->orderBy('month', 'desc')
             ->limit(12)

@@ -35,17 +35,13 @@ class BlockchainApiTest extends TestCase
                 'transport_order_id' => null,
                 'sender_name' => 'Sender GmbH',
                 'sender_address' => 'Berlin, Germany',
+                'sender_country' => 'DE',
                 'carrier_name' => 'Carrier SpA',
-                'carrier_address' => 'Milan, Italy',
                 'consignee_name' => 'Receiver SARL',
-                'consignee_address' => 'Lyon, France',
-                'goods_description' => 'Industrial parts',
-                'weight' => 12000,
-                'packages_count' => 24,
-                'pickup_date' => now()->addDays(2)->toDateString(),
-                'delivery_date' => now()->addDays(4)->toDateString(),
-                'pickup_location' => 'Berlin, Germany',
-                'delivery_location' => 'Lyon, France',
+                'place_of_taking_over' => 'Berlin, Germany',
+                'place_of_delivery' => 'Lyon, France',
+                'goods_description' => ['Industrial parts - 24 packages'],
+                'gross_weight_kg' => 12000,
             ]);
 
         $response->assertStatus(201);
@@ -62,7 +58,7 @@ class BlockchainApiTest extends TestCase
     public function test_can_verify_digital_identity(): void
     {
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/v1/digital-identity/verify');
+            ->getJson('/api/v1/digital-identity');
 
         $response->assertStatus(200);
     }

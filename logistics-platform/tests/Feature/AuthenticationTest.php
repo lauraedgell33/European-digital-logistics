@@ -46,7 +46,7 @@ class AuthenticationTest extends TestCase
             'password' => 'wrong-password',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
     }
 
     public function test_user_can_register(): void
@@ -60,6 +60,9 @@ class AuthenticationTest extends TestCase
             'company_type' => 'carrier',
             'vat_number' => 'DE123456789',
             'country_code' => 'DE',
+            'address' => 'Hauptstraße 1',
+            'city' => 'Berlin',
+            'postal_code' => '10115',
         ]);
 
         $response->assertStatus(201)

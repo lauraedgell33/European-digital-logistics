@@ -55,10 +55,10 @@ class AiMatchingApiTest extends TestCase
     {
         $response = $this->actingAs($this->user, 'sanctum')
             ->postJson('/api/v1/route-optimization/optimize', [
-                'stops' => [
-                    ['city' => 'Berlin', 'country' => 'DE', 'lat' => 52.52, 'lng' => 13.405],
-                    ['city' => 'Prague', 'country' => 'CZ', 'lat' => 50.075, 'lng' => 14.437],
-                    ['city' => 'Vienna', 'country' => 'AT', 'lat' => 48.208, 'lng' => 16.373],
+                'waypoints' => [
+                    ['lat' => 52.52, 'lng' => 13.405, 'name' => 'Berlin'],
+                    ['lat' => 50.075, 'lng' => 14.437, 'name' => 'Prague'],
+                    ['lat' => 48.208, 'lng' => 16.373, 'name' => 'Vienna'],
                 ],
             ]);
 

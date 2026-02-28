@@ -39,7 +39,7 @@ class FintechApiTest extends TestCase
     public function test_can_list_payments(): void
     {
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/v1/payments');
+            ->getJson('/api/v1/payments/history');
 
         $response->assertStatus(200);
     }
@@ -63,7 +63,7 @@ class FintechApiTest extends TestCase
     public function test_can_get_vat_rates(): void
     {
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/v1/vat/eu-rates');
+            ->getJson('/api/v1/vat/rates');
 
         $response->assertStatus(200);
     }
