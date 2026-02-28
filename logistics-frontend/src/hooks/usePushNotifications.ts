@@ -100,8 +100,8 @@ export function usePushNotifications() {
       badge: '/icons/icon-72x72.png',
       tag: data.tag || 'logimarket',
       data: { url: data.url || '/dashboard' },
-      actions: data.actions,
-    });
+      ...(data.actions ? { actions: data.actions } : {}),
+    } as NotificationOptions);
   }, [permission]);
 
   return {
