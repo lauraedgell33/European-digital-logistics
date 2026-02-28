@@ -27,7 +27,7 @@ class VehicleOfferFactory extends Factory
             'available_to' => now()->addDays(rand(7, 30)),
             'price_per_km' => fake()->randomFloat(2, 0.80, 2.50),
             'currency' => 'EUR',
-            'status' => 'active',
+            'status' => 'available',
             'is_public' => true,
             'driver_name' => fake()->name(),
             'driver_phone' => fake()->phoneNumber(),
