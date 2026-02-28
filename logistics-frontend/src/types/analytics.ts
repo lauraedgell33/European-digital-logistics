@@ -1,4 +1,3 @@
-import type { Company } from './auth';
 import type { FreightOffer } from './freight';
 import type { VehicleOffer } from './vehicles';
 import type { TransportOrder } from './orders';

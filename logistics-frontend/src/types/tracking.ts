@@ -1,4 +1,3 @@
-import type { Company } from './auth';
 import type { TransportOrder, OrderStatus } from './orders';
 
 // ── Shipment ──────────────────────────────────────────
