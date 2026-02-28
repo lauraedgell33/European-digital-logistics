@@ -14,7 +14,7 @@ class DrivingBanResource extends Resource
 {
     protected static ?string $model = DrivingBan::class;
     protected static ?string $navigationIcon = 'heroicon-o-no-symbol';
-    protected static ?string $navigationGroup = 'Reference Data';
+    protected static ?string $navigationGroup = 'Tracking & Logistics';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

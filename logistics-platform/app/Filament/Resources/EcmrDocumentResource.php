@@ -14,7 +14,7 @@ class EcmrDocumentResource extends Resource
 {
     protected static ?string $model = EcmrDocument::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
-    protected static ?string $navigationGroup = 'Logistics';
+    protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'eCMR Documents';
     protected static ?int $navigationSort = 6;
 

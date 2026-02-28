@@ -14,7 +14,7 @@ class LexiconArticleResource extends Resource
 {
     protected static ?string $model = LexiconArticle::class;
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
-    protected static ?string $navigationGroup = 'Reference Data';
+    protected static ?string $navigationGroup = 'Platform';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

@@ -14,7 +14,7 @@ class CarbonFootprintResource extends Resource
 {
     protected static ?string $model = CarbonFootprint::class;
     protected static ?string $navigationIcon = 'heroicon-o-globe-europe-africa';
-    protected static ?string $navigationGroup = 'Sustainability';
+    protected static ?string $navigationGroup = 'AI & Analytics';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

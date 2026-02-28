@@ -14,7 +14,7 @@ class ConversationResource extends Resource
 {
     protected static ?string $model = Conversation::class;
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationGroup = 'Operations';
+    protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Messages';
     protected static ?int $navigationSort = 2;
 
