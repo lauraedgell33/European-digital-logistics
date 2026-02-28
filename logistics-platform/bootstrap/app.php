@@ -112,11 +112,22 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson() || $request->is('api/*')) {
                 $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
 
-                return response()->json([
-                    'message' => $status === 500
-                        ? 'An unexpected error occurred.'
-                        : $e->getMessage(),
-                ], $status);
+                $msg = $status === 500
+                    ? (config('app.debug') ? $e->getMessage() : 'An unexpected error occurred.')
+                    : $e->getMessage();
+
+                $response = ['message' => $msg];
+
+                if (config('app.debug') && $status === 500) {
+                    $response['exception'] = get_class($e);
+                    $response['file'] = $e->getFile() . ':' . $e->getLine();
+                    $response['trace'] = array_slice(
+                        array_map(fn($t) => ($t['file'] ?? '') . ':' . ($t['line'] ?? '') . ' ' . ($t['class'] ?? '') . ($t['type'] ?? '') . ($t['function'] ?? ''), $e->getTrace()),
+                        0, 10
+                    );
+                }
+
+                return response()->json($response, $status);
             }
         });
     })->create();
