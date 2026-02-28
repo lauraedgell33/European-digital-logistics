@@ -960,3 +960,432 @@ export interface EmptyLeg {
   fill_rate_pct: number;
   supply_demand_ratio?: number;
 }
+
+// ══════════════════════════════════════════════════════
+// Phase 2 — AI & Smart Matching
+// ══════════════════════════════════════════════════════
+
+export interface AiMatchResult {
+  id: number;
+  freight_offer_id: number;
+  freight_offer?: FreightOffer;
+  vehicle_offer_id: number;
+  vehicle_offer?: VehicleOffer;
+  overall_score: number;
+  distance_score: number;
+  capacity_score: number;
+  timing_score: number;
+  reliability_score: number;
+  price_score: number;
+  carbon_score: number;
+  factors: Record<string, unknown>;
+  model_version: string;
+  status: 'suggested' | 'accepted' | 'rejected' | 'expired';
+  responded_at?: string;
+  created_at: string;
+}
+
+export interface AiPrediction {
+  id: number;
+  prediction_type: 'demand' | 'pricing' | 'capacity' | 'delay' | 'route_risk';
+  target_region: string;
+  prediction_date: string;
+  predicted_value: number;
+  confidence: number;
+  lower_bound: number;
+  upper_bound: number;
+  factors: Record<string, unknown>;
+  model_version: string;
+  actual_value?: number;
+  created_at: string;
+}
+
+export interface DynamicPrice {
+  id: number;
+  origin_country: string;
+  origin_city: string;
+  destination_country: string;
+  destination_city: string;
+  vehicle_type: string;
+  base_price: number;
+  dynamic_price: number;
+  surge_multiplier: number;
+  demand_index: number;
+  supply_index: number;
+  currency: string;
+  valid_until: string;
+  price_change?: number;
+  created_at: string;
+}
+
+export interface RouteOptimization {
+  id: number;
+  user_id: number;
+  origin: string;
+  destination: string;
+  waypoints: Array<{ lat: number; lng: number; name: string }>;
+  optimized_waypoints: Array<{ lat: number; lng: number; name: string; order: number }>;
+  total_distance_km: number;
+  estimated_duration_hours: number;
+  co2_savings_kg: number;
+  cost_savings_eur: number;
+  constraints: Record<string, unknown>;
+  alternatives: Array<Record<string, unknown>>;
+  created_at: string;
+}
+
+export interface DocumentScan {
+  id: number;
+  company_id: number;
+  user_id: number;
+  document_type: 'cmr' | 'invoice' | 'pod' | 'customs' | 'other';
+  file_path: string;
+  original_filename: string;
+  ocr_text?: string;
+  extracted_data?: Record<string, unknown>;
+  confidence_score?: number;
+  validation_status: 'pending' | 'processing' | 'validated' | 'failed';
+  validation_errors?: Array<{ field: string; message: string }>;
+  created_at: string;
+}
+
+// ══════════════════════════════════════════════════════
+// Phase 3 — Blockchain / eCMR
+// ══════════════════════════════════════════════════════
+
+export interface EcmrDocument {
+  id: number;
+  ecmr_number: string;
+  transport_order_id?: number;
+  transport_order?: TransportOrder;
+  sender_company_id: number;
+  sender_company?: Company;
+  carrier_company_id: number;
+  carrier_company?: Company;
+  consignee_company_id?: number;
+  consignee_company?: Company;
+  sender_name: string;
+  sender_address: string;
+  carrier_name: string;
+  carrier_address: string;
+  consignee_name: string;
+  consignee_address: string;
+  goods_description: string;
+  weight_kg: number;
+  number_of_packages: number;
+  pickup_location: string;
+  delivery_location: string;
+  pickup_date: string;
+  delivery_date?: string;
+  special_instructions?: string;
+  sender_signature?: string;
+  carrier_signature?: string;
+  consignee_signature?: string;
+  sender_signed_at?: string;
+  carrier_signed_at?: string;
+  consignee_signed_at?: string;
+  blockchain_tx_hash?: string;
+  blockchain_block_number?: number;
+  ipfs_hash?: string;
+  status: 'draft' | 'issued' | 'in_transit' | 'delivered' | 'completed' | 'disputed';
+  is_fully_signed?: boolean;
+  created_at: string;
+}
+
+export interface SmartContract {
+  id: number;
+  contract_hash: string;
+  name: string;
+  company_id: number;
+  company?: Company;
+  contract_type: 'rate_agreement' | 'sla' | 'payment_terms' | 'capacity_guarantee';
+  conditions: Array<{ type: string; parameter: string; operator: string; value: string }>;
+  actions: Array<{ trigger: string; action: string; parameters: Record<string, unknown> }>;
+  status: 'draft' | 'active' | 'executed' | 'expired' | 'terminated';
+  execution_log: Array<{ timestamp: string; condition: string; result: boolean; action?: string }>;
+  valid_from: string;
+  valid_until: string;
+  blockchain_address?: string;
+  created_at: string;
+}
+
+export interface DigitalIdentity {
+  id: number;
+  company_id: number;
+  company?: Company;
+  did_identifier: string;
+  verification_status: 'unverified' | 'pending' | 'verified' | 'revoked';
+  credentials: Array<{ type: string; issuer: string; issued_at: string; expires_at?: string }>;
+  attestations: Array<{ type: string; attester: string; value: string; timestamp: string }>;
+  verified_at?: string;
+  created_at: string;
+}
+
+// ══════════════════════════════════════════════════════
+// Phase 4 — Fintech / Invoicing / Payments
+// ══════════════════════════════════════════════════════
+
+export interface Invoice {
+  id: number;
+  invoice_number: string;
+  company_id: number;
+  company?: Company;
+  client_company_id: number;
+  client_company?: Company;
+  transport_order_id?: number;
+  transport_order?: TransportOrder;
+  line_items: Array<{ description: string; quantity: number; unit_price: number; total: number }>;
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total_amount: number;
+  currency: string;
+  issue_date: string;
+  due_date: string;
+  paid_at?: string;
+  paid_amount: number;
+  balance_due?: number;
+  is_overdue?: boolean;
+  status: 'draft' | 'sent' | 'viewed' | 'paid' | 'partially_paid' | 'overdue' | 'cancelled';
+  payment_method?: string;
+  notes?: string;
+  created_at: string;
+}
+
+export interface InvoiceFactoring {
+  id: number;
+  invoice_id: number;
+  invoice?: Invoice;
+  company_id: number;
+  original_amount: number;
+  advance_rate: number;
+  advance_amount: number;
+  fee_rate: number;
+  fee_amount: number;
+  net_amount: number;
+  status: 'requested' | 'approved' | 'funded' | 'collected' | 'rejected';
+  funded_at?: string;
+  collected_at?: string;
+  created_at: string;
+}
+
+export interface PaymentTransaction {
+  id: number;
+  payment_reference: string;
+  company_id: number;
+  invoice_id?: number;
+  invoice?: Invoice;
+  transport_order_id?: number;
+  amount: number;
+  fee_amount: number;
+  net_amount: number;
+  currency: string;
+  payment_provider: 'stripe' | 'sepa' | 'bank_transfer' | 'paypal';
+  provider_reference?: string;
+  payment_method?: string;
+  exchange_rate?: number;
+  original_currency?: string;
+  original_amount?: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'partially_refunded';
+  refund_amount?: number;
+  refunded_at?: string;
+  completed_at?: string;
+  created_at: string;
+}
+
+export interface VatRecord {
+  id: number;
+  company_id: number;
+  invoice_id?: number;
+  transaction_type: 'sale' | 'purchase' | 'intra_community' | 'reverse_charge';
+  seller_country: string;
+  buyer_country: string;
+  seller_vat_number?: string;
+  buyer_vat_number?: string;
+  net_amount: number;
+  vat_rate: number;
+  vat_amount: number;
+  is_reverse_charge: boolean;
+  reporting_period: string;
+  created_at: string;
+}
+
+export interface InvoiceStats {
+  total_invoices: number;
+  total_amount: number;
+  paid_amount: number;
+  overdue_amount: number;
+  overdue_count: number;
+  by_status: Record<string, number>;
+}
+
+export interface PaymentSummary {
+  total_payments: number;
+  total_amount: number;
+  total_fees: number;
+  by_provider: Record<string, { count: number; amount: number }>;
+  by_currency: Record<string, { count: number; amount: number }>;
+}
+
+// ══════════════════════════════════════════════════════
+// Phase 5 — Multi-modal Transport
+// ══════════════════════════════════════════════════════
+
+export interface MultimodalBooking {
+  id: number;
+  booking_reference: string;
+  company_id: number;
+  company?: Company;
+  mode: 'rail' | 'sea' | 'air' | 'barge';
+  origin: string;
+  destination: string;
+  origin_terminal?: string;
+  destination_terminal?: string;
+  departure_date: string;
+  arrival_date?: string;
+  cargo_type: string;
+  weight_kg: number;
+  volume_m3?: number;
+  container_type?: string;
+  container_count?: number;
+  wagon_type?: string;
+  wagon_count?: number;
+  price: number;
+  currency: string;
+  co2_kg: number;
+  operator_name?: string;
+  status: 'quoted' | 'booked' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled';
+  tracking_number?: string;
+  is_delayed?: boolean;
+  created_at: string;
+}
+
+export interface IntermodalPlan {
+  id: number;
+  company_id: number;
+  origin: string;
+  destination: string;
+  cargo_weight_kg: number;
+  cargo_volume_m3?: number;
+  legs: Array<{
+    sequence: number;
+    mode: string;
+    origin: string;
+    destination: string;
+    distance_km: number;
+    duration_hours: number;
+    cost_eur: number;
+    co2_kg: number;
+    operator?: string;
+  }>;
+  total_cost_eur: number;
+  total_co2_kg: number;
+  total_duration_hours: number;
+  road_only_cost_eur: number;
+  road_only_co2_kg: number;
+  cost_savings_pct: number;
+  co2_savings_pct: number;
+  modes_used?: string[];
+  status: 'draft' | 'planned' | 'booked' | 'in_progress' | 'completed' | 'cancelled';
+  created_at: string;
+}
+
+export interface MultimodalSearchResult {
+  mode: string;
+  operator: string;
+  origin_terminal: string;
+  destination_terminal: string;
+  departure_date: string;
+  arrival_date: string;
+  transit_days: number;
+  price_eur: number;
+  co2_kg: number;
+  container_types?: string[];
+  available_capacity?: number;
+}
+
+export interface MultimodalStats {
+  total_bookings: number;
+  total_co2_saved_kg: number;
+  by_mode: Record<string, { count: number; co2_saved_kg: number }>;
+  intermodal_plans: number;
+  avg_cost_saving_pct: number;
+}
+
+// ══════════════════════════════════════════════════════
+// Phase 6 — Enterprise
+// ══════════════════════════════════════════════════════
+
+export interface WhiteLabel {
+  id: number;
+  company_id: number;
+  company?: Company;
+  subdomain: string;
+  custom_domain?: string;
+  brand_name: string;
+  brand_colors?: { primary?: string; secondary?: string; accent?: string };
+  logo_url?: string;
+  favicon_url?: string;
+  support_email?: string;
+  plan: 'starter' | 'professional' | 'enterprise';
+  features?: Record<string, boolean>;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ApiKeyItem {
+  id: number;
+  name: string;
+  key_prefix: string;
+  permissions: string[];
+  requests_today: number;
+  requests_total: number;
+  rate_limits?: { requests_per_minute?: number; requests_per_day?: number };
+  last_used_at?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ApiUsageStats {
+  total_requests: number;
+  today_requests: number;
+  avg_response_time_ms: number;
+  by_endpoint: Array<{ endpoint: string; count: number; avg_time: number }>;
+}
+
+export interface ErpIntegration {
+  id: number;
+  company_id: number;
+  integration_type: 'sap' | 'oracle' | 'microsoft_dynamics' | 'custom_tms' | 'wms' | 'other';
+  name: string;
+  sync_direction: 'inbound' | 'outbound' | 'bidirectional';
+  field_mappings?: Record<string, string>;
+  last_sync_at?: string;
+  sync_success_count: number;
+  sync_error_count: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface EdiMessage {
+  id: number;
+  company_id: number;
+  message_type: 'IFTMIN' | 'IFTSTA' | 'INVOIC' | 'DESADV' | 'ORDERS';
+  message_reference: string;
+  direction: 'inbound' | 'outbound';
+  format: 'EDIFACT' | 'XML' | 'JSON' | 'CSV';
+  raw_content?: string;
+  is_valid: boolean;
+  validation_errors?: Array<{ field: string; message: string }>;
+  status: 'received' | 'validated' | 'processed' | 'failed' | 'acknowledged';
+  transport_order_id?: number;
+  created_at: string;
+}
+
+export interface EdiStats {
+  total_messages: number;
+  inbound: number;
+  outbound: number;
+  failed: number;
+  by_type: Array<{ message_type: string; count: number }>;
+}

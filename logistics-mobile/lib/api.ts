@@ -190,4 +190,57 @@ export const companyApi = {
   update: (id: number, data: Record<string, string>) => api.put(`/companies/${id}`, data),
 };
 
+// ── eCMR API ──────────────────────────────────────────
+export const ecmrApi = {
+  list: (params?: any) => api.get('/ecmr', { params }),
+  get: (id: number) => api.get(`/ecmr/${id}`),
+  create: (data: any) => api.post('/ecmr', data),
+  sign: (id: number, data: { role: string; signature: string; signed_at: string }) =>
+    api.post(`/ecmr/${id}/sign`, data),
+  verify: (id: number) => api.get(`/ecmr/${id}/verify`),
+};
+
+// ── Document OCR API ──────────────────────────────────
+export const documentOcrApi = {
+  list: (params?: any) => api.get('/documents/ocr', { params }),
+  scan: (uri: string, documentType: string) => {
+    const form = new FormData();
+    form.append('file', {
+      uri,
+      name: `scan_${Date.now()}.jpg`,
+      type: 'image/jpeg',
+    } as any);
+    form.append('document_type', documentType);
+    return api.post('/documents/ocr/scan', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+  },
+  get: (id: number) => api.get(`/documents/ocr/${id}`),
+  validate: (id: number) => api.post(`/documents/ocr/${id}/validate`),
+  stats: () => api.get('/documents/ocr/stats'),
+};
+
+// ── AI Matching API (Mobile) ──────────────────────────
+export const aiMatchingMobileApi = {
+  match: (data: { freight_id?: number; vehicle_id?: number }) =>
+    api.post('/ai-matching/match', data),
+  suggestions: () => api.get('/ai-matching/suggestions'),
+};
+
+// ── Multimodal API (Mobile) ───────────────────────────
+export const multimodalMobileApi = {
+  search: (data: any) => api.post('/multimodal/search', data),
+  bookings: (params?: any) => api.get('/multimodal/bookings', { params }),
+  book: (data: any) => api.post('/multimodal/book', data),
+};
+
+// ── Invoice API (Mobile) ─────────────────────────────
+export const invoiceMobileApi = {
+  list: (params?: any) => api.get('/invoices', { params }),
+  get: (id: number) => api.get(`/invoices/${id}`),
+  create: (data: any) => api.post('/invoices', data),
+  stats: () => api.get('/invoices/stats'),
+};
+
 export default api;

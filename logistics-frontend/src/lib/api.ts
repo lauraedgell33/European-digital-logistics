@@ -338,4 +338,167 @@ export const debtCollectionApi = {
     api.post(`/debt-collection/${id}/cancel`, { action: action || 'cancel' }),
 };
 
+// ══════════════════════════════════════════════════════
+// Phase 2 — AI & Smart Matching
+// ══════════════════════════════════════════════════════
+
+export const aiMatchingApi = {
+  smartMatch: (data: { freight_offer_id: number; max_results?: number }) =>
+    api.post('/ai-matching/match', data),
+  suggestions: (params?: ListParams) => api.get('/ai-matching/suggestions', { params }),
+  respond: (matchId: number, data: { action: 'accept' | 'reject' }) =>
+    api.post(`/ai-matching/respond/${matchId}`, data),
+  history: (params?: ListParams) => api.get('/ai-matching/history', { params }),
+};
+
+export const predictionsApi = {
+  demand: (data: { region: string; cargo_type?: string; days_ahead?: number }) =>
+    api.post('/predictions/demand', data),
+  pricing: (data: { origin_country: string; destination_country: string; vehicle_type?: string; days_ahead?: number }) =>
+    api.post('/predictions/pricing', data),
+  capacity: (data: { region: string; vehicle_type?: string; days_ahead?: number }) =>
+    api.post('/predictions/capacity', data),
+  market: () => api.get('/predictions/market'),
+};
+
+export const dynamicPricingApi = {
+  calculate: (data: { origin_country: string; origin_city: string; destination_country: string; destination_city: string; vehicle_type: string; weight_kg: number; distance_km?: number }) =>
+    api.post('/dynamic-pricing/calculate', data),
+  history: (params?: { origin_country?: string; destination_country?: string } & ListParams) =>
+    api.get('/dynamic-pricing/history', { params }),
+  activePrices: () => api.get('/dynamic-pricing/active'),
+};
+
+export const routeOptimizationApi = {
+  optimize: (data: { origin: { lat: number; lng: number; name: string }; destination: { lat: number; lng: number; name: string }; waypoints?: Array<{ lat: number; lng: number; name: string }>; vehicle_type?: string; constraints?: Record<string, unknown> }) =>
+    api.post('/route-optimization/optimize', data),
+  history: (params?: ListParams) => api.get('/route-optimization/history', { params }),
+  get: (id: number) => api.get(`/route-optimization/${id}`),
+};
+
+export const documentOcrApi = {
+  upload: (file: File, documentType: string) => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('document_type', documentType);
+    return api.post('/documents/ocr/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  validate: (id: number) => api.post(`/documents/ocr/${id}/validate`),
+  list: (params?: ListParams) => api.get('/documents/ocr', { params }),
+  get: (id: number) => api.get(`/documents/ocr/${id}`),
+  stats: () => api.get('/documents/ocr/stats'),
+};
+
+// ══════════════════════════════════════════════════════
+// Phase 3 — Blockchain / eCMR
+// ══════════════════════════════════════════════════════
+
+export const ecmrApi = {
+  create: (data: Record<string, unknown>) => api.post('/ecmr', data),
+  list: (params?: ListParams) => api.get('/ecmr', { params }),
+  get: (id: number) => api.get(`/ecmr/${id}`),
+  sign: (id: number, data: { role: 'sender' | 'carrier' | 'consignee'; signature: string }) =>
+    api.post(`/ecmr/${id}/sign`, data),
+  verify: (id: number) => api.get(`/ecmr/${id}/verify`),
+};
+
+export const smartContractApi = {
+  create: (data: Record<string, unknown>) => api.post('/smart-contracts', data),
+  list: (params?: ListParams) => api.get('/smart-contracts', { params }),
+  evaluate: (id: number) => api.post(`/smart-contracts/${id}/evaluate`),
+};
+
+export const digitalIdentityApi = {
+  get: () => api.get('/digital-identity'),
+  verify: () => api.post('/digital-identity/verify'),
+};
+
+// ══════════════════════════════════════════════════════
+// Phase 4 — Fintech / Invoicing / Payments
+// ══════════════════════════════════════════════════════
+
+export const invoiceApi = {
+  list: (params?: { status?: string } & ListParams) => api.get('/invoices', { params }),
+  create: (data: Record<string, unknown>) => api.post('/invoices', data),
+  get: (id: number) => api.get(`/invoices/${id}`),
+  send: (id: number) => api.post(`/invoices/${id}/send`),
+  markPaid: (id: number, data?: { payment_method?: string; amount?: number }) =>
+    api.post(`/invoices/${id}/mark-paid`, data),
+  requestFactoring: (id: number) => api.post(`/invoices/${id}/factoring`),
+  stats: () => api.get('/invoices/stats'),
+};
+
+export const paymentApi = {
+  processStripe: (data: { invoice_id: number; payment_method_id: string; currency?: string }) =>
+    api.post('/payments/stripe', data),
+  processSepa: (data: { invoice_id: number; iban: string; bic?: string; mandate_reference?: string }) =>
+    api.post('/payments/sepa', data),
+  refund: (paymentId: number, data?: { amount?: number; reason?: string }) =>
+    api.post(`/payments/${paymentId}/refund`, data),
+  history: (params?: ListParams) => api.get('/payments/history', { params }),
+  summary: () => api.get('/payments/summary'),
+  exchangeRates: () => api.get('/payments/exchange-rates'),
+};
+
+export const vatApi = {
+  report: (params?: { period?: string }) => api.get('/vat/report', { params }),
+  rates: () => api.get('/vat/rates'),
+  checkReverseCharge: (data: { seller_country: string; buyer_country: string; buyer_vat_number?: string }) =>
+    api.post('/vat/reverse-charge', data),
+};
+
+// ══════════════════════════════════════════════════════
+// Phase 5 — Multi-modal Transport
+// ══════════════════════════════════════════════════════
+
+export const multimodalApi = {
+  search: (data: { origin: string; destination: string; cargo_weight_kg: number; cargo_volume_m3?: number; departure_date?: string; modes?: string[] }) =>
+    api.post('/multimodal/search', data),
+  book: (data: Record<string, unknown>) => api.post('/multimodal/book', data),
+  bookings: (params?: ListParams) => api.get('/multimodal/bookings', { params }),
+  getBooking: (id: number) => api.get(`/multimodal/bookings/${id}`),
+  statistics: () => api.get('/multimodal/statistics'),
+};
+
+export const intermodalApi = {
+  createPlan: (data: { origin: string; destination: string; cargo_weight_kg: number; cargo_volume_m3?: number }) =>
+    api.post('/intermodal/plan', data),
+  plans: (params?: ListParams) => api.get('/intermodal/plans', { params }),
+  getPlan: (id: number) => api.get(`/intermodal/plans/${id}`),
+};
+
+// ══════════════════════════════════════════════════════
+// Phase 6 — Enterprise
+// ══════════════════════════════════════════════════════
+
+export const whiteLabelApi = {
+  get: () => api.get('/white-label'),
+  save: (data: Record<string, unknown>) => api.post('/white-label', data),
+};
+
+export const apiKeysApi = {
+  list: () => api.get('/api-keys'),
+  create: (data: { name: string; permissions?: string[]; rate_limits?: Record<string, number> }) =>
+    api.post('/api-keys', data),
+  revoke: (id: number) => api.delete(`/api-keys/${id}`),
+  usage: () => api.get('/api-keys/usage'),
+};
+
+export const erpApi = {
+  list: () => api.get('/erp'),
+  create: (data: Record<string, unknown>) => api.post('/erp', data),
+  toggle: (id: number) => api.post(`/erp/${id}/toggle`),
+  sync: (id: number) => api.post(`/erp/${id}/sync`),
+};
+
+export const ediApi = {
+  list: (params?: { direction?: string; type?: string } & ListParams) =>
+    api.get('/edi', { params }),
+  send: (data: { message_type: string; format: string; content: string; transport_order_id?: number }) =>
+    api.post('/edi/send', data),
+  stats: () => api.get('/edi/stats'),
+};
+
 export default api;

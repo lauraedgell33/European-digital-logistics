@@ -101,6 +101,14 @@ export default function TabLayout() {
         name="companies"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="driver"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="documents"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

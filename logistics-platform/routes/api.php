@@ -30,6 +30,16 @@ use App\Http\Controllers\Api\InsuranceController;
 use App\Http\Controllers\Api\EscrowController;
 use App\Http\Controllers\Api\DebtCollectionController;
 use App\Http\Controllers\Api\ReturnLoadController;
+use App\Http\Controllers\Api\AiMatchingController;
+use App\Http\Controllers\Api\PredictiveAnalyticsController;
+use App\Http\Controllers\Api\DynamicPricingController;
+use App\Http\Controllers\Api\RouteOptimizationController;
+use App\Http\Controllers\Api\DocumentOcrController;
+use App\Http\Controllers\Api\BlockchainController;
+use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\MultimodalController;
+use App\Http\Controllers\Api\EnterpriseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -289,5 +299,136 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::post('/', [LexiconController::class, 'store']);
         Route::put('/{article}', [LexiconController::class, 'update']);
         Route::delete('/{article}', [LexiconController::class, 'destroy']);
+    });
+
+    // ─── AI Smart Matching ────────────────────────────────────────
+    Route::prefix('ai-matching')->group(function () {
+        Route::post('/match', [AiMatchingController::class, 'smartMatch']);
+        Route::get('/suggestions', [AiMatchingController::class, 'suggestions']);
+        Route::post('/respond/{aiMatchResult}', [AiMatchingController::class, 'respond']);
+        Route::get('/history', [AiMatchingController::class, 'history']);
+    });
+
+    // ─── Predictive Analytics ─────────────────────────────────────
+    Route::prefix('predictions')->group(function () {
+        Route::post('/demand', [PredictiveAnalyticsController::class, 'demandForecast']);
+        Route::post('/pricing', [PredictiveAnalyticsController::class, 'priceForecast']);
+        Route::post('/capacity', [PredictiveAnalyticsController::class, 'capacityForecast']);
+        Route::get('/market', [PredictiveAnalyticsController::class, 'marketAnalytics']);
+    });
+
+    // ─── Dynamic Pricing ─────────────────────────────────────────
+    Route::prefix('dynamic-pricing')->group(function () {
+        Route::post('/calculate', [DynamicPricingController::class, 'calculate']);
+        Route::get('/history', [DynamicPricingController::class, 'history']);
+        Route::get('/active', [DynamicPricingController::class, 'activePrices']);
+    });
+
+    // ─── Route Optimization ───────────────────────────────────────
+    Route::prefix('route-optimization')->group(function () {
+        Route::post('/optimize', [RouteOptimizationController::class, 'optimize']);
+        Route::get('/history', [RouteOptimizationController::class, 'history']);
+        Route::get('/{routeOptimization}', [RouteOptimizationController::class, 'show']);
+    });
+
+    // ─── Document OCR ─────────────────────────────────────────────
+    Route::prefix('documents/ocr')->group(function () {
+        Route::post('/upload', [DocumentOcrController::class, 'upload']);
+        Route::post('/{documentScan}/validate', [DocumentOcrController::class, 'validate']);
+        Route::get('/', [DocumentOcrController::class, 'index']);
+        Route::get('/stats', [DocumentOcrController::class, 'stats']);
+        Route::get('/{documentScan}', [DocumentOcrController::class, 'show']);
+    });
+
+    // ─── Blockchain / eCMR ────────────────────────────────────────
+    Route::prefix('ecmr')->group(function () {
+        Route::post('/', [BlockchainController::class, 'createEcmr']);
+        Route::get('/', [BlockchainController::class, 'listEcmr']);
+        Route::get('/{ecmrDocument}', [BlockchainController::class, 'showEcmr']);
+        Route::post('/{ecmrDocument}/sign', [BlockchainController::class, 'signEcmr']);
+        Route::get('/{ecmrDocument}/verify', [BlockchainController::class, 'verifyEcmr']);
+    });
+
+    Route::prefix('smart-contracts')->group(function () {
+        Route::post('/', [BlockchainController::class, 'createContract']);
+        Route::get('/', [BlockchainController::class, 'listContracts']);
+        Route::post('/{smartContract}/evaluate', [BlockchainController::class, 'evaluateContract']);
+    });
+
+    Route::prefix('digital-identity')->group(function () {
+        Route::get('/', [BlockchainController::class, 'getIdentity']);
+        Route::post('/verify', [BlockchainController::class, 'verifyIdentity']);
+    });
+
+    // ─── Invoicing ────────────────────────────────────────────────
+    Route::prefix('invoices')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index']);
+        Route::post('/', [InvoiceController::class, 'store']);
+        Route::get('/stats', [InvoiceController::class, 'stats']);
+        Route::get('/{invoice}', [InvoiceController::class, 'show']);
+        Route::post('/{invoice}/send', [InvoiceController::class, 'send']);
+        Route::post('/{invoice}/mark-paid', [InvoiceController::class, 'markPaid']);
+        Route::post('/{invoice}/factoring', [InvoiceController::class, 'requestFactoring']);
+    });
+
+    // ─── Payments ─────────────────────────────────────────────────
+    Route::prefix('payments')->group(function () {
+        Route::post('/stripe', [PaymentController::class, 'processStripe']);
+        Route::post('/sepa', [PaymentController::class, 'processSepa']);
+        Route::post('/{paymentTransaction}/refund', [PaymentController::class, 'refund']);
+        Route::get('/history', [PaymentController::class, 'history']);
+        Route::get('/summary', [PaymentController::class, 'summary']);
+        Route::get('/exchange-rates', [PaymentController::class, 'exchangeRates']);
+    });
+
+    // ─── VAT ──────────────────────────────────────────────────────
+    Route::prefix('vat')->group(function () {
+        Route::get('/report', [PaymentController::class, 'vatReport']);
+        Route::get('/rates', [PaymentController::class, 'vatRates']);
+        Route::post('/reverse-charge', [PaymentController::class, 'checkReverseCharge']);
+    });
+
+    // ─── Multimodal Transport ─────────────────────────────────────
+    Route::prefix('multimodal')->group(function () {
+        Route::post('/search', [MultimodalController::class, 'search']);
+        Route::post('/book', [MultimodalController::class, 'book']);
+        Route::get('/bookings', [MultimodalController::class, 'bookings']);
+        Route::get('/bookings/{multimodalBooking}', [MultimodalController::class, 'showBooking']);
+        Route::get('/statistics', [MultimodalController::class, 'statistics']);
+    });
+
+    Route::prefix('intermodal')->group(function () {
+        Route::post('/plan', [MultimodalController::class, 'createPlan']);
+        Route::get('/plans', [MultimodalController::class, 'plans']);
+        Route::get('/plans/{intermodalPlan}', [MultimodalController::class, 'showPlan']);
+    });
+
+    // ─── Enterprise / White Label ─────────────────────────────────
+    Route::prefix('white-label')->group(function () {
+        Route::get('/', [EnterpriseController::class, 'getWhiteLabel']);
+        Route::post('/', [EnterpriseController::class, 'saveWhiteLabel']);
+    });
+
+    // ─── API Marketplace ──────────────────────────────────────────
+    Route::prefix('api-keys')->group(function () {
+        Route::get('/', [EnterpriseController::class, 'listApiKeys']);
+        Route::post('/', [EnterpriseController::class, 'createApiKey']);
+        Route::delete('/{apiKey}', [EnterpriseController::class, 'revokeApiKey']);
+        Route::get('/usage', [EnterpriseController::class, 'apiUsageStats']);
+    });
+
+    // ─── ERP Integrations ─────────────────────────────────────────
+    Route::prefix('erp')->group(function () {
+        Route::get('/', [EnterpriseController::class, 'listIntegrations']);
+        Route::post('/', [EnterpriseController::class, 'createIntegration']);
+        Route::post('/{integration}/toggle', [EnterpriseController::class, 'toggleIntegration']);
+        Route::post('/{integration}/sync', [EnterpriseController::class, 'syncIntegration']);
+    });
+
+    // ─── EDI Messages ─────────────────────────────────────────────
+    Route::prefix('edi')->group(function () {
+        Route::get('/', [EnterpriseController::class, 'listEdiMessages']);
+        Route::post('/send', [EnterpriseController::class, 'sendEdiMessage']);
+        Route::get('/stats', [EnterpriseController::class, 'ediStats']);
     });
 });

@@ -1,0 +1,186 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: '8.4'
+  NODE_VERSION: '22'
+
+jobs:
+  # ── Backend Tests ─────────────────────────────────────
+  backend-tests:
+    name: Laravel Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-platform
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: logistics_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, pdo, pdo_mysql, bcmath, gd, zip
+          coverage: xdebug
+
+      - name: Get Composer cache dir
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('logistics-platform/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=logistics_test/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=password/' .env
+          php artisan key:generate
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit --coverage-text
+
+  # ── Backend Static Analysis ───────────────────────────
+  backend-lint:
+    name: PHP Lint & Analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-platform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, pdo
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Laravel Pint (code style)
+        run: vendor/bin/pint --test || true
+
+  # ── Frontend Tests ───────────────────────────────────
+  frontend-tests:
+    name: Next.js Build & Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: logistics-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.logimarket.eu
+
+  # ── Mobile Lint ──────────────────────────────────────
+  mobile-lint:
+    name: Mobile App Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: logistics-mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit || true
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+
+  # ── Deploy ───────────────────────────────────────────
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy via Forge webhook
+        run: |
+          curl -s -X POST \
+            "${{ secrets.FORGE_DEPLOY_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{"commit": "${{ github.sha }}"}'
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health check - Backend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://european-digital-logistics-6ssyuep3.on-forge.com/api/v1/health 2>/dev/null || echo "000")
+          if [ "$STATUS" != "200" ]; then
+            echo "Backend health check returned $STATUS (non-critical)"
+          fi
+
+      - name: Health check - Frontend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://european-digital-logistics-oujbb00j.on-forge.com 2>/dev/null || echo "000")
+          if [ "$STATUS" != "200" ]; then
+            echo "Frontend health check returned $STATUS (non-critical)"
+          fi

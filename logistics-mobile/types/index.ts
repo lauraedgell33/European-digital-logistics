@@ -413,3 +413,92 @@ export interface PricingInfo {
   price_per_km: number;
   currency: string;
 }
+
+// ── eCMR Document ────────────────────────────────────
+export interface EcmrDocument {
+  id: number;
+  ecmr_number: string;
+  transport_order_id: number;
+  status: 'draft' | 'issued' | 'in_transit' | 'delivered' | 'completed';
+  sender_name: string;
+  sender_address: string;
+  carrier_name: string;
+  carrier_address: string;
+  consignee_name: string;
+  consignee_address: string;
+  goods_description: string;
+  weight: number;
+  packages_count: number;
+  pickup_date: string;
+  delivery_date: string;
+  pickup_location: string;
+  delivery_location: string;
+  sender_signed_at?: string;
+  carrier_signed_at?: string;
+  consignee_signed_at?: string;
+  blockchain_hash?: string;
+  notes?: string;
+  created_at: string;
+}
+
+// ── Scanned Document ─────────────────────────────────
+export interface ScannedDocument {
+  id: number;
+  original_filename: string;
+  document_type: 'cmr' | 'invoice' | 'delivery_note' | 'customs' | 'insurance' | 'other';
+  status: 'processing' | 'completed' | 'failed';
+  extracted_data?: Record<string, any>;
+  confidence_score?: number;
+  validation_result?: { valid: boolean; errors: string[] };
+  created_at: string;
+}
+
+// ── AI Match Result ──────────────────────────────────
+export interface AiMatchResult {
+  id: number;
+  freight_offer_id?: number;
+  vehicle_offer_id?: number;
+  overall_score: number;
+  distance_score: number;
+  capacity_score: number;
+  timing_score: number;
+  reliability_score: number;
+  price_score: number;
+  carbon_score: number;
+  status: 'suggested' | 'accepted' | 'rejected';
+  created_at: string;
+}
+
+// ── Invoice ──────────────────────────────────────────
+export interface MobileInvoice {
+  id: number;
+  invoice_number: string;
+  company_id: number;
+  client_company_id: number;
+  transport_order_id?: number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  subtotal: number;
+  tax_amount: number;
+  total_amount: number;
+  currency: string;
+  issue_date: string;
+  due_date: string;
+  paid_at?: string;
+  created_at: string;
+}
+
+// ── Multimodal Booking ───────────────────────────────
+export interface MultimodalBooking {
+  id: number;
+  booking_reference: string;
+  mode: 'rail' | 'sea' | 'air' | 'barge' | 'intermodal';
+  status: 'pending' | 'confirmed' | 'in_transit' | 'completed' | 'cancelled';
+  origin: string;
+  destination: string;
+  departure_date: string;
+  arrival_date: string;
+  price: number;
+  currency: string;
+  co2_kg: number;
+  created_at: string;
+}
