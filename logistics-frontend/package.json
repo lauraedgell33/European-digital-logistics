@@ -24,7 +24,7 @@
   "dependencies": {
     "@headlessui/react": "^2.0.0",
     "@heroicons/react": "^2.1.0",
-    "@hookform/resolvers": "^3.3.0",
+    "@hookform/resolvers": "^5.2.2",
     "@sentry/nextjs": "^10.40.0",
     "@stripe/react-stripe-js": "^5.6.0",
     "@stripe/stripe-js": "^8.8.0",
