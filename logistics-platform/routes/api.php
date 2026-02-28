@@ -339,7 +339,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     // ─── Document OCR ─────────────────────────────────────────────
     Route::prefix('documents/ocr')->group(function () {
         Route::post('/upload', [DocumentOcrController::class, 'upload']);
-        Route::post('/{documentScan}/validate', [DocumentOcrController::class, 'validate']);
+        Route::post('/{documentScan}/validate', [DocumentOcrController::class, 'validateExtraction']);
         Route::get('/', [DocumentOcrController::class, 'index']);
         Route::get('/stats', [DocumentOcrController::class, 'stats']);
         Route::get('/{documentScan}', [DocumentOcrController::class, 'show']);

@@ -36,7 +36,7 @@ class DocumentOcrController extends Controller
         ], 201);
     }
 
-    public function validate(Request $request, DocumentScan $scan): JsonResponse
+    public function validateExtraction(Request $request, DocumentScan $scan): JsonResponse
     {
         $result = $this->ocrService->validateExtraction($scan);
         return response()->json(['data' => $result]);
