@@ -830,7 +830,7 @@ class AiCopilotController extends Controller
             ],
             'carbon' => [
                 'title' => 'Carbon Footprint',
-                'desc' => 'Calculate CO2 emissions per shipment, track your fleet's environmental impact, and purchase carbon offsets.',
+                'desc' => 'Calculate CO2 emissions per shipment, track your fleet\'s environmental impact, and purchase carbon offsets.',
             ],
             'analytics' => [
                 'title' => 'Analytics & Reporting',
