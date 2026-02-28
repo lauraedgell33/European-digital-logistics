@@ -45,14 +45,23 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Enrich every reported exception with contextual information
         $exceptions->context(function (\Throwable $e) {
-            $context = [
-                'url' => request()?->fullUrl(),
-                'ip'  => request()?->ip(),
-            ];
+            $context = [];
 
-            if ($user = request()?->user()) {
-                $context['user_id']    = $user->id;
-                $context['user_email'] = $user->email;
+            if (app()->runningInConsole()) {
+                return $context;
+            }
+
+            try {
+                $req = request();
+                $context['url'] = $req->fullUrl();
+                $context['ip']  = $req->ip();
+
+                if ($user = $req->user()) {
+                    $context['user_id']    = $user->id;
+                    $context['user_email'] = $user->email;
+                }
+            } catch (\Throwable) {
+                // request not available
             }
 
             return $context;
