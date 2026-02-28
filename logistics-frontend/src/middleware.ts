@@ -32,6 +32,11 @@ const PUBLIC_PREFIXES = [
   '/images',
   '/icons',
   '/manifest.json',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/opengraph-image',
+  '/twitter-image',
+  '/apple-touch-icon',
 ];
 
 export function middleware(request: NextRequest) {
