@@ -39,12 +39,14 @@ export function Card({ children, className, hover = false, flat = false, interac
 interface CardHeaderProps {
   title?: string;
   description?: string;
+  subtitle?: string;
   action?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
 }
 
-export function CardHeader({ title, description, action, className, children }: CardHeaderProps) {
+export function CardHeader({ title, description, subtitle, action, className, children }: CardHeaderProps) {
+  const desc = description || subtitle;
   if (children) {
     return <div className={cn('mb-4', className)}>{children}</div>;
   }
@@ -57,12 +59,12 @@ export function CardHeader({ title, description, action, className, children }: 
         >
           {title}
         </h3>
-        {description && (
+        {desc && (
           <p
             className="mt-1 text-[13px]"
             style={{ color: 'var(--ds-gray-900)' }}
           >
-            {description}
+            {desc}
           </p>
         )}
       </div>
