@@ -11,7 +11,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class AiInsightsWidget extends StatsOverviewWidget
 {
-    protected static ?string $heading = 'AI & Automation';
+    protected ?string $heading = 'AI & Automation';
     protected static ?int $sort = 7;
 
     protected function getStats(): array
