@@ -545,6 +545,13 @@ class DrivingBanSeeder extends Seeder
                 unset($ban['fine_amount']);
             }
 
+            // Fix short dates (MM-DD) to full dates (YYYY-MM-DD)
+            foreach (['start_date', 'end_date'] as $dateField) {
+                if (isset($ban[$dateField]) && strlen($ban[$dateField]) === 5) {
+                    $ban[$dateField] = '2026-' . $ban[$dateField];
+                }
+            }
+
             DrivingBan::updateOrCreate(
                 [
                     'country_code' => $ban['country_code'],
