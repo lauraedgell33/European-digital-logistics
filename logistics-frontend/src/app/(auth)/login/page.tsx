@@ -72,7 +72,7 @@ export default function LoginPage() {
             boxShadow: 'var(--ds-shadow-border-small)',
           }}
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form id="auth-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Sign in form">
             {serverError && (
               <div
                 className="rounded-lg p-3 text-[13px]"

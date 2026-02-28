@@ -1,0 +1,27 @@
+# LogiMarket — European Digital Logistics Marketplace
+# https://european-digital-logistics-oujbb00j.on-forge.com
+
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+
+# Disallow authenticated/dynamic areas
+Disallow: /dashboard
+Disallow: /freight
+Disallow: /vehicles
+Disallow: /orders
+Disallow: /tenders
+Disallow: /tracking
+Disallow: /messages
+Disallow: /analytics
+Disallow: /matching
+Disallow: /networks
+Disallow: /companies
+Disallow: /settings
+Disallow: /api/
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://european-digital-logistics-oujbb00j.on-forge.com/sitemap.xml

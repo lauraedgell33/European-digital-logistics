@@ -90,7 +90,7 @@ export default function RegisterPage() {
       className="min-h-screen flex items-center justify-center px-4 py-12"
       style={{ background: 'var(--ds-background-200)' }}
     >
-      <div className="w-full max-w-[480px]">
+      <div className="w-full max-w-[480px]" id="auth-form">
         {/* Logo */}
         <div className="text-center mb-8">
           <div
@@ -118,7 +118,7 @@ export default function RegisterPage() {
             boxShadow: 'var(--ds-shadow-border-small)',
           }}
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Registration form">
             {serverError && (
               <div
                 className="rounded-lg p-3 text-[13px]"

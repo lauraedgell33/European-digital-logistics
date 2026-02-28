@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Reset password form">
               {serverError && (
                 <div className="rounded-lg p-3 text-[13px]" style={{ background: 'var(--ds-red-200)', color: 'var(--ds-red-900)' }}>
                   {serverError}
