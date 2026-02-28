@@ -179,6 +179,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::post('/notifications/{id}/read', [NotificationController::class, 'read']);
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 
+    // Push Notifications
+    Route::post('/notifications/push-subscribe', [\App\Http\Controllers\Api\PushNotificationController::class, 'subscribe']);
+    Route::post('/notifications/push-unsubscribe', [\App\Http\Controllers\Api\PushNotificationController::class, 'unsubscribe']);
+    Route::post('/notifications/push-test', [\App\Http\Controllers\Api\PushNotificationController::class, 'sendTest']);
+
     // Messaging
     Route::get('/messages/conversations', [MessageController::class, 'conversations']);
     Route::post('/messages/conversations', [MessageController::class, 'startConversation']);

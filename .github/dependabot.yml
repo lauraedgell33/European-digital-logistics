@@ -1,0 +1,124 @@
+# Dependabot configuration for European Digital Logistics
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Backend — PHP / Composer
+  - package-ecosystem: "composer"
+    directory: "/logistics-platform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "lauraedgell33"
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "composer"
+    groups:
+      laravel:
+        patterns:
+          - "laravel/*"
+          - "illuminate/*"
+      filament:
+        patterns:
+          - "filament/*"
+      spatie:
+        patterns:
+          - "spatie/*"
+      testing:
+        patterns:
+          - "phpunit/*"
+          - "mockery/*"
+          - "fakerphp/*"
+
+  # Frontend — Next.js / npm
+  - package-ecosystem: "npm"
+    directory: "/logistics-frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "lauraedgell33"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "npm(frontend)"
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      next:
+        patterns:
+          - "next"
+          - "@next/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      testing:
+        patterns:
+          - "jest"
+          - "@testing-library/*"
+          - "@playwright/*"
+      sentry:
+        patterns:
+          - "@sentry/*"
+      linting:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "typescript"
+
+  # Mobile — Expo / npm
+  - package-ecosystem: "npm"
+    directory: "/logistics-mobile"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "lauraedgell33"
+    labels:
+      - "dependencies"
+      - "mobile"
+    commit-message:
+      prefix: "npm(mobile)"
+    groups:
+      expo:
+        patterns:
+          - "expo"
+          - "expo-*"
+          - "@expo/*"
+      react-native:
+        patterns:
+          - "react-native*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "docker"

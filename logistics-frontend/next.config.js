@@ -1,5 +1,10 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
+// Bundle Analyzer — run with ANALYZE=true npm run build
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -85,7 +90,7 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(nextConfig, {
+module.exports = withBundleAnalyzer(withSentryConfig(nextConfig, {
   // Sentry webpack plugin options
   silent: true,
   org: process.env.SENTRY_ORG || '',
@@ -100,4 +105,4 @@ module.exports = withSentryConfig(nextConfig, {
 
   // Automatically tree-shake Sentry logger statements
   disableLogger: true,
-});
+}));

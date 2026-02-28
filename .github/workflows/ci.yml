@@ -168,6 +168,62 @@ jobs:
           retention-days: 7
 
   # ──────────────────────────────────────────────────────────
+  # E2E — Playwright (runs after frontend build)
+  # ──────────────────────────────────────────────────────────
+  e2e:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [frontend]
+    defaults:
+      run:
+        working-directory: logistics-frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: logistics-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: logistics-frontend/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: logistics-frontend/test-results/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────
   # Mobile — Expo (Node 20)
   # ──────────────────────────────────────────────────────────
   mobile:
