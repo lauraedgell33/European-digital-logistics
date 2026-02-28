@@ -4,10 +4,10 @@ const BASE_URL = process.env.BASE_URL || 'https://european-digital-logistics-ouj
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: 1,
+  workers: 1,
   reporter: [
     ['html', { open: 'never' }],
     ['json', { outputFile: 'e2e/results/results.json' }],
