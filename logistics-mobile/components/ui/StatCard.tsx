@@ -23,7 +23,7 @@ export default function StatCard({
   style,
 }: StatCardProps) {
   return (
-    <View style={[styles.card, style]}>
+    <View style={[styles.card, style]} accessibilityRole="text" accessibilityLabel={`${title}: ${value}${suffix ? ' ' + suffix : ''}`}>
       <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
         <Ionicons name={icon} size={22} color={color} />
       </View>

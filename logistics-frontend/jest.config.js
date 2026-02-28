@@ -13,6 +13,7 @@ const customJestConfig = {
   },
   testMatch: [
     '<rootDir>/src/__tests__/**/*.test.{ts,tsx}',
+    '<rootDir>/src/components/**/__tests__/**/*.test.{ts,tsx}',
   ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

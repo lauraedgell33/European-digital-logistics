@@ -17,7 +17,7 @@ interface TabBarProps {
 
 export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="tablist">
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {tabs.map((tab) => (
           <TouchableOpacity
@@ -25,6 +25,9 @@ export default function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
             style={[styles.tab, activeTab === tab.key && styles.activeTab]}
             onPress={() => onTabChange(tab.key)}
             activeOpacity={0.7}
+            accessibilityRole="tab"
+            accessibilityLabel={tab.label}
+            accessibilityState={{ selected: activeTab === tab.key }}
           >
             <Text style={[styles.tabText, activeTab === tab.key && styles.activeTabText]}>
               {tab.label}

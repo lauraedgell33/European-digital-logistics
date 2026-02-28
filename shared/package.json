@@ -1,0 +1,11 @@
+{
+  "name": "@logimarket/design-tokens",
+  "version": "1.0.0",
+  "description": "LogiMarket shared design tokens — Geist/Vercel-inspired",
+  "scripts": {
+    "generate": "node generate-css.js && node generate-rn.js && node generate-filament.js",
+    "generate:css": "node generate-css.js",
+    "generate:rn": "node generate-rn.js",
+    "generate:filament": "node generate-filament.js"
+  }
+}

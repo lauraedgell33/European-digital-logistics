@@ -31,6 +31,8 @@ const Input = forwardRef<TextInput, InputProps>(
             ref={ref}
             style={[styles.input, leftElement ? styles.inputWithIcon : undefined, rightIcon ? styles.inputWithRightIcon : undefined, style]}
             placeholderTextColor={Colors.textTertiary}
+            accessibilityLabel={label || props.placeholder}
+            accessibilityHint={error ? `Error: ${error}` : undefined}
             {...props}
           />
           {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}

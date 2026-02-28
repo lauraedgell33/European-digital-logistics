@@ -16,7 +16,7 @@ export interface EmptyStateProps {
 export default function EmptyState({ icon = 'cube-outline', title, description, actionLabel, actionTitle, onAction }: EmptyStateProps) {
   const btnLabel = actionLabel || actionTitle;
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="alert" accessibilityLabel={`${title}${description ? '. ' + description : ''}`}>
       <View style={styles.iconContainer}>
         <Ionicons name={icon} size={48} color={Colors.textTertiary} />
       </View>

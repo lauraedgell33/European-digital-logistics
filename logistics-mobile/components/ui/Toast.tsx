@@ -27,6 +27,9 @@ export default function Toast() {
             style={[styles.toast, { backgroundColor: config.bg, borderLeftColor: config.border }]}
             onPress={() => removeNotification(n.id)}
             activeOpacity={0.9}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+            accessibilityLabel={`${n.title || ''} ${n.message || ''}`}
           >
             <Ionicons name={config.icon} size={22} color={config.color} />
             <View style={styles.content}>

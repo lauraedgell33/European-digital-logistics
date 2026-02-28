@@ -1,55 +1,111 @@
+// Geist Design System — Shared Color Tokens for React Native
+// Synchronized with frontend's Geist/Vercel-inspired design system
+
+export const GeistColors = {
+  // Primary Blue Scale
+  blue100: '#f0f7ff',
+  blue200: '#e6f0ff',
+  blue300: '#d4e4ff',
+  blue400: '#b8d4fe',
+  blue500: '#7ab8ff',
+  blue600: '#52a8ff',
+  blue700: '#0070f3',  // PRIMARY
+  blue800: '#0060d1',
+  blue900: '#0050b3',
+  blue1000: '#002966',
+
+  // Gray Scale
+  gray100: '#f2f2f2',
+  gray200: '#ebebeb',
+  gray300: '#e6e6e6',
+  gray400: '#ebebeb',
+  gray500: '#c9c9c9',
+  gray600: '#a8a8a8',
+  gray700: '#8f8f8f',
+  gray800: '#7d7d7d',
+  gray900: '#666666',
+  gray1000: '#171717',
+
+  // Red Scale
+  red100: '#fff5f5',
+  red200: '#ffe0e0',
+  red400: '#ffbdbd',
+  red600: '#ff6166',
+  red700: '#e5484d',
+  red900: '#cd2b31',
+
+  // Amber Scale
+  amber100: '#fff8e6',
+  amber200: '#ffeecc',
+  amber400: '#ffd580',
+  amber600: '#e6a117',
+  amber700: '#f5a623',
+  amber900: '#a35200',
+
+  // Green Scale
+  green100: '#eef9f0',
+  green200: '#dff3e3',
+  green400: '#b8e5c0',
+  green600: '#5fba68',
+  green700: '#45a557',
+  green900: '#297a32',
+};
+
 export const Colors = {
-  primary: '#1e40af',
-  primaryLight: '#3b82f6',
-  primaryDark: '#1e3a8a',
-  primaryBg: '#eff6ff',
+  // Primary
+  primary: GeistColors.blue700,       // #0070f3
+  primaryLight: GeistColors.blue500,
+  primaryDark: GeistColors.blue900,
+  primaryBg: GeistColors.blue100,
 
-  secondary: '#6366f1',
-  secondaryLight: '#818cf8',
+  // Secondary (purple accent)
+  secondary: '#6c63ff',
+  secondaryLight: '#8b84ff',
 
-  success: '#10b981',
-  successLight: '#d1fae5',
-  successDark: '#065f46',
+  // Status
+  success: GeistColors.green700,      // #45a557
+  successLight: GeistColors.green100,
+  successDark: GeistColors.green900,
 
-  warning: '#f59e0b',
-  warningLight: '#fef3c7',
-  warningDark: '#92400e',
+  warning: GeistColors.amber700,      // #f5a623
+  warningLight: GeistColors.amber100,
+  warningDark: GeistColors.amber900,
 
-  danger: '#ef4444',
-  dangerLight: '#fee2e2',
-  dangerDark: '#991b1b',
+  danger: GeistColors.red700,         // #e5484d
+  dangerLight: GeistColors.red100,
+  dangerDark: GeistColors.red900,
 
-  info: '#06b6d4',
-  infoLight: '#cffafe',
-  infoDark: '#155e75',
-  infoBg: '#ecfeff',
+  info: GeistColors.blue600,
+  infoLight: GeistColors.blue100,
+  infoDark: GeistColors.blue900,
+  infoBg: GeistColors.blue100,
 
-  // Neutrals
+  // Neutrals — Geist
   white: '#ffffff',
   card: '#ffffff',
-  neutralLight: '#f1f5f9',
-  background: '#f8fafc',
+  neutralLight: GeistColors.gray100,
+  background: '#fafafa',
   surface: '#ffffff',
-  surfaceSecondary: '#f1f5f9',
-  border: '#e2e8f0',
-  borderLight: '#f1f5f9',
-  divider: '#e2e8f0',
+  surfaceSecondary: GeistColors.gray100,
+  border: GeistColors.gray200,
+  borderLight: GeistColors.gray100,
+  divider: GeistColors.gray200,
 
-  // Text
-  text: '#0f172a',
-  textSecondary: '#475569',
-  textTertiary: '#94a3b8',
+  // Text — Geist
+  text: GeistColors.gray1000,         // #171717
+  textSecondary: GeistColors.gray800, // #7d7d7d
+  textTertiary: GeistColors.gray600,  // #a8a8a8
   textInverse: '#ffffff',
-  textLink: '#2563eb',
+  textLink: GeistColors.blue700,
 
-  // Status colors
-  statusActive: '#10b981',
-  statusPending: '#f59e0b',
-  statusInTransit: '#3b82f6',
-  statusCompleted: '#10b981',
-  statusCancelled: '#ef4444',
-  statusDraft: '#94a3b8',
-  statusRejected: '#ef4444',
+  // Status Colors (for badges)
+  statusActive: GeistColors.green700,
+  statusPending: GeistColors.amber700,
+  statusInTransit: GeistColors.blue700,
+  statusCompleted: GeistColors.green700,
+  statusCancelled: GeistColors.red700,
+  statusDraft: GeistColors.gray600,
+  statusRejected: GeistColors.red700,
 
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -123,9 +179,9 @@ export const StatusColors: Record<string, { bg: string; text: string; dot: strin
   pending: { bg: Colors.warningLight, text: Colors.warningDark, dot: Colors.warning },
   draft: { bg: Colors.surfaceSecondary, text: Colors.textSecondary, dot: Colors.textTertiary },
   accepted: { bg: Colors.primaryBg, text: Colors.primary, dot: Colors.primaryLight },
-  in_transit: { bg: Colors.infoLight, text: Colors.infoDark, dot: Colors.info },
-  picked_up: { bg: Colors.infoLight, text: Colors.infoDark, dot: Colors.info },
-  pickup_scheduled: { bg: Colors.infoLight, text: Colors.infoDark, dot: Colors.info },
+  in_transit: { bg: Colors.infoBg, text: Colors.infoDark, dot: Colors.info },
+  picked_up: { bg: Colors.infoBg, text: Colors.infoDark, dot: Colors.info },
+  pickup_scheduled: { bg: Colors.infoBg, text: Colors.infoDark, dot: Colors.info },
   delivered: { bg: Colors.successLight, text: Colors.successDark, dot: Colors.success },
   completed: { bg: Colors.successLight, text: Colors.successDark, dot: Colors.success },
   cancelled: { bg: Colors.dangerLight, text: Colors.dangerDark, dot: Colors.danger },
@@ -137,7 +193,7 @@ export const StatusColors: Record<string, { bg: string; text: string; dot: strin
   unavailable: { bg: Colors.surfaceSecondary, text: Colors.textSecondary, dot: Colors.textTertiary },
   waiting_pickup: { bg: Colors.warningLight, text: Colors.warningDark, dot: Colors.warning },
   at_customs: { bg: Colors.warningLight, text: Colors.warningDark, dot: Colors.warning },
-  out_for_delivery: { bg: Colors.infoLight, text: Colors.infoDark, dot: Colors.info },
+  out_for_delivery: { bg: Colors.infoBg, text: Colors.infoDark, dot: Colors.info },
   delayed: { bg: Colors.dangerLight, text: Colors.dangerDark, dot: Colors.danger },
   exception: { bg: Colors.dangerLight, text: Colors.dangerDark, dot: Colors.danger },
   open: { bg: Colors.successLight, text: Colors.successDark, dot: Colors.success },

@@ -19,7 +19,7 @@ export default function Badge({ label, status, variant, size = 'sm', showDot = t
   };
 
   return (
-    <View style={[styles.badge, { backgroundColor: colors.bg }, size === 'md' && styles.badgeMd]}>
+    <View style={[styles.badge, { backgroundColor: colors.bg }, size === 'md' && styles.badgeMd]} accessibilityRole="text" accessibilityLabel={`Status: ${label}`}>
       {showDot && <View style={[styles.dot, { backgroundColor: colors.dot }]} />}
       <Text style={[styles.text, { color: colors.text }, size === 'md' && styles.textMd]}>
         {label}

@@ -8,7 +8,7 @@ interface LoadingScreenProps {
 
 export default function LoadingScreen({ message }: LoadingScreenProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message || 'Loading'}>
       <ActivityIndicator size="large" color={Colors.primary} />
       {message && <Text style={styles.text}>{message}</Text>}
     </View>

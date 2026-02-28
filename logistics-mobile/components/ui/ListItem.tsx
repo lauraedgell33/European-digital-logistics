@@ -42,6 +42,9 @@ export default function ListItem({
     <Wrapper
       style={[styles.container, borderBottom && styles.border, style]}
       {...wrapperProps}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={title}
+      accessibilityHint={onPress ? 'Double tap to open' : undefined}
     >
       {leftIcon && (
         <View style={[styles.iconContainer, { backgroundColor: leftIconBg }]}>

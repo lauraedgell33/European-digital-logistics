@@ -28,6 +28,8 @@ export default function Card({
     <Wrapper
       style={[styles.card, noPadding ? styles.noPadding : styles.withPadding, style]}
       {...wrapperProps}
+      accessibilityRole={onPress ? 'button' : 'summary'}
+      accessibilityLabel={title}
     >
       {(title || headerRight) && (
         <View style={[styles.header, noPadding && { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg }]}>

@@ -1,57 +1,65 @@
 import { useColorScheme } from 'react-native';
 
+/**
+ * Geist Design System — Light & Dark Theme Colors
+ * Synchronized with frontend's Geist/Vercel-inspired design system
+ */
+
 export const LightThemeColors = {
-  primary: '#1e40af',
-  primaryLight: '#3b82f6',
-  primaryDark: '#1e3a8a',
-  primaryBg: '#eff6ff',
+  // Primary — Geist Blue
+  primary: '#0070f3',
+  primaryLight: '#7ab8ff',
+  primaryDark: '#0050b3',
+  primaryBg: '#f0f7ff',
 
-  secondary: '#6366f1',
-  secondaryLight: '#818cf8',
+  // Secondary — purple accent
+  secondary: '#6c63ff',
+  secondaryLight: '#8b84ff',
 
-  success: '#10b981',
-  successLight: '#d1fae5',
-  successDark: '#065f46',
+  // Status — Geist
+  success: '#45a557',
+  successLight: '#eef9f0',
+  successDark: '#297a32',
 
-  warning: '#f59e0b',
-  warningLight: '#fef3c7',
-  warningDark: '#92400e',
+  warning: '#f5a623',
+  warningLight: '#fff8e6',
+  warningDark: '#a35200',
 
-  danger: '#ef4444',
-  dangerLight: '#fee2e2',
-  dangerDark: '#991b1b',
+  danger: '#e5484d',
+  dangerLight: '#fff5f5',
+  dangerDark: '#cd2b31',
 
-  info: '#06b6d4',
-  infoLight: '#cffafe',
-  infoDark: '#155e75',
-  infoBg: '#ecfeff',
+  info: '#52a8ff',
+  infoLight: '#f0f7ff',
+  infoDark: '#0050b3',
+  infoBg: '#f0f7ff',
 
-  // Surfaces
+  // Surfaces — Geist
   white: '#ffffff',
   card: '#ffffff',
-  background: '#f8fafc',
+  background: '#fafafa',
   surface: '#ffffff',
-  surfaceSecondary: '#f1f5f9',
-  neutralLight: '#f1f5f9',
-  border: '#e2e8f0',
-  borderLight: '#f1f5f9',
-  divider: '#e2e8f0',
+  surfaceSecondary: '#f2f2f2',
+  neutralLight: '#f2f2f2',
+  border: '#ebebeb',
+  borderLight: '#f2f2f2',
+  divider: '#ebebeb',
 
-  // Text
-  text: '#0f172a',
-  textSecondary: '#475569',
-  textTertiary: '#94a3b8',
+  // Text — Geist
+  text: '#171717',
+  textSecondary: '#7d7d7d',
+  textTertiary: '#a8a8a8',
   textInverse: '#ffffff',
-  textLink: '#2563eb',
+  textLink: '#0070f3',
 
-  // Status
-  statusActive: '#10b981',
-  statusPending: '#f59e0b',
-  statusInTransit: '#3b82f6',
-  statusCompleted: '#10b981',
-  statusCancelled: '#ef4444',
-  statusDraft: '#94a3b8',
-  statusRejected: '#ef4444',
+  // Status — Geist
+  statusActive: '#45a557',
+  statusPending: '#f5a623',
+  statusInTransit: '#0070f3',
+  statusCompleted: '#45a557',
+  statusCancelled: '#e5484d',
+  statusDraft: '#a8a8a8',
+  statusRejected: '#e5484d',
 
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -59,57 +67,60 @@ export const LightThemeColors = {
 };
 
 export const DarkThemeColors = {
-  primary: '#3b82f6',
-  primaryLight: '#60a5fa',
-  primaryDark: '#1e40af',
-  primaryBg: '#1e293b',
+  // Primary — Geist Blue bright
+  primary: '#3291ff',
+  primaryLight: '#52a8ff',
+  primaryDark: '#0070f3',
+  primaryBg: '#0d1f3c',
 
-  secondary: '#818cf8',
-  secondaryLight: '#a5b4fc',
+  // Secondary
+  secondary: '#8b84ff',
+  secondaryLight: '#a99eff',
 
-  success: '#34d399',
-  successLight: '#064e3b',
-  successDark: '#6ee7b7',
+  // Status — Geist dark variants
+  success: '#5fba68',
+  successLight: '#0f2e14',
+  successDark: '#b8e5c0',
 
-  warning: '#fbbf24',
-  warningLight: '#78350f',
-  warningDark: '#fde68a',
+  warning: '#ffd580',
+  warningLight: '#2e1f00',
+  warningDark: '#ffeecc',
 
-  danger: '#f87171',
-  dangerLight: '#7f1d1d',
-  dangerDark: '#fca5a5',
+  danger: '#ff6166',
+  dangerLight: '#3d0d0f',
+  dangerDark: '#ffbdbd',
 
-  info: '#22d3ee',
-  infoLight: '#164e63',
-  infoDark: '#67e8f9',
-  infoBg: '#0c4a6e',
+  info: '#7ab8ff',
+  infoLight: '#0d1f3c',
+  infoDark: '#d4e4ff',
+  infoBg: '#0d1f3c',
 
-  // Surfaces
-  white: '#1e293b',
-  card: '#1e293b',
-  background: '#0f172a',
-  surface: '#1e293b',
-  surfaceSecondary: '#334155',
-  neutralLight: '#334155',
-  border: '#475569',
-  borderLight: '#334155',
-  divider: '#475569',
+  // Surfaces — Geist dark
+  white: '#1a1a1a',
+  card: '#1a1a1a',
+  background: '#0a0a0a',
+  surface: '#1a1a1a',
+  surfaceSecondary: '#2e2e2e',
+  neutralLight: '#2e2e2e',
+  border: '#333333',
+  borderLight: '#2e2e2e',
+  divider: '#333333',
 
-  // Text
-  text: '#f1f5f9',
-  textSecondary: '#94a3b8',
-  textTertiary: '#64748b',
-  textInverse: '#0f172a',
-  textLink: '#60a5fa',
+  // Text — Geist dark
+  text: '#ededed',
+  textSecondary: '#a8a8a8',
+  textTertiary: '#666666',
+  textInverse: '#171717',
+  textLink: '#3291ff',
 
-  // Status
-  statusActive: '#34d399',
-  statusPending: '#fbbf24',
-  statusInTransit: '#60a5fa',
-  statusCompleted: '#34d399',
-  statusCancelled: '#f87171',
-  statusDraft: '#64748b',
-  statusRejected: '#f87171',
+  // Status — Geist dark
+  statusActive: '#5fba68',
+  statusPending: '#ffd580',
+  statusInTransit: '#3291ff',
+  statusCompleted: '#5fba68',
+  statusCancelled: '#ff6166',
+  statusDraft: '#666666',
+  statusRejected: '#ff6166',
 
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.7)',
