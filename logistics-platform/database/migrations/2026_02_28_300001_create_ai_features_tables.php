@@ -79,7 +79,7 @@ return new class extends Migration
             $table->timestamp('valid_until');
             $table->string('currency', 3)->default('EUR');
             $table->timestamps();
-            $table->index(['origin_country', 'destination_country', 'valid_from']);
+            $table->index(['origin_country', 'destination_country', 'valid_from'], 'dp_origin_dest_valid_idx');
         });
 
         // Route optimizations — AI-optimized routes
