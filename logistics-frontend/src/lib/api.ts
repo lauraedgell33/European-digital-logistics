@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { removeAuthCookie } from '@/lib/cookies';
+import { tokenStorage } from '@/lib/tokenStorage';
 import type {
   ListParams,
   FreightSearchParams,
@@ -38,7 +39,7 @@ export const api = axios.create({
 // Request interceptor - attach auth token
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('auth_token');
+    const token = tokenStorage.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -55,7 +56,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
+        tokenStorage.removeToken();
         removeAuthCookie();
         window.location.href = '/login';
       }

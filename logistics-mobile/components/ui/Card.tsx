@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, StyleProp } from 'react-native';
 import { Colors, BorderRadius, Spacing, Shadow, FontSize, FontWeight } from '@/constants/theme';
 
 interface CardProps {
@@ -7,7 +7,7 @@ interface CardProps {
   title?: string;
   subtitle?: string;
   onPress?: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   headerRight?: React.ReactNode;
   noPadding?: boolean;
 }

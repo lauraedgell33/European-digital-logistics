@@ -57,7 +57,10 @@ export function middleware(request: NextRequest) {
 
   if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    // Preserve the full URL (path + query params) so the user returns
+    // to the exact page after login.
+    const callbackUrl = pathname + (request.nextUrl.search || '');
+    loginUrl.searchParams.set('redirect', callbackUrl);
     return NextResponse.redirect(loginUrl);
   }
 

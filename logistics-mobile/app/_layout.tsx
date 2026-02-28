@@ -16,6 +16,11 @@ import {
   setupNotificationListeners,
 } from '@/lib/notifications';
 import { useWebSocket } from '@/lib/websocket';
+import { initSentry } from '@/lib/sentry';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+
+// Initialize Sentry as early as possible
+initSentry();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +50,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
+      <ThemeProvider>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
@@ -65,6 +71,7 @@ export default function RootLayout() {
           </ErrorBoundary>
         </QueryClientProvider>
       </SafeAreaProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

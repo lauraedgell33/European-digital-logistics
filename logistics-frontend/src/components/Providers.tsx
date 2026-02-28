@@ -17,8 +17,10 @@ const CommandPalette = dynamic(() => import('@/components/ui/CommandPalette'), {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30000,
-      retry: 1,
+      staleTime: 60000, // 60s — logistics data doesn't change rapidly
+      retry: 3, // mobile/logistics users have intermittent connectivity
+      retryDelay: (attemptIndex: number) =>
+        Math.min(1000 * 2 ** attemptIndex, 30000), // exponential backoff
       refetchOnWindowFocus: false,
     },
   },

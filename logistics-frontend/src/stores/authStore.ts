@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { User } from '@/types';
 import { authApi } from '@/lib/api';
 import { setAuthCookie, removeAuthCookie } from '@/lib/cookies';
+import { tokenStorage } from '@/lib/tokenStorage';
 
 interface AuthState {
   user: User | null;
@@ -43,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await authApi.login({ email, password, recaptcha_token: recaptchaToken });
           const { user, token } = response.data;
           set({ user, token, isAuthenticated: true, isLoading: false });
-          localStorage.setItem('auth_token', token);
+          tokenStorage.setToken(token);
           setAuthCookie(token);
         } catch (error) {
           set({ isLoading: false });
@@ -57,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await authApi.register(data);
           const { user, token } = response.data;
           set({ user, token, isAuthenticated: true, isLoading: false });
-          localStorage.setItem('auth_token', token);
+          tokenStorage.setToken(token);
           setAuthCookie(token);
         } catch (error) {
           set({ isLoading: false });
@@ -71,7 +72,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (e) {
           // ignore errors on logout
         }
-        localStorage.removeItem('auth_token');
+        tokenStorage.removeToken();
         removeAuthCookie();
         set({ user: null, token: null, isAuthenticated: false });
       },
@@ -82,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
           set({ user: response.data.user || response.data.data || response.data, isAuthenticated: true });
         } catch {
           set({ user: null, token: null, isAuthenticated: false });
-          localStorage.removeItem('auth_token');
+          tokenStorage.removeToken();
           removeAuthCookie();
         }
       },

@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiting
+    |--------------------------------------------------------------------------
+    */
+
+    'rate_limit_login' => (int) env('RATE_LIMIT_LOGIN', 5),
+    'rate_limit_api_authenticated' => (int) env('RATE_LIMIT_API_AUTHENTICATED', 60),
+    'rate_limit_api_guest' => (int) env('RATE_LIMIT_API_GUEST', 30),
+
 ];

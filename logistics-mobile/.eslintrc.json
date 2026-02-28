@@ -1,0 +1,12 @@
+{
+  "extends": ["expo", "prettier"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "prefer-const": "error",
+    "no-var": "error",
+    "eqeqeq": ["error", "always"]
+  },
+  "ignorePatterns": ["node_modules/", ".expo/", "dist/"]
+}

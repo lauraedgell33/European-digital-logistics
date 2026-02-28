@@ -1,0 +1,7 @@
+{
+  "logistics-frontend/**/*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "logistics-frontend/**/*.{css,json,md}": ["prettier --write"],
+  "logistics-mobile/**/*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "logistics-mobile/**/*.{css,json,md}": ["prettier --write"],
+  "logistics-platform/**/*.php": ["./logistics-platform/vendor/bin/pint"]
+}

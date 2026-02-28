@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MultimodalController;
 use App\Http\Controllers\Api\EnterpriseController;
+use App\Http\Controllers\Api\TwoFactorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,7 +56,8 @@ Route::get('/health/detailed', [HealthController::class, 'detailed']);
 Route::prefix('v1')->group(function () {
 
     // Authentication (login-specific rate limit)
-    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1');
     Route::post('/auth/login', [AuthController::class, 'login'])
         ->middleware('rate.limit:login');
     Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])
@@ -105,6 +107,21 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     // Broadcasting auth (for WebSocket channel authorization)
     Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
         return \Illuminate\Support\Facades\Broadcast::auth($request);
+    });
+
+    // Email Verification
+    Route::post('/auth/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware(['signed'])
+        ->name('verification.verify');
+    Route::post('/auth/email/resend', [AuthController::class, 'resendVerification'])
+        ->middleware(['throttle:6,1'])
+        ->name('verification.send');
+
+    // Two-Factor Authentication
+    Route::prefix('auth/2fa')->group(function () {
+        Route::post('/enable', [TwoFactorController::class, 'enable']);
+        Route::post('/verify', [TwoFactorController::class, 'verify']);
+        Route::post('/disable', [TwoFactorController::class, 'disable']);
     });
 
     // Auth

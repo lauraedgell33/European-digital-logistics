@@ -1,10 +1,16 @@
-// LogiMarket Service Worker v1.0
+// LogiMarket Service Worker v2.0
 // Handles caching, offline support, and push notifications
+//
+// Cache versioning: bump CACHE_VERSION on each deploy so that
+// the activate handler garbage-collects stale caches.
 
-const CACHE_NAME = 'logimarket-v1';
-const STATIC_CACHE = 'logimarket-static-v1';
-const DYNAMIC_CACHE = 'logimarket-dynamic-v1';
-const API_CACHE = 'logimarket-api-v1';
+const CACHE_VERSION = 'logimarket-v2-20260228';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
+const API_CACHE = `${CACHE_VERSION}-api`;
+
+// All current cache names — used during activation to purge old ones
+const CURRENT_CACHES = [STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
 
 // Static assets to pre-cache
 const PRECACHE_URLS = [
@@ -28,15 +34,15 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event — clean up old caches
+// Activate event — clean up old / stale caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== API_CACHE)
+          .filter((name) => !CURRENT_CACHES.includes(name))
           .map((name) => {
-            console.log('[SW] Removing old cache:', name);
+            console.log('[SW] Purging outdated cache:', name);
             return caches.delete(name);
           })
       );

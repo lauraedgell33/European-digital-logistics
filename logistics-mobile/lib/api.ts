@@ -1,6 +1,28 @@
 import axios, { AxiosInstance } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import type {
+  RegisterData,
+  UpdateProfileData,
+  ChangePasswordData,
+  FreightFilters,
+  FreightCreateData,
+  VehicleFilters,
+  VehicleCreateData,
+  OrderFilters,
+  OrderCreateData,
+  OrderStatusUpdate,
+  TenderCreateData,
+  TenderBidData,
+  TrackingPositionUpdate,
+  TrackingEventData,
+  NetworkCreateData,
+  ListParams,
+  EcmrCreateData,
+  MultimodalSearchData,
+  MultimodalBookData,
+  InvoiceCreateData,
+} from '@/types/api';
 
 const API_BASE_URL = __DEV__
   ? Platform.OS === 'android'
@@ -26,7 +48,9 @@ api.interceptors.request.use(async (config) => {
     }
     const lang = await SecureStore.getItemAsync('language');
     config.headers['Accept-Language'] = lang || 'en';
-  } catch {}
+  } catch (error) {
+    if (__DEV__) console.error('Auth interceptor error:', error);
+  }
   return config;
 });
 
@@ -37,7 +61,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       try {
         await SecureStore.deleteItemAsync('auth_token');
-      } catch {}
+      } catch (storeError) {
+        if (__DEV__) console.error('Failed to clear auth token:', storeError);
+      }
     }
     return Promise.reject(error);
   }
@@ -45,12 +71,12 @@ api.interceptors.response.use(
 
 // ── Auth API ──────────────────────────────────────────
 export const authApi = {
-  register: (data: any) => api.post('/auth/register', data),
+  register: (data: RegisterData) => api.post('/auth/register', data),
   login: (data: { email: string; password: string }) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
   profile: () => api.get('/auth/profile'),
-  updateProfile: (data: any) => api.put('/auth/profile', data),
-  changePassword: (data: any) => api.post('/auth/change-password', data),
+  updateProfile: (data: UpdateProfileData) => api.put('/auth/profile', data),
+  changePassword: (data: ChangePasswordData) => api.post('/auth/change-password', data),
   forgotPassword: (data: { email: string }) => api.post('/auth/forgot-password', data),
   resetPassword: (data: { email: string; password: string; password_confirmation: string; token: string }) =>
     api.post('/auth/reset-password', data),
@@ -58,34 +84,34 @@ export const authApi = {
 
 // ── Freight API ───────────────────────────────────────
 export const freightApi = {
-  list: (params?: any) => api.get('/freight', { params }),
-  search: (data: any) => api.post('/freight/search', data),
-  create: (data: any) => api.post('/freight', data),
+  list: (params?: FreightFilters) => api.get('/freight', { params }),
+  search: (data: FreightFilters) => api.post('/freight/search', data),
+  create: (data: FreightCreateData) => api.post('/freight', data),
   get: (id: number) => api.get(`/freight/${id}`),
-  update: (id: number, data: any) => api.put(`/freight/${id}`, data),
+  update: (id: number, data: Partial<FreightCreateData>) => api.put(`/freight/${id}`, data),
   delete: (id: number) => api.delete(`/freight/${id}`),
-  myOffers: (params?: any) => api.get('/freight/my/offers', { params }),
+  myOffers: (params?: FreightFilters) => api.get('/freight/my/offers', { params }),
 };
 
 // ── Vehicle API ───────────────────────────────────────
 export const vehicleApi = {
-  list: (params?: any) => api.get('/vehicles', { params }),
-  search: (data: any) => api.post('/vehicles/search', data),
-  create: (data: any) => api.post('/vehicles', data),
+  list: (params?: VehicleFilters) => api.get('/vehicles', { params }),
+  search: (data: VehicleFilters) => api.post('/vehicles/search', data),
+  create: (data: VehicleCreateData) => api.post('/vehicles', data),
   get: (id: number) => api.get(`/vehicles/${id}`),
-  update: (id: number, data: any) => api.put(`/vehicles/${id}`, data),
+  update: (id: number, data: Partial<VehicleCreateData>) => api.put(`/vehicles/${id}`, data),
   delete: (id: number) => api.delete(`/vehicles/${id}`),
-  myOffers: (params?: any) => api.get('/vehicles/my/offers', { params }),
+  myOffers: (params?: VehicleFilters) => api.get('/vehicles/my/offers', { params }),
 };
 
 // ── Order API ─────────────────────────────────────────
 export const orderApi = {
-  list: (params?: any) => api.get('/orders', { params }),
-  create: (data: any) => api.post('/orders', data),
+  list: (params?: OrderFilters) => api.get('/orders', { params }),
+  create: (data: OrderCreateData) => api.post('/orders', data),
   get: (id: number) => api.get(`/orders/${id}`),
   accept: (id: number) => api.post(`/orders/${id}/accept`),
   reject: (id: number) => api.post(`/orders/${id}/reject`),
-  updateStatus: (id: number, data: any) => api.put(`/orders/${id}/status`, data),
+  updateStatus: (id: number, data: OrderStatusUpdate) => api.put(`/orders/${id}/status`, data),
   cancel: (id: number, reason: string) => api.post(`/orders/${id}/cancel`, { reason }),
   statistics: () => api.get('/orders/stats/overview'),
   documents: (id: number) => api.get(`/orders/${id}/documents`),
@@ -107,14 +133,14 @@ export const orderApi = {
 
 // ── Tender API ────────────────────────────────────────
 export const tenderApi = {
-  list: (params?: any) => api.get('/tenders', { params }),
-  create: (data: any) => api.post('/tenders', data),
+  list: (params?: ListParams) => api.get('/tenders', { params }),
+  create: (data: TenderCreateData) => api.post('/tenders', data),
   get: (id: number) => api.get(`/tenders/${id}`),
-  update: (id: number, data: any) => api.put(`/tenders/${id}`, data),
-  submitBid: (tenderId: number, data: any) => api.post(`/tenders/${tenderId}/bids`, data),
+  update: (id: number, data: Partial<TenderCreateData>) => api.put(`/tenders/${id}`, data),
+  submitBid: (tenderId: number, data: TenderBidData) => api.post(`/tenders/${tenderId}/bids`, data),
   awardBid: (tenderId: number, bidId: number) => api.post(`/tenders/${tenderId}/bids/${bidId}/award`),
-  myTenders: (params?: any) => api.get('/tenders/my/tenders', { params }),
-  myBids: (params?: any) => api.get('/tenders/my/bids', { params }),
+  myTenders: (params?: ListParams) => api.get('/tenders/my/tenders', { params }),
+  myBids: (params?: ListParams) => api.get('/tenders/my/bids', { params }),
 };
 
 // ── Tracking API ──────────────────────────────────────
@@ -122,17 +148,17 @@ export const trackingApi = {
   track: (code: string) => api.get(`/tracking/${code}`),
   activeShipments: () => api.get('/tracking/active'),
   positions: (shipmentId: number) => api.get(`/tracking/${shipmentId}/history`),
-  updatePosition: (id: number, data: any) => api.put(`/tracking/${id}/position`, data),
+  updatePosition: (id: number, data: TrackingPositionUpdate) => api.put(`/tracking/${id}/position`, data),
   history: (id: number) => api.get(`/tracking/${id}/history`),
   events: (id: number) => api.get(`/tracking/${id}/events`),
-  addEvent: (id: number, data: any) => api.post(`/tracking/${id}/events`, data),
+  addEvent: (id: number, data: TrackingEventData) => api.post(`/tracking/${id}/events`, data),
   eta: (id: number) => api.get(`/tracking/${id}/eta`),
 };
 
 // ── Network API ───────────────────────────────────────
 export const networkApi = {
-  list: (params?: any) => api.get('/networks', { params }),
-  create: (data: any) => api.post('/networks', data),
+  list: (params?: ListParams) => api.get('/networks', { params }),
+  create: (data: NetworkCreateData) => api.post('/networks', data),
   get: (id: number) => api.get(`/networks/${id}`),
   join: (accessCode: string) => api.post('/networks/join', { access_code: accessCode }),
   invite: (networkId: number, companyId: number) =>
@@ -160,7 +186,7 @@ export const notificationApi = {
 
 // ── Messaging API ─────────────────────────────────────
 export const messageApi = {
-  conversations: (params?: any) => api.get('/messages/conversations', { params }),
+  conversations: (params?: ListParams) => api.get('/messages/conversations', { params }),
   startConversation: (data: {
     recipient_id: number;
     message: string;
@@ -169,9 +195,9 @@ export const messageApi = {
     reference_type?: string;
     reference_id?: number;
   }) => api.post('/messages/conversations', data),
-  messages: (conversationId: number, params?: any) =>
+  messages: (conversationId: number, params?: ListParams) =>
     api.get(`/messages/conversations/${conversationId}`, { params }),
-  sendMessage: (conversationId: number, data: { body: string; type?: string; metadata?: any }) =>
+  sendMessage: (conversationId: number, data: { body: string; type?: string; metadata?: Record<string, unknown> }) =>
     api.post(`/messages/conversations/${conversationId}`, data),
   markRead: (conversationId: number) => api.post(`/messages/conversations/${conversationId}/read`),
   unreadCount: () => api.get('/messages/unread-count'),
@@ -185,16 +211,16 @@ export const matchingApi = {
 
 // ── Company Directory API ─────────────────────────────
 export const companyApi = {
-  list: (params?: any) => api.get('/companies', { params }),
+  list: (params?: ListParams) => api.get('/companies', { params }),
   get: (id: number) => api.get(`/companies/${id}`),
   update: (id: number, data: Record<string, string>) => api.put(`/companies/${id}`, data),
 };
 
 // ── eCMR API ──────────────────────────────────────────
 export const ecmrApi = {
-  list: (params?: any) => api.get('/ecmr', { params }),
+  list: (params?: ListParams) => api.get('/ecmr', { params }),
   get: (id: number) => api.get(`/ecmr/${id}`),
-  create: (data: any) => api.post('/ecmr', data),
+  create: (data: EcmrCreateData) => api.post('/ecmr', data),
   sign: (id: number, data: { role: string; signature: string; signed_at: string }) =>
     api.post(`/ecmr/${id}/sign`, data),
   verify: (id: number) => api.get(`/ecmr/${id}/verify`),
@@ -202,7 +228,7 @@ export const ecmrApi = {
 
 // ── Document OCR API ──────────────────────────────────
 export const documentOcrApi = {
-  list: (params?: any) => api.get('/documents/ocr', { params }),
+  list: (params?: ListParams) => api.get('/documents/ocr', { params }),
   scan: (uri: string, documentType: string) => {
     const form = new FormData();
     form.append('file', {
@@ -230,16 +256,16 @@ export const aiMatchingMobileApi = {
 
 // ── Multimodal API (Mobile) ───────────────────────────
 export const multimodalMobileApi = {
-  search: (data: any) => api.post('/multimodal/search', data),
-  bookings: (params?: any) => api.get('/multimodal/bookings', { params }),
-  book: (data: any) => api.post('/multimodal/book', data),
+  search: (data: MultimodalSearchData) => api.post('/multimodal/search', data),
+  bookings: (params?: ListParams) => api.get('/multimodal/bookings', { params }),
+  book: (data: MultimodalBookData) => api.post('/multimodal/book', data),
 };
 
 // ── Invoice API (Mobile) ─────────────────────────────
 export const invoiceMobileApi = {
-  list: (params?: any) => api.get('/invoices', { params }),
+  list: (params?: ListParams) => api.get('/invoices', { params }),
   get: (id: number) => api.get(`/invoices/${id}`),
-  create: (data: any) => api.post('/invoices', data),
+  create: (data: InvoiceCreateData) => api.post('/invoices', data),
   stats: () => api.get('/invoices/stats'),
 };
 

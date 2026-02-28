@@ -43,7 +43,7 @@ const nextConfig = {
     // Build CSP directives
     const cspDirectives = [
       `default-src 'self'`,
-      `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${isDev ? "'unsafe-eval'" : ''}`.trim(),
+      `script-src 'self' https://cdn.jsdelivr.net ${isDev ? "'unsafe-eval'" : ''}`.trim(),
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com`,
       `font-src 'self' https://fonts.gstatic.com data:`,
       `img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com ${apiUrl}`,

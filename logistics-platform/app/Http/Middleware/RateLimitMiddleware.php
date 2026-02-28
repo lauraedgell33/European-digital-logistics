@@ -70,14 +70,14 @@ class RateLimitMiddleware
     protected function resolveMaxAttempts(Request $request, string $type): int
     {
         if ($type === 'login') {
-            return (int) env('RATE_LIMIT_LOGIN', 5);
+            return (int) config('app.rate_limit_login', 5);
         }
 
         if ($request->user()) {
-            return (int) env('RATE_LIMIT_API_AUTHENTICATED', 60);
+            return (int) config('app.rate_limit_api_authenticated', 60);
         }
 
-        return (int) env('RATE_LIMIT_API_GUEST', 30);
+        return (int) config('app.rate_limit_api_guest', 30);
     }
 
     /**

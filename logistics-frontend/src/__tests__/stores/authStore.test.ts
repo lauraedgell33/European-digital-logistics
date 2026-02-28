@@ -1,6 +1,7 @@
 import { act } from '@testing-library/react';
 import { useAuthStore } from '@/stores/authStore';
 import { authApi } from '@/lib/api';
+import { tokenStorage } from '@/lib/tokenStorage';
 
 // Mock the API module
 jest.mock('@/lib/api', () => ({
@@ -69,7 +70,7 @@ describe('authStore', () => {
     expect(state.token).toBe('test-token-123');
     expect(state.isAuthenticated).toBe(true);
     expect(state.isLoading).toBe(false);
-    expect(localStorage.getItem('auth_token')).toBe('test-token-123');
+    expect(tokenStorage.getToken()).toBe('test-token-123');
   });
 
   it('login sets isLoading during request', async () => {

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Rules\RecaptchaV3;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
@@ -29,7 +30,15 @@ class RegisterRequest extends FormRequest
             // User
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
             'language' => 'nullable|string|max:5',
         ];
 

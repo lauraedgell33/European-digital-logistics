@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "scheme": "logimarket",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -22,7 +22,7 @@
         "NSPhotoLibraryUsageDescription": "LogiMarket needs photo library access to upload documents."
       },
       "config": {
-        "googleMapsApiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+        "googleMapsApiKey": "{{EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}}"
       }
     },
     "android": {
@@ -42,7 +42,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+          "apiKey": "{{EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}}"
         }
       },
       "googleServicesFile": "./google-services.json"
@@ -68,7 +68,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "your-eas-project-id"  
       }
     },
     "owner": "logimarket"

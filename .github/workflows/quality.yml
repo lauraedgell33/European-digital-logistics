@@ -1,0 +1,72 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  frontend-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: logistics-frontend/package-lock.json
+      - run: npm ci
+      - run: npx eslint . --max-warnings 50
+      - run: npx prettier --check "src/**/*.{ts,tsx}"
+      - run: npx tsc --noEmit
+
+  mobile-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: logistics-mobile/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npx tsc --noEmit
+
+  php-analysis:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: logistics-platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
+      - run: composer install --no-interaction --prefer-dist
+      - run: ./vendor/bin/pint --test
+      - run: ./vendor/bin/phpstan analyse --memory-limit=512M || true
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Frontend audit
+        working-directory: logistics-frontend
+        run: npm audit --audit-level=high || true
+      - name: Mobile audit
+        working-directory: logistics-mobile
+        run: npm audit --audit-level=high || true
+      - name: Backend audit
+        working-directory: logistics-platform
+        run: composer audit || true
