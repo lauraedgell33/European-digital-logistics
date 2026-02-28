@@ -523,10 +523,31 @@ class DrivingBanSeeder extends Seeder
             ],
         ];
 
+        $countryNames = [
+            'DE' => 'Germany', 'AT' => 'Austria', 'FR' => 'France', 'IT' => 'Italy',
+            'ES' => 'Spain', 'PL' => 'Poland', 'CZ' => 'Czech Republic', 'HU' => 'Hungary',
+            'RO' => 'Romania', 'CH' => 'Switzerland', 'NL' => 'Netherlands', 'BE' => 'Belgium',
+            'LU' => 'Luxembourg', 'SK' => 'Slovakia', 'HR' => 'Croatia', 'SI' => 'Slovenia',
+            'BG' => 'Bulgaria', 'GR' => 'Greece', 'PT' => 'Portugal', 'DK' => 'Denmark',
+            'SE' => 'Sweden',
+        ];
+
         foreach ($bans as $ban) {
+            // Map legacy keys to actual DB columns
+            $cc = $ban['country'];
+            unset($ban['country']);
+            $ban['country_code'] = $cc;
+            $ban['country_name'] = $countryNames[$cc] ?? $cc;
+
+            if (isset($ban['fine_amount'])) {
+                $ban['fine_min'] = $ban['fine_amount'];
+                $ban['fine_max'] = $ban['fine_amount'];
+                unset($ban['fine_amount']);
+            }
+
             DrivingBan::updateOrCreate(
                 [
-                    'country' => $ban['country'],
+                    'country_code' => $ban['country_code'],
                     'ban_type' => $ban['ban_type'],
                     'title' => $ban['title'],
                 ],
@@ -534,6 +555,6 @@ class DrivingBanSeeder extends Seeder
             );
         }
 
-        $this->command->info('Seeded ' . count($bans) . ' driving bans for ' . collect($bans)->pluck('country')->unique()->count() . ' countries.');
+        $this->command->info('Seeded ' . count($bans) . ' driving bans for ' . collect($bans)->pluck('country_code')->unique()->count() . ' countries.');
     }
 }

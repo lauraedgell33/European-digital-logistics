@@ -174,6 +174,7 @@ class LexiconSeeder extends Seeder
         ];
 
         foreach ($articles as $article) {
+            unset($article['published_at']); // not in schema
             LexiconArticle::updateOrCreate(
                 ['slug' => $article['slug']],
                 $article

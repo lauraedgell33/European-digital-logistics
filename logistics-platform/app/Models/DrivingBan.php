@@ -17,6 +17,8 @@ class DrivingBan extends Model
         'source_url', 'last_verified', 'is_active',
     ];
 
+    protected $appends = ['country', 'fine_amount'];
+
     protected $casts = [
         'days_of_week' => 'array',
         'specific_dates' => 'array',
@@ -32,6 +34,10 @@ class DrivingBan extends Model
         'end_date' => 'date',
         'last_verified' => 'date',
     ];
+
+    // Accessors for API compatibility
+    public function getCountryAttribute(): string { return $this->country_code; }
+    public function getFineAmountAttribute(): ?float { return $this->fine_max ?? $this->fine_min; }
 
     // Scopes
     public function scopeActive($q) { return $q->where('is_active', true); }
