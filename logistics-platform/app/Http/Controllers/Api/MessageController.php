@@ -29,15 +29,16 @@ class MessageController extends Controller
             'latestMessage.sender:id,name',
         ])
         ->withCount(['messages as unread_count' => function ($q) use ($request) {
-            $lastRead = \DB::table('conversation_participants')
-                ->where('user_id', $request->user()->id)
-                ->where('conversation_id', \DB::raw('conversations.id'))
-                ->value('last_read_at');
+            $userId = $request->user()->id;
 
-            $q->where('user_id', '!=', $request->user()->id);
-            if ($lastRead) {
-                $q->where('messages.created_at', '>', $lastRead);
-            }
+            $q->where('messages.user_id', '!=', $userId)
+              ->where('messages.created_at', '>', function ($sub) use ($userId) {
+                  $sub->select('last_read_at')
+                      ->from('conversation_participants')
+                      ->where('user_id', $userId)
+                      ->whereColumn('conversation_id', 'conversations.id')
+                      ->limit(1);
+              });
         }])
         ->orderByDesc(
             Message::select('created_at')
