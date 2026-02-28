@@ -38,10 +38,10 @@ return [
     ],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#before-send
-    'before_send' => null,
+    // 'before_send' => null,
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#before-send-transaction
-    'before_send_transaction' => null,
+    // 'before_send_transaction' => null,
 
     // Context tags
     'tags' => [
