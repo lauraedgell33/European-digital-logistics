@@ -9,7 +9,14 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:a11y": "jest --testPathPattern=accessibility",
+    "test:seo": "jest --testPathPattern=seo",
+    "test:perf": "jest --testPathPattern=performance",
+    "test:all": "jest && playwright test"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.0",

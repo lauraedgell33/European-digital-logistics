@@ -118,13 +118,39 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
-      - name: Run tests
+      - name: Run unit tests
         run: npm test -- --passWithNoTests
+
+      - name: Run accessibility tests
+        run: npm run test:a11y -- --passWithNoTests
+
+      - name: Run SEO tests
+        run: npm run test:seo -- --passWithNoTests
+
+      - name: Run performance tests
+        run: npm run test:perf -- --passWithNoTests
 
       - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://api.logimarket.eu
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium
+        env:
+          BASE_URL: https://european-digital-logistics-oujbb00j.on-forge.com
+        continue-on-error: true
+
+      - name: Upload E2E report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: logistics-frontend/playwright-report/
+          retention-days: 14
 
   # ── Mobile Lint ──────────────────────────────────────
   mobile-lint:

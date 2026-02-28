@@ -274,11 +274,11 @@ export function Header() {
                             className={cn('text-[13px] leading-snug', isUnread ? 'font-semibold' : 'font-normal')}
                             style={{ color: 'var(--ds-gray-1000)' }}
                           >
-                            {n.data?.title || n.data?.message || 'Notification'}
+                            {String(n.data?.title || n.data?.message || 'Notification')}
                           </p>
                           {n.data?.message && n.data?.title && (
                             <p className="text-[12px] mt-0.5 truncate" style={{ color: 'var(--ds-gray-800)' }}>
-                              {n.data.message}
+                              {String(n.data.message)}
                             </p>
                           )}
                           <p className="text-[11px] mt-1" style={{ color: 'var(--ds-gray-700)' }}>
