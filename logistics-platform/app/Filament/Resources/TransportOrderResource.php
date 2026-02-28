@@ -7,6 +7,7 @@ use App\Filament\Resources\TransportOrderResource\RelationManagers;
 use App\Models\TransportOrder;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -16,14 +17,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\TransportOrderStatus;
 
 class TransportOrderResource extends Resource
 {
     protected static ?string $model = TransportOrder::class;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationGroup = 'Operations';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'order_number';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'pending')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::where('status', 'pending')->count() > 0 ? 'warning' : 'primary';
+    }
 
     public static function form(Form $form): Form
     {
@@ -40,16 +52,27 @@ class TransportOrderResource extends Resource
                         Forms\Components\Select::make('carrier_id')
                             ->relationship('carrier', 'name')->required()
                             ->helperText('Select the transport carrier'),
-                        Forms\Components\Select::make('status')->options([
-                            'draft' => 'Draft', 'pending' => 'Pending', 'accepted' => 'Accepted',
-                            'rejected' => 'Rejected', 'picked_up' => 'Picked Up', 'in_transit' => 'In Transit',
-                            'delivered' => 'Delivered', 'completed' => 'Completed', 'cancelled' => 'Cancelled',
-                        ])->required(),
+                        Forms\Components\Select::make('status')
+                            ->options(TransportOrderStatus::class)
+                            ->live()
+                            ->required(),
+                        Forms\Components\Textarea::make('cancellation_reason')
+                            ->visible(fn (Get $get) => in_array($get('status'), ['cancelled', 'rejected'])),
+                        Forms\Components\DateTimePicker::make('accepted_at')
+                            ->visible(fn (Get $get) => in_array($get('status'), ['accepted', 'picked_up', 'in_transit', 'delivered', 'completed'])),
+                        Forms\Components\DateTimePicker::make('picked_up_at')
+                            ->visible(fn (Get $get) => in_array($get('status'), ['picked_up', 'in_transit', 'delivered', 'completed'])),
+                        Forms\Components\DateTimePicker::make('delivered_at')
+                            ->visible(fn (Get $get) => in_array($get('status'), ['delivered', 'completed'])),
                     ])->columns(2),
                 Forms\Components\Tabs\Tab::make('Pickup')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->schema([
-                        Forms\Components\TextInput::make('pickup_country')->required()->maxLength(2),
+                        Forms\Components\Select::make('pickup_country')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('pickup_city')->required(),
                         Forms\Components\Textarea::make('pickup_address')->required(),
                         Forms\Components\DateTimePicker::make('pickup_date')->required(),
@@ -57,7 +80,11 @@ class TransportOrderResource extends Resource
                 Forms\Components\Tabs\Tab::make('Delivery')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->schema([
-                        Forms\Components\TextInput::make('delivery_country')->required()->maxLength(2),
+                        Forms\Components\Select::make('delivery_country')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('delivery_city')->required(),
                         Forms\Components\Textarea::make('delivery_address')->required(),
                         Forms\Components\DateTimePicker::make('delivery_date')->required(),
@@ -65,7 +92,22 @@ class TransportOrderResource extends Resource
                 Forms\Components\Tabs\Tab::make('Cargo & Payment')
                     ->icon('heroicon-o-currency-euro')
                     ->schema([
-                        Forms\Components\TextInput::make('cargo_type')->required()
+                        Forms\Components\Select::make('cargo_type')
+                            ->options([
+                                'general' => 'General Cargo',
+                                'adr' => 'ADR / Hazardous',
+                                'temperature_controlled' => 'Temperature Controlled',
+                                'bulk' => 'Bulk',
+                                'container' => 'Container',
+                                'oversized' => 'Oversized / Heavy',
+                                'livestock' => 'Livestock',
+                                'fragile' => 'Fragile',
+                                'vehicles' => 'Vehicles',
+                                'palletized' => 'Palletized',
+                                'liquid' => 'Liquid / Tanker',
+                            ])
+                            ->searchable()
+                            ->required()
                             ->helperText('Select the primary cargo classification'),
                         Forms\Components\TextInput::make('weight')->numeric()->suffix('kg')
                             ->placeholder('e.g. 24000')
@@ -81,6 +123,13 @@ class TransportOrderResource extends Resource
                             'pending' => 'Pending', 'invoiced' => 'Invoiced',
                             'paid' => 'Paid', 'overdue' => 'Overdue',
                         ]),
+                        Forms\Components\Placeholder::make('days_until_delivery')
+                            ->content(function ($record) {
+                                if (!$record?->delivery_date) return '-';
+                                $diff = now()->diffInDays($record->delivery_date, false);
+                                return $diff >= 0 ? $diff . ' days remaining' : abs($diff) . ' days overdue';
+                            })
+                            ->visibleOn('edit'),
                     ])->columns(3),
             ])->columnSpanFull(),
         ]);
@@ -99,24 +148,32 @@ class TransportOrderResource extends Resource
                     ->formatStateUsing(fn($record) => "{$record->delivery_city}, {$record->delivery_country}"),
                 Tables\Columns\TextColumn::make('pickup_date')->dateTime('d M Y'),
                 Tables\Columns\TextColumn::make('total_price')->money('eur')->sortable(),
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
-                    'draft' => 'gray', 'pending' => 'warning', 'accepted' => 'success',
-                    'rejected' => 'danger', 'in_transit' => 'info', 'delivered' => 'primary',
-                    default => 'gray',
-                }),
+                Tables\Columns\TextColumn::make('status')->badge(),
                 Tables\Columns\TextColumn::make('payment_status')->badge()->color(fn (string $state): string => match ($state) {
                     'pending' => 'warning', 'invoiced' => 'info',
                     'paid' => 'success', 'overdue' => 'danger',
                     default => 'gray',
-                }),
+                })->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending', 'accepted' => 'Accepted',
-                        'in_transit' => 'In Transit', 'delivered' => 'Delivered',
-                        'completed' => 'Completed', 'cancelled' => 'Cancelled',
-                    ]),
+                    ->options(TransportOrderStatus::class),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when($data['from'], fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+                            ->when($data['until'], fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) $indicators[] = 'From ' . \Carbon\Carbon::parse($data['from'])->format('M d, Y');
+                        if ($data['until'] ?? null) $indicators[] = 'Until ' . \Carbon\Carbon::parse($data['until'])->format('M d, Y');
+                        return $indicators;
+                    }),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -209,6 +266,9 @@ class TransportOrderResource extends Resource
             ->emptyStateHeading('No transport orders yet')
             ->emptyStateDescription('Create your first transport order to get started.')
             ->emptyStateIcon('heroicon-o-truck')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['shipper', 'carrier', 'createdBy']))
             ->defaultPaginationPageOption(25);
     }

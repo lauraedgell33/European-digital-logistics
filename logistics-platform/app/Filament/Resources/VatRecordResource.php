@@ -14,7 +14,7 @@ class VatRecordResource extends Resource
 {
     protected static ?string $model = VatRecord::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
+    protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
 
     protected static ?string $navigationGroup = 'Finance';
 

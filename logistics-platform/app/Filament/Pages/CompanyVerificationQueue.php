@@ -31,13 +31,15 @@ class CompanyVerificationQueue extends Page
 
     public function approve(int $companyId): void
     {
-        Company::find($companyId)?->update(['verification_status' => 'verified', 'verified_at' => now()]);
-        Notification::make()->title('Company Verified')->success()->send();
+        $company = Company::where('id', $companyId)->where('verification_status', 'pending')->firstOrFail();
+        $company->update(['verification_status' => 'verified', 'verified_at' => now()]);
+        Notification::make()->title('Company "' . $company->name . '" Verified')->success()->send();
     }
 
     public function reject(int $companyId): void
     {
-        Company::find($companyId)?->update(['verification_status' => 'rejected']);
-        Notification::make()->title('Company Rejected')->danger()->send();
+        $company = Company::where('id', $companyId)->where('verification_status', 'pending')->firstOrFail();
+        $company->update(['verification_status' => 'rejected']);
+        Notification::make()->title('Company "' . $company->name . '" Rejected')->danger()->send();
     }
 }

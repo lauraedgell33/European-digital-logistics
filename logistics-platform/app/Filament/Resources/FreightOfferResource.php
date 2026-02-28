@@ -7,6 +7,7 @@ use App\Filament\Resources\FreightOfferResource\RelationManagers;
 use App\Models\FreightOffer;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -20,10 +21,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class FreightOfferResource extends Resource
 {
     protected static ?string $model = FreightOffer::class;
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationGroup = 'Marketplace';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'active')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'success';
+    }
 
     public static function form(Form $form): Form
     {
@@ -32,7 +43,11 @@ class FreightOfferResource extends Resource
                 Forms\Components\Tabs\Tab::make('Origin')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->schema([
-                        Forms\Components\TextInput::make('origin_country')->required()->maxLength(2),
+                        Forms\Components\Select::make('origin_country')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('origin_city')->required()->maxLength(100),
                         Forms\Components\TextInput::make('origin_postal_code')->required()->maxLength(20),
                         Forms\Components\Textarea::make('origin_address'),
@@ -40,7 +55,11 @@ class FreightOfferResource extends Resource
                 Forms\Components\Tabs\Tab::make('Destination')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->schema([
-                        Forms\Components\TextInput::make('destination_country')->required()->maxLength(2),
+                        Forms\Components\Select::make('destination_country')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('destination_city')->required()->maxLength(100),
                         Forms\Components\TextInput::make('destination_postal_code')->required()->maxLength(20),
                         Forms\Components\Textarea::make('destination_address'),
@@ -52,8 +71,12 @@ class FreightOfferResource extends Resource
                         Forms\Components\TextInput::make('weight')->required()->numeric()->suffix('kg'),
                         Forms\Components\TextInput::make('volume')->numeric()->suffix('m³'),
                         Forms\Components\TextInput::make('pallet_count')->numeric(),
-                        Forms\Components\Toggle::make('is_hazardous'),
-                        Forms\Components\TextInput::make('adr_class')->visible(fn($get) => $get('is_hazardous')),
+                        Forms\Components\Toggle::make('is_hazardous')
+                            ->live(),
+                        Forms\Components\TextInput::make('adr_class')
+                            ->visible(fn (Get $get) => $get('is_hazardous')),
+                        Forms\Components\TextInput::make('adr_un_number')
+                            ->visible(fn (Get $get) => $get('is_hazardous')),
                         Forms\Components\Toggle::make('requires_temperature_control'),
                     ])->columns(3),
                 Forms\Components\Tabs\Tab::make('Schedule')
@@ -129,6 +152,22 @@ class FreightOfferResource extends Resource
                         'flatbed' => 'Flatbed', 'container' => 'Container',
                     ]),
                 Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when($data['from'], fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+                            ->when($data['until'], fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) $indicators[] = 'From ' . \Carbon\Carbon::parse($data['from'])->format('M d, Y');
+                        if ($data['until'] ?? null) $indicators[] = 'Until ' . \Carbon\Carbon::parse($data['until'])->format('M d, Y');
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -173,6 +212,12 @@ class FreightOfferResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No freight offers yet')
+            ->emptyStateDescription('Create your first freight offer to find carriers.')
+            ->emptyStateIcon('heroicon-o-cube')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['company']))
             ->defaultPaginationPageOption(25);
     }

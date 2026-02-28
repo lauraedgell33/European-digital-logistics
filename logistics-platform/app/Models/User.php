@@ -95,7 +95,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // ── Filament ──────────────────────────────────────────
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && $this->role === 'admin';
+        return $this->is_active && in_array($this->role, ['admin', 'manager']);
     }
 
     // ── Relationships ─────────────────────────────────────
@@ -117,6 +117,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function createdOrders(): HasMany
     {
         return $this->hasMany(TransportOrder::class, 'created_by');
+    }
+
+    public function invoicesCreated(): HasMany
+    {
+        return $this->hasMany(\App\Models\Invoice::class, 'created_by');
     }
 
     // ── Scopes ────────────────────────────────────────────

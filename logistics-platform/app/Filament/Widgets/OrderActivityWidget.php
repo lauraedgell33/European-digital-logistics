@@ -22,33 +22,35 @@ class OrderActivityWidget extends ChartWidget
 
     protected function computeData(): array
     {
-        $days = collect(range(29, 0))->map(fn ($i) => Carbon::now()->subDays($i));
+        $days = collect(range(29, 0))->map(fn ($i) => now()->subDays($i)->format('Y-m-d'));
 
-        $created = $days->map(fn ($day) =>
-            TransportOrder::whereDate('created_at', $day)->count()
-        );
+        $created = TransportOrder::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
-        $completed = $days->map(fn ($day) =>
-            TransportOrder::where('status', 'completed')
-                ->whereDate('updated_at', $day)->count()
-        );
+        $completed = TransportOrder::selectRaw('DATE(updated_at) as date, COUNT(*) as count')
+            ->where('status', 'completed')
+            ->where('updated_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
         return [
             'datasets' => [
                 [
                     'label' => 'Created',
-                    'data' => $created->toArray(),
+                    'data' => $days->map(fn ($d) => $created->get($d, 0))->toArray(),
                     'borderColor' => 'rgb(59, 130, 246)',
                     'tension' => 0.3,
                 ],
                 [
                     'label' => 'Completed',
-                    'data' => $completed->toArray(),
+                    'data' => $days->map(fn ($d) => $completed->get($d, 0))->toArray(),
                     'borderColor' => 'rgb(16, 185, 129)',
                     'tension' => 0.3,
                 ],
             ],
-            'labels' => $days->map(fn ($d) => $d->format('d/m'))->toArray(),
+            'labels' => $days->map(fn ($d) => Carbon::parse($d)->format('d/m'))->toArray(),
         ];
     }
 

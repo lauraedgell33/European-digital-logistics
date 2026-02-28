@@ -7,6 +7,8 @@ use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -16,14 +18,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\InvoiceStatus;
 
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'invoice_number';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'overdue')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'danger';
+    }
 
     public static function form(Form $form): Form
     {
@@ -43,10 +56,9 @@ class InvoiceResource extends Resource
                             ->relationship('transportOrder', 'order_number')->searchable()->preload()
                             ->label('Transport Order'),
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'draft' => 'Draft', 'sent' => 'Sent', 'paid' => 'Paid',
-                                'overdue' => 'Overdue', 'cancelled' => 'Cancelled', 'refunded' => 'Refunded',
-                            ])->default('draft')->required(),
+                            ->options(InvoiceStatus::class)
+                            ->default('draft')
+                            ->required(),
                     ])->columns(2),
                 Forms\Components\Tabs\Tab::make('Customer')
                     ->icon('heroicon-o-user')
@@ -62,16 +74,38 @@ class InvoiceResource extends Resource
                         Forms\Components\DatePicker::make('issue_date')->required(),
                         Forms\Components\DatePicker::make('due_date')->required()
                             ->helperText('Payment expected by this date'),
-                        Forms\Components\TextInput::make('subtotal')->numeric()->prefix('€')->required(),
-                        Forms\Components\TextInput::make('tax_rate')->numeric()->suffix('%'),
-                        Forms\Components\TextInput::make('tax_amount')->numeric()->prefix('€'),
+                        Forms\Components\TextInput::make('subtotal')->numeric()->prefix('€')->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $subtotal = floatval($get('subtotal'));
+                                $taxRate = floatval($get('tax_rate'));
+                                $set('tax_amount', round($subtotal * $taxRate / 100, 2));
+                                $set('total_amount', round($subtotal + ($subtotal * $taxRate / 100), 2));
+                            }),
+                        Forms\Components\TextInput::make('tax_rate')->numeric()->suffix('%')
+                            ->default(19)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $subtotal = floatval($get('subtotal'));
+                                $taxRate = floatval($get('tax_rate'));
+                                $set('tax_amount', round($subtotal * $taxRate / 100, 2));
+                                $set('total_amount', round($subtotal + ($subtotal * $taxRate / 100), 2));
+                            }),
+                        Forms\Components\TextInput::make('tax_amount')->numeric()->prefix('€')
+                            ->disabled()
+                            ->dehydrated(),
                         Forms\Components\TextInput::make('total_amount')->numeric()->prefix('€')->required()
+                            ->disabled()
+                            ->dehydrated()
                             ->placeholder('0.00'),
                         Forms\Components\TextInput::make('paid_amount')->numeric()->prefix('€')->default(0)
                             ->placeholder('0.00'),
                         Forms\Components\Select::make('currency')
                             ->options(['EUR' => 'EUR', 'USD' => 'USD', 'GBP' => 'GBP', 'RON' => 'RON', 'PLN' => 'PLN'])
                             ->default('EUR'),
+                        Forms\Components\Placeholder::make('balance_due')
+                            ->content(fn ($record) => $record ? '€' . number_format($record->total_amount - $record->paid_amount, 2) : '-')
+                            ->visibleOn('edit'),
                     ])->columns(4),
                 Forms\Components\Tabs\Tab::make('Payment')
                     ->icon('heroicon-o-credit-card')
@@ -94,12 +128,9 @@ class InvoiceResource extends Resource
                 Tables\Columns\TextColumn::make('company.name')->searchable()->sortable()->label('Issuer'),
                 Tables\Columns\TextColumn::make('customerCompany.name')->searchable()->label('Customer'),
                 Tables\Columns\TextColumn::make('total_amount')->money('EUR')->sortable(),
-                Tables\Columns\TextColumn::make('paid_amount')->money('EUR')->sortable(),
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
-                    'draft' => 'secondary', 'sent' => 'primary', 'paid' => 'success',
-                    'overdue' => 'danger', 'cancelled' => 'warning', 'refunded' => 'gray',
-                    default => 'gray',
-                }),
+                Tables\Columns\TextColumn::make('paid_amount')->money('EUR')->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status')->badge(),
                 Tables\Columns\TextColumn::make('issue_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('due_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()
@@ -107,11 +138,24 @@ class InvoiceResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft', 'sent' => 'Sent', 'paid' => 'Paid',
-                        'overdue' => 'Overdue', 'cancelled' => 'Cancelled',
-                    ]),
+                    ->options(InvoiceStatus::class),
                 Tables\Filters\SelectFilter::make('company')->relationship('company', 'name'),
+                Tables\Filters\Filter::make('issue_date')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when($data['from'], fn ($q, $date) => $q->whereDate('issue_date', '>=', $date))
+                            ->when($data['until'], fn ($q, $date) => $q->whereDate('issue_date', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) $indicators[] = 'Issued from ' . \Carbon\Carbon::parse($data['from'])->format('M d, Y');
+                        if ($data['until'] ?? null) $indicators[] = 'Issued until ' . \Carbon\Carbon::parse($data['until'])->format('M d, Y');
+                        return $indicators;
+                    }),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -186,6 +230,9 @@ class InvoiceResource extends Resource
             ->emptyStateHeading('No invoices found')
             ->emptyStateDescription('Invoices will appear here once created.')
             ->emptyStateIcon('heroicon-o-document-text')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['company', 'customerCompany', 'creator']))
             ->defaultPaginationPageOption(25);

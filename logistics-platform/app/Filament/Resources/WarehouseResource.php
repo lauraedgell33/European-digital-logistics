@@ -23,6 +23,11 @@ class WarehouseResource extends Resource
     protected static ?int $navigationSort = 5;
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'active')->count() ?: null;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -42,7 +47,11 @@ class WarehouseResource extends Resource
                 Forms\Components\Tabs\Tab::make('Location')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
-                        Forms\Components\TextInput::make('country_code')->maxLength(2)->required(),
+                        Forms\Components\Select::make('country_code')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('city')->required()->maxLength(255),
                         Forms\Components\TextInput::make('postal_code')->maxLength(20),
                         Forms\Components\TextInput::make('address')->maxLength(500),
@@ -137,6 +146,12 @@ class WarehouseResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No warehouses yet')
+            ->emptyStateDescription('Add your first warehouse to start managing storage.')
+            ->emptyStateIcon('heroicon-o-building-storefront')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['company']))
             ->defaultPaginationPageOption(25);
     }

@@ -16,14 +16,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\CompanyVerificationStatus;
 
 class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
     protected static ?string $navigationGroup = 'Platform';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('verification_status', 'pending')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
 
     public static function form(Form $form): Form
     {
@@ -48,17 +59,19 @@ class CompanyResource extends Resource
                                 'forwarder' => 'Forwarder',
                             ])->required(),
                         Forms\Components\Select::make('verification_status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'verified' => 'Verified',
-                                'rejected' => 'Rejected',
-                            ])->required()->default('pending'),
+                            ->options(CompanyVerificationStatus::class)
+                            ->required()
+                            ->default('pending'),
                     ])->columns(2),
                 Forms\Components\Tabs\Tab::make('Address')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
-                        Forms\Components\TextInput::make('country_code')
-                            ->required()->maxLength(2)->label('Country Code'),
+                        Forms\Components\Select::make('country_code')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Country Code'),
                         Forms\Components\TextInput::make('city')
                             ->required()->maxLength(100),
                         Forms\Components\TextInput::make('postal_code')
@@ -81,6 +94,12 @@ class CompanyResource extends Resource
                         Forms\Components\TextInput::make('rating')
                             ->numeric()->minValue(0)->maxValue(5)->step(0.01)->disabled(),
                         Forms\Components\DateTimePicker::make('verified_at'),
+                        Forms\Components\Placeholder::make('member_since')
+                            ->content(fn ($record) => $record?->created_at?->diffForHumans() ?? '-')
+                            ->visibleOn('edit'),
+                        Forms\Components\Placeholder::make('total_orders')
+                            ->content(fn ($record) => $record ? \App\Models\TransportOrder::where('shipper_id', $record->id)->orWhere('carrier_id', $record->id)->count() . ' orders' : '-')
+                            ->visibleOn('edit'),
                     ])->columns(3),
             ])->columnSpanFull(),
         ]);
@@ -98,18 +117,16 @@ class CompanyResource extends Resource
                     'forwarder' => 'warning',
                     default => 'gray',
                 }),
-                Tables\Columns\TextColumn::make('verification_status')->badge()->color(fn (string $state): string => match ($state) {
-                    'pending' => 'warning',
-                    'verified' => 'success',
-                    'rejected' => 'danger',
-                    default => 'gray',
-                }),
+                Tables\Columns\TextColumn::make('verification_status')->badge(),
                 Tables\Columns\TextColumn::make('country_code')->label('Country'),
-                Tables\Columns\TextColumn::make('city'),
-                Tables\Columns\TextColumn::make('rating')->sortable(),
+                Tables\Columns\TextColumn::make('city')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('rating')->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('is_active')->boolean(),
                 Tables\Columns\TextColumn::make('users_count')->counts('users')->label('Users'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
@@ -119,11 +136,7 @@ class CompanyResource extends Resource
                         'forwarder' => 'Forwarder',
                     ]),
                 Tables\Filters\SelectFilter::make('verification_status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'verified' => 'Verified',
-                        'rejected' => 'Rejected',
-                    ]),
+                    ->options(CompanyVerificationStatus::class),
                 Tables\Filters\TernaryFilter::make('is_active'),
                 Tables\Filters\TrashedFilter::make(),
             ])
@@ -180,7 +193,10 @@ class CompanyResource extends Resource
             ])
             ->emptyStateHeading('No companies registered')
             ->emptyStateDescription('Companies will appear once they register on the platform.')
-            ->emptyStateIcon('heroicon-o-building-office');
+            ->emptyStateIcon('heroicon-o-building-office')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist

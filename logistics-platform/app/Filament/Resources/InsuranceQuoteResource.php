@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class InsuranceQuoteResource extends Resource
 {
     protected static ?string $model = InsuranceQuote::class;
-    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+    protected static ?string $navigationIcon = 'heroicon-o-document-check';
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 4;
     protected static ?string $recordTitleAttribute = 'quote_reference';

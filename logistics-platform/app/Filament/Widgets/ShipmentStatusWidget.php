@@ -11,6 +11,7 @@ class ShipmentStatusWidget extends ChartWidget
     protected static ?string $heading = 'Shipment Status Distribution';
     protected static ?int $sort = 3;
     protected static ?string $maxHeight = '280px';
+    protected static ?string $pollingInterval = '15s';
 
     protected function getData(): array
     {

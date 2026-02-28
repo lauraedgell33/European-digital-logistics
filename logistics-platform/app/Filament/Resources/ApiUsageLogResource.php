@@ -14,7 +14,7 @@ class ApiUsageLogResource extends Resource
 {
     protected static ?string $model = ApiUsageLog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-chart-bar-square';
 
     protected static ?string $navigationGroup = 'Administration';
 

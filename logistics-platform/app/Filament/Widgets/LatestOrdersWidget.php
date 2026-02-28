@@ -19,8 +19,8 @@ class LatestOrdersWidget extends StatsOverviewWidget
             $inTransit = TransportOrder::where('status', 'in_transit')->count();
             $overdue = TransportOrder::where('status', '!=', 'completed')
                 ->where('status', '!=', 'cancelled')
-                ->whereNotNull('estimated_delivery')
-                ->where('estimated_delivery', '<', now())
+                ->whereNotNull('delivery_date')
+                ->where('delivery_date', '<', now())
                 ->count();
 
             return [

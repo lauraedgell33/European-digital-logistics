@@ -8,6 +8,11 @@ use Spatie\Activitylog\Models\Activity;
 class AuditTrail extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-finger-print';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Administration';
     protected static ?int $navigationSort = 14;
     protected static ?string $title = 'Audit Trail';

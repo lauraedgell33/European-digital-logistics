@@ -17,7 +17,7 @@ class SmartContractResource extends Resource
 {
     protected static ?string $model = SmartContract::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-check';
+    protected static ?string $navigationIcon = 'heroicon-o-document-magnifying-glass';
 
     protected static ?string $navigationGroup = 'Platform';
 

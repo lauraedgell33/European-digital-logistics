@@ -18,10 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EscrowPaymentResource extends Resource
 {
     protected static ?string $model = EscrowPayment::class;
-    protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 3;
     protected static ?string $recordTitleAttribute = 'payment_reference';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'funded')->count() ?: null;
+    }
 
     public static function form(Form $form): Form
     {

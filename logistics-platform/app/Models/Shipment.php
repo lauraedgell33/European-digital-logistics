@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Shipment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'current_lat', 'current_lng', 'current_location_name', 'eta'])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn (string $eventName) => "Shipment {$eventName}")
+            ->useLogName('shipments');
+    }
 
     protected $fillable = [
         'transport_order_id', 'tracking_code',
@@ -30,6 +41,7 @@ class Shipment extends Model
         'eta' => 'datetime',
         'last_update' => 'datetime',
         'route_waypoints' => 'array',
+        'status' => \App\Enums\ShipmentStatus::class,
     ];
 
     // ── Boot ──────────────────────────────────────────────
@@ -39,7 +51,7 @@ class Shipment extends Model
 
         static::creating(function ($shipment) {
             if (!$shipment->tracking_code) {
-                $shipment->tracking_code = 'SH-' . strtoupper(substr(md5(uniqid()), 0, 8));
+                $shipment->tracking_code = 'TRK-' . strtoupper(bin2hex(random_bytes(8)));
             }
         });
     }

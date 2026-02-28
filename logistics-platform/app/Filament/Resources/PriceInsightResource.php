@@ -14,7 +14,7 @@ class PriceInsightResource extends Resource
 {
     protected static ?string $model = PriceInsight::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-currency-euro';
+    protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
 
     protected static ?string $navigationGroup = 'AI & Analytics';
 

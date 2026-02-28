@@ -17,10 +17,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class VehicleOfferResource extends Resource
 {
     protected static ?string $model = VehicleOffer::class;
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Marketplace';
     protected static ?int $navigationSort = 2;
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'active')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'success';
+    }
 
     public static function form(Form $form): Form
     {
@@ -59,8 +69,12 @@ class VehicleOfferResource extends Resource
                 Forms\Components\Tabs\Tab::make('Location')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
-                        Forms\Components\TextInput::make('current_country')
-                            ->required()->maxLength(2)->label('Current Country'),
+                        Forms\Components\Select::make('current_country')
+                            ->options(\App\Support\CountryHelper::europeanCountries())
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Current Country'),
                         Forms\Components\TextInput::make('current_city')
                             ->required()->maxLength(100),
                         Forms\Components\TextInput::make('destination_country')
@@ -161,6 +175,12 @@ class VehicleOfferResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No vehicle offers yet')
+            ->emptyStateDescription('Create your first vehicle offer to find freight.')
+            ->emptyStateIcon('heroicon-o-rectangle-stack')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['company']))
             ->defaultPaginationPageOption(25);
     }

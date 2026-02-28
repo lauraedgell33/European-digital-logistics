@@ -88,4 +88,14 @@ class TransportOrderPolicy
         return $user->company_id === $order->shipper_id
             || $user->company_id === $order->carrier_id;
     }
+
+    public function restore(User $user, TransportOrder $order): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function forceDelete(User $user, TransportOrder $order): bool
+    {
+        return $user->role === 'admin';
+    }
 }

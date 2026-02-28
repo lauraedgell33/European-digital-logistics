@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Redis;
 class SystemHealth extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-heart';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Administration';
     protected static ?int $navigationSort = 10;
     protected static ?string $title = 'System Health';

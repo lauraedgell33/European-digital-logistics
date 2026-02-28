@@ -25,6 +25,7 @@ class PaymentTransaction extends Model
         'exchange_rate' => 'decimal:6',
         'metadata' => 'array',
         'completed_at' => 'datetime',
+        'status' => \App\Enums\PaymentStatus::class,
     ];
 
     public function company(): BelongsTo

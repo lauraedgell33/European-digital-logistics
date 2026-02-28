@@ -8,10 +8,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Invoice extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, LogsActivity, SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'total_amount', 'paid_amount', 'invoice_number'])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn (string $eventName) => "Invoice {$eventName}")
+            ->useLogName('invoices');
+    }
 
     protected $fillable = [
         'invoice_number', 'company_id', 'customer_company_id',
@@ -35,6 +46,7 @@ class Invoice extends Model
         'tax_rate' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
+        'status' => \App\Enums\InvoiceStatus::class,
     ];
 
     public function company(): BelongsTo
@@ -97,5 +109,25 @@ class Invoice extends Model
     {
         $count = self::where('company_id', $companyId)->whereYear('created_at', now()->year)->count() + 1;
         return 'INV-' . now()->format('Y') . '-' . str_pad($count, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('status', 'paid');
+    }
+
+    public function scopeForCompany($query, int $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
+    public function scopeThisMonth($query)
+    {
+        return $query->where('created_at', '>=', now()->startOfMonth());
+    }
+
+    public function scopeByDateRange($query, $from, $to)
+    {
+        return $query->whereBetween('created_at', [$from, $to]);
     }
 }

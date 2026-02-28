@@ -48,4 +48,14 @@ class VehicleOfferPolicy
         return $user->company_id === $vehicle->company_id
             && $user->hasPermission('edit');
     }
+
+    public function restore(User $user, VehicleOffer $vehicle): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function forceDelete(User $user, VehicleOffer $vehicle): bool
+    {
+        return $user->role === 'admin';
+    }
 }

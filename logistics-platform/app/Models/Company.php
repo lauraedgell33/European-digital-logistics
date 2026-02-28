@@ -52,6 +52,7 @@ class Company extends Model implements HasMedia
         'rating' => 'decimal:2',
         'is_active' => 'boolean',
         'verified_at' => 'datetime',
+        'verification_status' => \App\Enums\CompanyVerificationStatus::class,
     ];
 
     // ── Media Collections ─────────────────────────────────
@@ -130,6 +131,21 @@ class Company extends Model implements HasMedia
         return $this->belongsToMany(PartnerNetwork::class, 'network_members', 'company_id', 'network_id')
             ->withPivot(['status', 'role', 'joined_at'])
             ->withTimestamps();
+    }
+
+    public function escrowPayments(): HasMany
+    {
+        return $this->hasMany(\App\Models\EscrowPayment::class);
+    }
+
+    public function debtCollections(): HasMany
+    {
+        return $this->hasMany(\App\Models\DebtCollection::class);
+    }
+
+    public function warehouseBookings(): HasMany
+    {
+        return $this->hasMany(\App\Models\WarehouseBooking::class);
     }
 
     // ── Scopes ────────────────────────────────────────────

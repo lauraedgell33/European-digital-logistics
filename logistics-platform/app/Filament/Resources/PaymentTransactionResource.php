@@ -82,6 +82,22 @@ class PaymentTransactionResource extends Resource
                     ->options(['pending' => 'Pending', 'completed' => 'Completed', 'failed' => 'Failed']),
                 Tables\Filters\SelectFilter::make('payment_provider')
                     ->options(['stripe' => 'Stripe', 'sepa' => 'SEPA', 'bank_transfer' => 'Bank Transfer']),
+                Tables\Filters\Filter::make('completed_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when($data['from'], fn ($q, $date) => $q->whereDate('completed_at', '>=', $date))
+                            ->when($data['until'], fn ($q, $date) => $q->whereDate('completed_at', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) $indicators[] = 'From ' . \Carbon\Carbon::parse($data['from'])->format('M d, Y');
+                        if ($data['until'] ?? null) $indicators[] = 'Until ' . \Carbon\Carbon::parse($data['until'])->format('M d, Y');
+                        return $indicators;
+                    }),
             ])
             ->actions([Tables\Actions\ViewAction::make(), Tables\Actions\EditAction::make()])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])])

@@ -14,7 +14,7 @@ class ErpIntegrationResource extends Resource
 {
     protected static ?string $model = ErpIntegration::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-link';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?string $navigationGroup = 'Platform';
 

@@ -14,7 +14,7 @@ class DynamicPriceResource extends Resource
 {
     protected static ?string $model = DynamicPrice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar-square';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-euro';
 
     protected static ?string $navigationGroup = 'AI & Analytics';
 

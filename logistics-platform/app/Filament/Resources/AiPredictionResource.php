@@ -14,7 +14,7 @@ class AiPredictionResource extends Resource
 {
     protected static ?string $model = AiPrediction::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
+    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
 
     protected static ?string $navigationGroup = 'AI & Analytics';
 

@@ -14,7 +14,7 @@ class EdiMessageResource extends Resource
 {
     protected static ?string $model = EdiMessage::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-envelope';
+    protected static ?string $navigationIcon = 'heroicon-o-code-bracket-square';
 
     protected static ?string $navigationGroup = 'Platform';
 

@@ -16,7 +16,7 @@ class IntermodalPlanResource extends Resource
 {
     protected static ?string $model = IntermodalPlan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
+    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
     protected static ?string $navigationGroup = 'Operations';
 

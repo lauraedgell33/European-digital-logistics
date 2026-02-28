@@ -14,7 +14,7 @@ class RouteOptimizationResource extends Resource
 {
     protected static ?string $model = RouteOptimization::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-map';
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
     protected static ?string $navigationGroup = 'Tracking & Logistics';
 

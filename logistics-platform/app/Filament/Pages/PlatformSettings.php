@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Cache;
 class PlatformSettings extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Administration';
     protected static ?int $navigationSort = 11;
     protected static ?string $title = 'Platform Settings';

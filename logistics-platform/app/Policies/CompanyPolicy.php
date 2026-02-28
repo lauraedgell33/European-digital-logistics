@@ -31,4 +31,36 @@ class CompanyPolicy
         return $user->company_id === $company->id
             && $user->isAdmin();
     }
+
+    /**
+     * Admins and managers can create companies.
+     */
+    public function create(User $user): bool
+    {
+        return $user->role === 'admin' || $user->role === 'manager';
+    }
+
+    /**
+     * Only admins can delete companies.
+     */
+    public function delete(User $user, Company $company): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Only admins can restore companies.
+     */
+    public function restore(User $user, Company $company): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Only admins can force-delete companies.
+     */
+    public function forceDelete(User $user, Company $company): bool
+    {
+        return $user->role === 'admin';
+    }
 }

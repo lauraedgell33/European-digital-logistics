@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile()
             ->colors([
                 // Geist-matched color palette using HSL values from frontend
                 'primary' => Color::hex('#0070f3'),   // Geist Blue 700
@@ -60,8 +61,8 @@ class AdminPanelProvider extends PanelProvider
                 fn (): HtmlString => new HtmlString('
                     <link rel="preconnect" href="https://rsms.me/" crossorigin>
                     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-                    <link rel="stylesheet" href="' . asset('css/filament-geist-theme.css') . '?v=' . time() . '">
-                    <link rel="stylesheet" href="' . asset('css/admin-animations.css') . '?v=' . time() . '">
+                    <link rel="stylesheet" href="' . asset('css/filament-geist-theme.css') . '?v=' . (file_exists(public_path('css/filament-geist-theme.css')) ? filemtime(public_path('css/filament-geist-theme.css')) : '1') . '">
+                    <link rel="stylesheet" href="' . asset('css/admin-animations.css') . '?v=' . (file_exists(public_path('css/admin-animations.css')) ? filemtime(public_path('css/admin-animations.css')) : '1') . '">
                 ')
             )
             ->renderHook(
@@ -75,43 +76,49 @@ class AdminPanelProvider extends PanelProvider
                     </script>
                 ')
             )
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                fn () => view('filament.components.footer'),
+            )
             ->navigationGroups([
                 NavigationGroup::make('Dashboard')
                     ->icon('heroicon-o-home')
-                    ->collapsed(false),
+                    ->collapsible(false),
                 NavigationGroup::make('Operations')
                     ->icon('heroicon-o-cog-6-tooth')
-                    ->collapsed(false),
+                    ->collapsible(),
                 NavigationGroup::make('Marketplace')
                     ->icon('heroicon-o-shopping-cart')
-                    ->collapsed(false),
+                    ->collapsible(),
                 NavigationGroup::make('Tracking & Logistics')
                     ->icon('heroicon-o-map')
-                    ->collapsed(true),
+                    ->collapsible()
+                    ->collapsed(),
                 NavigationGroup::make('Finance')
                     ->icon('heroicon-o-banknotes')
-                    ->collapsed(true),
+                    ->collapsible(),
                 NavigationGroup::make('Documents')
-                    ->icon('heroicon-o-document-text')
-                    ->collapsed(true),
+                    ->icon('heroicon-o-document-duplicate')
+                    ->collapsible()
+                    ->collapsed(),
                 NavigationGroup::make('AI & Analytics')
-                    ->icon('heroicon-o-cpu-chip')
-                    ->collapsed(true),
+                    ->icon('heroicon-o-sparkles')
+                    ->collapsible()
+                    ->collapsed(),
                 NavigationGroup::make('Platform')
-                    ->icon('heroicon-o-globe-alt')
-                    ->collapsed(true),
+                    ->icon('heroicon-o-server-stack')
+                    ->collapsible(),
                 NavigationGroup::make('Administration')
                     ->icon('heroicon-o-shield-check')
-                    ->collapsed(true),
+                    ->collapsible(),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

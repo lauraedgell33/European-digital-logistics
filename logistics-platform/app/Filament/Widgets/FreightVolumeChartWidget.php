@@ -24,21 +24,23 @@ class FreightVolumeChartWidget extends ChartWidget
 
     protected function computeData(): array
     {
-        $days = collect(range(29, 0))->map(fn ($i) => Carbon::now()->subDays($i));
+        $days = collect(range(29, 0))->map(fn ($i) => now()->subDays($i)->format('Y-m-d'));
 
-        $freightData = $days->map(fn ($day) =>
-            FreightOffer::whereDate('created_at', $day->toDateString())->count()
-        );
+        $freightData = FreightOffer::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
-        $vehicleData = $days->map(fn ($day) =>
-            VehicleOffer::whereDate('created_at', $day->toDateString())->count()
-        );
+        $vehicleData = VehicleOffer::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
         return [
             'datasets' => [
                 [
                     'label' => 'Freight Offers',
-                    'data' => $freightData->toArray(),
+                    'data' => $days->map(fn ($d) => $freightData->get($d, 0))->toArray(),
                     'borderColor' => 'rgb(59, 130, 246)',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                     'fill' => true,
@@ -46,14 +48,14 @@ class FreightVolumeChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Vehicle Offers',
-                    'data' => $vehicleData->toArray(),
+                    'data' => $days->map(fn ($d) => $vehicleData->get($d, 0))->toArray(),
                     'borderColor' => 'rgb(16, 185, 129)',
                     'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
                     'fill' => true,
                     'tension' => 0.3,
                 ],
             ],
-            'labels' => $days->map(fn ($d) => $d->format('d M'))->toArray(),
+            'labels' => $days->map(fn ($d) => Carbon::parse($d)->format('d M'))->toArray(),
         ];
     }
 

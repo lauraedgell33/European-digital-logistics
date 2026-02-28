@@ -68,7 +68,7 @@ class PlatformOverviewWidget extends StatsOverviewWidget
                 ->color('info'),
 
             Stat::make('Total Companies', Company::count())
-                ->description('Active: ' . Company::where('is_verified', true)->count())
+                ->description('Active: ' . Company::where('verification_status', 'verified')->count())
                 ->icon('heroicon-o-building-office-2')
                 ->chart([4, 5, 6, 5, 7, 8, 6])
                 ->color('primary'),

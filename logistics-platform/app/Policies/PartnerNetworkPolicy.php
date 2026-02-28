@@ -46,4 +46,24 @@ class PartnerNetworkPolicy
         return $user->company_id !== $network->owner_company_id
             && $network->isMember($user->company);
     }
+
+    public function update(User $user, PartnerNetwork $network): bool
+    {
+        return $user->company_id === $network->owner_company_id;
+    }
+
+    public function delete(User $user, PartnerNetwork $network): bool
+    {
+        return $user->role === 'admin' || $user->company_id === $network->owner_company_id;
+    }
+
+    public function restore(User $user, PartnerNetwork $network): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function forceDelete(User $user, PartnerNetwork $network): bool
+    {
+        return $user->role === 'admin';
+    }
 }

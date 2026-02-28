@@ -14,7 +14,7 @@ class BarometerSnapshotResource extends Resource
 {
     protected static ?string $model = BarometerSnapshot::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
 
     protected static ?string $navigationGroup = 'AI & Analytics';
 

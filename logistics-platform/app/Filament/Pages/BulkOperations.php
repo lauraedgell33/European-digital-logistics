@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Cache;
 class BulkOperations extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Administration';
     protected static ?int $navigationSort = 13;
     protected static ?string $title = 'Bulk Operations';

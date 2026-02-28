@@ -69,4 +69,14 @@ class TenderPolicy
         return $user->company_id !== null
             && $user->company_id !== $tender->company_id;
     }
+
+    public function restore(User $user, Tender $tender): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function forceDelete(User $user, Tender $tender): bool
+    {
+        return $user->role === 'admin';
+    }
 }

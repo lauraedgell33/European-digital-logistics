@@ -24,6 +24,16 @@ class TenderResource extends Resource
     protected static ?int $navigationSort = 3;
     protected static ?string $recordTitleAttribute = 'title';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'open')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'success';
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -196,6 +206,12 @@ class TenderResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No tenders yet')
+            ->emptyStateDescription('Create your first tender to start receiving bids.')
+            ->emptyStateIcon('heroicon-o-clipboard-document-list')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['company']))
             ->defaultPaginationPageOption(25);
     }

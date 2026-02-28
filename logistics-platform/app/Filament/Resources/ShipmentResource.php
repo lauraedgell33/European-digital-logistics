@@ -16,14 +16,25 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\ShipmentStatus;
 
 class ShipmentResource extends Resource
 {
     protected static ?string $model = Shipment::class;
-    protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+    protected static ?string $navigationIcon = 'heroicon-o-map';
     protected static ?string $navigationGroup = 'Operations';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'tracking_code';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::whereIn('status', ['in_transit', 'at_pickup'])->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'info';
+    }
 
     public static function form(Form $form): Form
     {
@@ -38,14 +49,8 @@ class ShipmentResource extends Resource
                             ->relationship('transportOrder', 'order_number')
                             ->searchable()->preload()->required(),
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'at_pickup' => 'At Pickup',
-                                'in_transit' => 'In Transit',
-                                'at_delivery' => 'At Delivery',
-                                'delivered' => 'Delivered',
-                                'exception' => 'Exception',
-                            ])->required(),
+                            ->options(ShipmentStatus::class)
+                            ->required(),
                         Forms\Components\TextInput::make('tracking_device_id')
                             ->maxLength(50),
                     ])->columns(2),
@@ -97,15 +102,7 @@ class ShipmentResource extends Resource
                     ->searchable()->sortable()->label('Order'),
                 Tables\Columns\TextColumn::make('current_location_name')
                     ->limit(30)->label('Location'),
-                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
-                    'pending' => 'gray',
-                    'at_pickup' => 'warning',
-                    'in_transit' => 'primary',
-                    'at_delivery' => 'info',
-                    'delivered' => 'success',
-                    'exception' => 'danger',
-                    default => 'gray',
-                }),
+                Tables\Columns\TextColumn::make('status')->badge(),
                 Tables\Columns\TextColumn::make('speed_kmh')
                     ->suffix(' km/h')->sortable()->label('Speed'),
                 Tables\Columns\TextColumn::make('eta')
@@ -121,14 +118,23 @@ class ShipmentResource extends Resource
             ->defaultSort('last_update', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'at_pickup' => 'At Pickup',
-                        'in_transit' => 'In Transit',
-                        'at_delivery' => 'At Delivery',
-                        'delivered' => 'Delivered',
-                        'exception' => 'Exception',
-                    ]),
+                    ->options(ShipmentStatus::class),
+                Tables\Filters\Filter::make('last_update')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From'),
+                        Forms\Components\DatePicker::make('until')->label('Until'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when($data['from'], fn ($q, $date) => $q->whereDate('last_update', '>=', $date))
+                            ->when($data['until'], fn ($q, $date) => $q->whereDate('last_update', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) $indicators[] = 'From ' . \Carbon\Carbon::parse($data['from'])->format('M d, Y');
+                        if ($data['until'] ?? null) $indicators[] = 'Until ' . \Carbon\Carbon::parse($data['until'])->format('M d, Y');
+                        return $indicators;
+                    }),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -183,6 +189,9 @@ class ShipmentResource extends Resource
             ->emptyStateHeading('No active shipments')
             ->emptyStateDescription('Shipments will appear when transport orders are fulfilled.')
             ->emptyStateIcon('heroicon-o-map')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
+            ])
             ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['transportOrder']))
             ->defaultPaginationPageOption(25);
     }

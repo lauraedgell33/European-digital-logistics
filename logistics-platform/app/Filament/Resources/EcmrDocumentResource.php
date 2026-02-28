@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EcmrDocumentResource extends Resource
 {
     protected static ?string $model = EcmrDocument::class;
-    protected static ?string $navigationIcon = 'heroicon-o-document-check';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'eCMR Documents';
     protected static ?int $navigationSort = 6;
@@ -48,21 +48,30 @@ class EcmrDocumentResource extends Resource
                                 ->relationship('senderCompany', 'name')->searchable()->preload(),
                             Forms\Components\TextInput::make('sender_name')->maxLength(255),
                             Forms\Components\TextInput::make('sender_address')->maxLength(500),
-                            Forms\Components\TextInput::make('sender_country')->maxLength(2),
+                            Forms\Components\Select::make('sender_country')
+                                ->options(\App\Support\CountryHelper::europeanCountries())
+                                ->searchable()
+                                ->preload(),
                         ])->columns(2),
                         Forms\Components\Section::make('Carrier')->schema([
                             Forms\Components\Select::make('carrier_company_id')
                                 ->relationship('carrierCompany', 'name')->searchable()->preload(),
                             Forms\Components\TextInput::make('carrier_name')->maxLength(255),
                             Forms\Components\TextInput::make('carrier_address')->maxLength(500),
-                            Forms\Components\TextInput::make('carrier_country')->maxLength(2),
+                            Forms\Components\Select::make('carrier_country')
+                                ->options(\App\Support\CountryHelper::europeanCountries())
+                                ->searchable()
+                                ->preload(),
                         ])->columns(2),
                         Forms\Components\Section::make('Consignee')->schema([
                             Forms\Components\Select::make('consignee_company_id')
                                 ->relationship('consigneeCompany', 'name')->searchable()->preload(),
                             Forms\Components\TextInput::make('consignee_name')->maxLength(255),
                             Forms\Components\TextInput::make('consignee_address')->maxLength(500),
-                            Forms\Components\TextInput::make('consignee_country')->maxLength(2),
+                            Forms\Components\Select::make('consignee_country')
+                                ->options(\App\Support\CountryHelper::europeanCountries())
+                                ->searchable()
+                                ->preload(),
                         ])->columns(2),
                     ]),
                 Forms\Components\Tabs\Tab::make('Cargo')

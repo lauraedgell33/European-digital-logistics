@@ -53,6 +53,7 @@ class TransportOrder extends Model implements HasMedia
         'delivered_at' => 'datetime',
         'completed_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'status' => \App\Enums\TransportOrderStatus::class,
     ];
 
     // ── Boot ──────────────────────────────────────────────
@@ -61,14 +62,29 @@ class TransportOrder extends Model implements HasMedia
         parent::boot();
 
         static::creating(function ($order) {
-            if (!$order->order_number) {
-                $order->order_number = 'TO-' . date('Y') . '-' . str_pad(
-                    static::withTrashed()->count() + 1,
-                    6,
-                    '0',
-                    STR_PAD_LEFT
-                );
+            if (empty($order->order_number)) {
+                $order->order_number = static::generateOrderNumber();
             }
+        });
+    }
+
+    public static function generateOrderNumber(): string
+    {
+        return \Illuminate\Support\Facades\DB::transaction(function () {
+            $prefix = 'TO-' . date('Y') . '-';
+            $lastNumber = static::withTrashed()
+                ->where('order_number', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->orderByRaw('CAST(SUBSTRING(order_number, ' . (strlen($prefix) + 1) . ') AS UNSIGNED) DESC')
+                ->value('order_number');
+
+            if ($lastNumber) {
+                $sequence = (int) substr($lastNumber, strlen($prefix)) + 1;
+            } else {
+                $sequence = 1;
+            }
+
+            return $prefix . str_pad($sequence, 5, '0', STR_PAD_LEFT);
         });
     }
 
@@ -101,6 +117,11 @@ class TransportOrder extends Model implements HasMedia
     public function shipment(): HasOne
     {
         return $this->hasOne(Shipment::class);
+    }
+
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Invoice::class);
     }
 
     // ── Media Collections ─────────────────────────────────
