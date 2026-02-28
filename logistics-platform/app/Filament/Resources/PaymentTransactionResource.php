@@ -6,6 +6,8 @@ use App\Filament\Resources\PaymentTransactionResource\Pages;
 use App\Models\PaymentTransaction;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,6 +18,7 @@ class PaymentTransactionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'transaction_reference';
 
     public static function form(Form $form): Form
     {
@@ -64,10 +67,14 @@ class PaymentTransactionResource extends Resource
                 Tables\Columns\TextColumn::make('payment_provider')->badge(),
                 Tables\Columns\TextColumn::make('amount')->money('EUR')->sortable(),
                 Tables\Columns\TextColumn::make('fee_amount')->money('EUR')->label('Fee'),
-                Tables\Columns\BadgeColumn::make('type')
-                    ->colors(['primary' => 'payment', 'warning' => 'refund', 'success' => 'payout', 'gray' => 'fee']),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors(['secondary' => 'pending', 'primary' => 'processing', 'success' => 'completed', 'danger' => 'failed', 'warning' => 'refunded']),
+                Tables\Columns\TextColumn::make('type')->badge()->color(fn (string $state): string => match ($state) {
+                    'payment' => 'primary', 'refund' => 'warning', 'payout' => 'success', 'fee' => 'gray',
+                    default => 'gray',
+                }),
+                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
+                    'pending' => 'secondary', 'processing' => 'primary', 'completed' => 'success', 'failed' => 'danger', 'refunded' => 'warning',
+                    default => 'gray',
+                }),
                 Tables\Columns\TextColumn::make('completed_at')->dateTime()->sortable(),
             ])
             ->filters([
@@ -76,8 +83,47 @@ class PaymentTransactionResource extends Resource
                 Tables\Filters\SelectFilter::make('payment_provider')
                     ->options(['stripe' => 'Stripe', 'sepa' => 'SEPA', 'bank_transfer' => 'Bank Transfer']),
             ])
-            ->actions([Tables\Actions\EditAction::make()])
-            ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
+            ->actions([Tables\Actions\ViewAction::make(), Tables\Actions\EditAction::make()])
+            ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])])
+            ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['invoice', 'company']))
+            ->defaultPaginationPageOption(25);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Infolists\Components\Section::make('Transaction Details')->schema([
+                Infolists\Components\TextEntry::make('transaction_reference')->label('Transaction Reference')->copyable(),
+                Infolists\Components\TextEntry::make('company.name')->label('Company'),
+                Infolists\Components\TextEntry::make('invoice.invoice_number')->label('Invoice'),
+                Infolists\Components\TextEntry::make('payment_provider')->badge()->label('Payment Provider'),
+                Infolists\Components\TextEntry::make('provider_transaction_id')->label('Provider Transaction ID')->copyable(),
+                Infolists\Components\TextEntry::make('type')->badge()->color(fn (string $state): string => match ($state) {
+                    'payment' => 'primary', 'refund' => 'warning', 'payout' => 'success', 'fee' => 'gray', default => 'gray',
+                }),
+                Infolists\Components\TextEntry::make('status')->badge()->color(fn (string $state): string => match ($state) {
+                    'pending' => 'secondary', 'processing' => 'primary', 'completed' => 'success',
+                    'failed' => 'danger', 'refunded' => 'warning', default => 'gray',
+                }),
+            ])->columns(2),
+            Infolists\Components\Section::make('Amounts')->schema([
+                Infolists\Components\TextEntry::make('amount')->money('EUR'),
+                Infolists\Components\TextEntry::make('fee_amount')->money('EUR')->label('Fee'),
+                Infolists\Components\TextEntry::make('net_amount')->money('EUR')->label('Net Amount'),
+                Infolists\Components\TextEntry::make('currency'),
+                Infolists\Components\TextEntry::make('completed_at')->dateTime()->label('Completed At'),
+            ])->columns(3),
+            Infolists\Components\Section::make('Additional Info')->schema([
+                Infolists\Components\TextEntry::make('failure_reason')->label('Failure Reason'),
+                Infolists\Components\TextEntry::make('created_at')->dateTime(),
+            ])->columns(2),
+        ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['transaction_reference', 'status'];
     }
 
     public static function getRelations(): array { return []; }
@@ -87,6 +133,7 @@ class PaymentTransactionResource extends Resource
         return [
             'index' => Pages\ListPaymentTransactions::route('/'),
             'create' => Pages\CreatePaymentTransaction::route('/create'),
+            'view' => Pages\ViewPaymentTransaction::route('/{record}'),
             'edit' => Pages\EditPaymentTransaction::route('/{record}/edit'),
         ];
     }

@@ -65,6 +65,11 @@ class FreightOffer extends Model
         return $this->hasOne(TransportOrder::class);
     }
 
+    public function matchResults()
+    {
+        return $this->hasMany(AiMatchResult::class);
+    }
+
     // ── Scopes ────────────────────────────────────────────
     public function scopeActive($query)
     {

@@ -19,6 +19,7 @@ class WhiteLabelResource extends Resource
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'company_name';
 
     public static function form(Form $form): Form
     {
@@ -113,6 +114,11 @@ class WhiteLabelResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['company_name', 'domain'];
     }
 
     public static function getRelations(): array

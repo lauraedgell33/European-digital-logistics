@@ -19,6 +19,7 @@ class RouteOptimizationResource extends Resource
     protected static ?string $navigationGroup = 'Tracking & Logistics';
 
     protected static ?int $navigationSort = 6;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -154,6 +155,11 @@ class RouteOptimizationResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['status'];
     }
 
     public static function getRelations(): array

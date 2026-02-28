@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\TransportOrder;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class OrderActivityWidget extends ChartWidget
 {
@@ -13,6 +14,13 @@ class OrderActivityWidget extends ChartWidget
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
+    {
+        return Cache::remember('order-activity-chart', 300, function () {
+            return $this->computeData();
+        });
+    }
+
+    protected function computeData(): array
     {
         $days = collect(range(29, 0))->map(fn ($i) => Carbon::now()->subDays($i));
 

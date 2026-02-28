@@ -16,6 +16,7 @@ class TrackingPositionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationGroup = 'Tracking & Logistics';
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -75,6 +76,11 @@ class TrackingPositionResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['location_name'];
     }
 
     public static function getRelations(): array

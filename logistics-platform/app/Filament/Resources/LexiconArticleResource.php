@@ -16,6 +16,7 @@ class LexiconArticleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $navigationGroup = 'Platform';
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -71,6 +72,11 @@ class LexiconArticleResource extends Resource
             ])
             ->actions([Tables\Actions\EditAction::make()])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'slug'];
     }
 
     public static function getRelations(): array { return []; }

@@ -19,6 +19,7 @@ class TrackingShareResource extends Resource
     protected static ?string $navigationGroup = 'Tracking & Logistics';
 
     protected static ?int $navigationSort = 5;
+    protected static ?string $recordTitleAttribute = 'share_token';
 
     public static function form(Form $form): Form
     {
@@ -108,6 +109,11 @@ class TrackingShareResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['share_token'];
     }
 
     public static function getRelations(): array

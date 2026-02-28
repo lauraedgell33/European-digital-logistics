@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Exports\UserExporter;
 use Filament\Actions;
+use Filament\Actions\ExportAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListUsers extends ListRecords
 {
@@ -12,6 +14,9 @@ class ListUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [
+            ExportAction::make()->exporter(UserExporter::class),
+            Actions\CreateAction::make(),
+        ];
     }
 }

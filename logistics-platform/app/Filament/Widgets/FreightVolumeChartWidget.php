@@ -6,14 +6,23 @@ use App\Models\FreightOffer;
 use App\Models\VehicleOffer;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class FreightVolumeChartWidget extends ChartWidget
 {
     protected static ?string $heading = 'Freight vs Vehicle Offers (30 days)';
     protected static ?int $sort = 5;
     protected static ?string $maxHeight = '280px';
+    protected static bool $isLazy = true;
 
     protected function getData(): array
+    {
+        return Cache::remember('freight-volume-chart', 300, function () {
+            return $this->computeData();
+        });
+    }
+
+    protected function computeData(): array
     {
         $days = collect(range(29, 0))->map(fn ($i) => Carbon::now()->subDays($i));
 

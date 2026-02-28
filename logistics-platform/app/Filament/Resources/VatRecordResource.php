@@ -19,6 +19,7 @@ class VatRecordResource extends Resource
     protected static ?string $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -185,6 +186,11 @@ class VatRecordResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['origin_country', 'destination_country'];
     }
 
     public static function getRelations(): array

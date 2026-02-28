@@ -19,6 +19,7 @@ class DigitalIdentityResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'identifier';
 
     public static function form(Form $form): Form
     {
@@ -109,6 +110,11 @@ class DigitalIdentityResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['identifier'];
     }
 
     public static function getRelations(): array

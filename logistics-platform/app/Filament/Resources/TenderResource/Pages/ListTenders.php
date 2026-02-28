@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\TenderResource\Pages;
 
 use App\Filament\Resources\TenderResource;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Exports\TenderExporter;
 use Filament\Actions;
+use Filament\Actions\ExportAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListTenders extends ListRecords
 {
@@ -12,6 +14,9 @@ class ListTenders extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [
+            ExportAction::make()->exporter(TenderExporter::class),
+            Actions\CreateAction::make(),
+        ];
     }
 }

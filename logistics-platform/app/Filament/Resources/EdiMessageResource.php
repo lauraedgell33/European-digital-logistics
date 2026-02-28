@@ -19,6 +19,7 @@ class EdiMessageResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'message_id';
 
     public static function form(Form $form): Form
     {
@@ -163,6 +164,11 @@ class EdiMessageResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['message_id', 'message_type'];
     }
 
     public static function getRelations(): array

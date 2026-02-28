@@ -8,12 +8,20 @@ use App\Models\Shipment;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Cache;
 
 class PlatformOverviewWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 4;
 
     protected function getStats(): array
+    {
+        return Cache::remember('platform-overview-widget', 300, function () {
+            return $this->computeStats();
+        });
+    }
+
+    protected function computeStats(): array
     {
         $todayUsers = User::whereDate('created_at', today())->count();
         $weekUsers = User::where('created_at', '>=', now()->subWeek())->count();
@@ -62,6 +70,7 @@ class PlatformOverviewWidget extends StatsOverviewWidget
             Stat::make('Total Companies', Company::count())
                 ->description('Active: ' . Company::where('is_verified', true)->count())
                 ->icon('heroicon-o-building-office-2')
+                ->chart([4, 5, 6, 5, 7, 8, 6])
                 ->color('primary'),
         ];
     }

@@ -19,6 +19,7 @@ class RouteResource extends Resource
     protected static ?string $navigationGroup = 'Tracking & Logistics';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
@@ -137,6 +138,11 @@ class RouteResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'origin_city', 'destination_city'];
     }
 
     public static function getRelations(): array

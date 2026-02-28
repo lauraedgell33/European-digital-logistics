@@ -3,12 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PartnerNetworkResource\Pages;
+use App\Filament\Resources\PartnerNetworkResource\RelationManagers;
 use App\Models\PartnerNetwork;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PartnerNetworkResource extends Resource
 {
@@ -16,6 +19,7 @@ class PartnerNetworkResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
     protected static ?string $navigationGroup = 'Platform';
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
@@ -68,21 +72,41 @@ class PartnerNetworkResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active'),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'description'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RelationManagers\MembersRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

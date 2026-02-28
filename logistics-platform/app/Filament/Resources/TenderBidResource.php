@@ -9,7 +9,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TenderBidResource extends Resource
 {
@@ -17,6 +19,7 @@ class TenderBidResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-hand-raised';
     protected static ?string $navigationGroup = 'Marketplace';
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -81,14 +84,14 @@ class TenderBidResource extends Resource
                     ->searchable()->sortable()->label('Company'),
                 Tables\Columns\TextColumn::make('proposed_price')
                     ->money('EUR')->sortable()->label('Price'),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'gray' => fn ($state) => in_array($state, ['draft', 'withdrawn']),
-                        'info' => 'submitted',
-                        'warning' => 'under_review',
-                        'success' => 'accepted',
-                        'danger' => 'rejected',
-                    ]),
+                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
+                    'draft', 'withdrawn' => 'gray',
+                    'submitted' => 'info',
+                    'under_review' => 'warning',
+                    'accepted' => 'success',
+                    'rejected' => 'danger',
+                    default => 'gray',
+                }),
                 Tables\Columns\TextColumn::make('score')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('submitted_at')
@@ -105,15 +108,20 @@ class TenderBidResource extends Resource
                         'rejected' => 'Rejected',
                         'withdrawn' => 'Withdrawn',
                     ]),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\BulkAction::make('accept_selected')
                         ->label('Accept Selected')
                         ->icon('heroicon-o-check-circle')
@@ -127,6 +135,21 @@ class TenderBidResource extends Resource
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each(fn ($record) => $record->update(['status' => 'rejected']))),
                 ]),
+            ])
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['tender', 'company']))
+            ->defaultPaginationPageOption(25);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['status'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 

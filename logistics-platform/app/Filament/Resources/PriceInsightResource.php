@@ -19,6 +19,7 @@ class PriceInsightResource extends Resource
     protected static ?string $navigationGroup = 'AI & Analytics';
 
     protected static ?int $navigationSort = 6;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -124,6 +125,11 @@ class PriceInsightResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['origin_country', 'destination_country'];
     }
 
     public static function getRelations(): array

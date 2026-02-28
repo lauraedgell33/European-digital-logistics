@@ -9,6 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MultimodalBookingResource extends Resource
 {
@@ -19,6 +21,7 @@ class MultimodalBookingResource extends Resource
     protected static ?string $navigationGroup = 'Operations';
 
     protected static ?int $navigationSort = 5;
+    protected static ?string $recordTitleAttribute = 'booking_reference';
 
     public static function form(Form $form): Form
     {
@@ -190,14 +193,32 @@ class MultimodalBookingResource extends Resource
                         'air' => 'Air',
                         'barge' => 'Barge',
                     ]),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['booking_reference', 'status'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 

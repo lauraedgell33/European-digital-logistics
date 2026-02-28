@@ -19,68 +19,72 @@ class AiMatchResultResource extends Resource
     protected static ?string $navigationGroup = 'AI & Analytics';
 
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Match References')
-                    ->schema([
-                        Forms\Components\Select::make('freight_offer_id')
-                            ->relationship('freightOffer', 'id')
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Select::make('vehicle_offer_id')
-                            ->relationship('vehicleOffer', 'id')
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Select::make('company_id')
-                            ->relationship('company', 'name')
-                            ->searchable()
-                            ->preload(),
-                    ])->columns(3),
-
-                Forms\Components\Section::make('AI Scores')
-                    ->schema([
-                        Forms\Components\TextInput::make('ai_score')
-                            ->numeric()
-                            ->required(),
-                        Forms\Components\TextInput::make('distance_score')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('capacity_score')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('timing_score')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('reliability_score')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('price_score')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('carbon_score')
-                            ->numeric(),
-                    ])->columns(3),
-
-                Forms\Components\Section::make('Status & Model')
-                    ->schema([
-                        Forms\Components\TextInput::make('model_version')
-                            ->maxLength(255),
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'pending' => 'Pending',
-                                'accepted' => 'Accepted',
-                                'rejected' => 'Rejected',
-                                'expired' => 'Expired',
-                            ])
-                            ->default('pending')
-                            ->required(),
-                        Forms\Components\DateTimePicker::make('accepted_at')
-                            ->disabled()
-                            ->dehydrated(),
-                        Forms\Components\DateTimePicker::make('rejected_at')
-                            ->disabled()
-                            ->dehydrated(),
-                        Forms\Components\Textarea::make('rejection_reason')
-                            ->columnSpanFull(),
-                    ])->columns(2),
+                Forms\Components\Tabs::make('AiMatch')->schema([
+                    Forms\Components\Tabs\Tab::make('References')
+                        ->icon('heroicon-o-link')
+                        ->schema([
+                            Forms\Components\Select::make('freight_offer_id')
+                                ->relationship('freightOffer', 'id')
+                                ->searchable()
+                                ->preload(),
+                            Forms\Components\Select::make('vehicle_offer_id')
+                                ->relationship('vehicleOffer', 'id')
+                                ->searchable()
+                                ->preload(),
+                            Forms\Components\Select::make('company_id')
+                                ->relationship('company', 'name')
+                                ->searchable()
+                                ->preload(),
+                        ])->columns(3),
+                    Forms\Components\Tabs\Tab::make('AI Scores')
+                        ->icon('heroicon-o-sparkles')
+                        ->schema([
+                            Forms\Components\TextInput::make('ai_score')
+                                ->numeric()
+                                ->required(),
+                            Forms\Components\TextInput::make('distance_score')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('capacity_score')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('timing_score')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('reliability_score')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('price_score')
+                                ->numeric(),
+                            Forms\Components\TextInput::make('carbon_score')
+                                ->numeric(),
+                        ])->columns(3),
+                    Forms\Components\Tabs\Tab::make('Status')
+                        ->icon('heroicon-o-check-circle')
+                        ->schema([
+                            Forms\Components\TextInput::make('model_version')
+                                ->maxLength(255),
+                            Forms\Components\Select::make('status')
+                                ->options([
+                                    'pending' => 'Pending',
+                                    'accepted' => 'Accepted',
+                                    'rejected' => 'Rejected',
+                                    'expired' => 'Expired',
+                                ])
+                                ->default('pending')
+                                ->required(),
+                            Forms\Components\DateTimePicker::make('accepted_at')
+                                ->disabled()
+                                ->dehydrated(),
+                            Forms\Components\DateTimePicker::make('rejected_at')
+                                ->disabled()
+                                ->dehydrated(),
+                            Forms\Components\Textarea::make('rejection_reason')
+                                ->columnSpanFull(),
+                        ])->columns(2),
+                ])->columnSpanFull(),
             ]);
     }
 
@@ -137,6 +141,11 @@ class AiMatchResultResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['status'];
     }
 
     public static function getRelations(): array

@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\ShipmentResource\Pages;
 
 use App\Filament\Resources\ShipmentResource;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Exports\ShipmentExporter;
 use Filament\Actions;
+use Filament\Actions\ExportAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListShipments extends ListRecords
 {
@@ -12,6 +14,9 @@ class ListShipments extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [
+            ExportAction::make()->exporter(ShipmentExporter::class),
+            Actions\CreateAction::make(),
+        ];
     }
 }

@@ -9,6 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class IntermodalPlanResource extends Resource
 {
@@ -19,6 +21,7 @@ class IntermodalPlanResource extends Resource
     protected static ?string $navigationGroup = 'Operations';
 
     protected static ?int $navigationSort = 6;
+    protected static ?string $recordTitleAttribute = 'plan_reference';
 
     public static function form(Form $form): Form
     {
@@ -193,14 +196,32 @@ class IntermodalPlanResource extends Resource
                         'co2' => 'CO2',
                         'balanced' => 'Balanced',
                     ]),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['plan_reference', 'status'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 

@@ -19,6 +19,7 @@ class ErpIntegrationResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 5;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
@@ -129,6 +130,11 @@ class ErpIntegrationResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'provider', 'status'];
     }
 
     public static function getRelations(): array

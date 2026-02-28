@@ -19,6 +19,7 @@ class ApiUsageLogResource extends Resource
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -123,6 +124,11 @@ class ApiUsageLogResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['endpoint', 'method'];
     }
 
     public static function getRelations(): array

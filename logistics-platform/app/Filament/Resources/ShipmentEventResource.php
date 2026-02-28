@@ -16,6 +16,7 @@ class ShipmentEventResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
     protected static ?string $navigationGroup = 'Tracking & Logistics';
     protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -64,17 +65,17 @@ class ShipmentEventResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('shipment.tracking_code')
                     ->searchable()->sortable()->label('Shipment'),
-                Tables\Columns\BadgeColumn::make('event_type')
-                    ->colors([
-                        'success' => 'pickup',
-                        'primary' => 'in_transit',
-                        'info' => 'border_crossing',
-                        'warning' => 'customs',
-                        'danger' => 'delay',
-                        'success' => 'delivery',
-                        'danger' => 'exception',
-                        'gray' => 'note',
-                    ]),
+                Tables\Columns\TextColumn::make('event_type')->badge()->color(fn (string $state): string => match ($state) {
+                    'pickup' => 'success',
+                    'in_transit' => 'primary',
+                    'border_crossing' => 'info',
+                    'customs' => 'warning',
+                    'delay' => 'danger',
+                    'delivery' => 'success',
+                    'exception' => 'danger',
+                    'note' => 'gray',
+                    default => 'gray',
+                }),
                 Tables\Columns\TextColumn::make('description')
                     ->limit(40),
                 Tables\Columns\TextColumn::make('location_name')
@@ -109,6 +110,11 @@ class ShipmentEventResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['event_type', 'description'];
     }
 
     public static function getRelations(): array

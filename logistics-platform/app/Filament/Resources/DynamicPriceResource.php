@@ -19,6 +19,7 @@ class DynamicPriceResource extends Resource
     protected static ?string $navigationGroup = 'AI & Analytics';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -168,6 +169,11 @@ class DynamicPriceResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['origin_city', 'destination_city'];
     }
 
     public static function getRelations(): array

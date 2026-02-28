@@ -9,6 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InsuranceQuoteResource extends Resource
 {
@@ -16,6 +18,7 @@ class InsuranceQuoteResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'quote_reference';
 
     public static function form(Form $form): Form
     {
@@ -56,8 +59,10 @@ class InsuranceQuoteResource extends Resource
                 Tables\Columns\TextColumn::make('coverage_type')->badge(),
                 Tables\Columns\TextColumn::make('cargo_value')->money('EUR')->sortable(),
                 Tables\Columns\TextColumn::make('premium_amount')->money('EUR')->sortable(),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors(['secondary' => 'pending', 'primary' => 'quoted', 'success' => 'accepted', 'warning' => 'expired', 'danger' => 'declined']),
+                Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => match ($state) {
+                    'pending' => 'secondary', 'quoted' => 'primary', 'accepted' => 'success', 'expired' => 'warning', 'declined' => 'danger',
+                    default => 'gray',
+                }),
                 Tables\Columns\TextColumn::make('valid_until')->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('policy_number')->searchable(),
             ])
@@ -66,9 +71,33 @@ class InsuranceQuoteResource extends Resource
                     ->options(['pending' => 'Pending', 'quoted' => 'Quoted', 'accepted' => 'Accepted', 'expired' => 'Expired']),
                 Tables\Filters\SelectFilter::make('coverage_type')
                     ->options(['basic' => 'Basic', 'standard' => 'Standard', 'comprehensive' => 'Comprehensive', 'all_risk' => 'All Risk']),
+                Tables\Filters\TrashedFilter::make(),
             ])
-            ->actions([Tables\Actions\EditAction::make()])
-            ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['quote_reference', 'status'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 
     public static function getRelations(): array { return []; }

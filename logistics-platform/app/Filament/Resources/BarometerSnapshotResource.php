@@ -19,6 +19,7 @@ class BarometerSnapshotResource extends Resource
     protected static ?string $navigationGroup = 'AI & Analytics';
 
     protected static ?int $navigationSort = 5;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -136,6 +137,11 @@ class BarometerSnapshotResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['corridor_name'];
     }
 
     public static function getRelations(): array

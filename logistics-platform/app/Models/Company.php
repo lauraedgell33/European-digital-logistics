@@ -95,6 +95,11 @@ class Company extends Model implements HasMedia
         return $this->hasMany(VehicleOffer::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function transportOrdersAsShipper(): HasMany
     {
         return $this->hasMany(TransportOrder::class, 'shipper_id');

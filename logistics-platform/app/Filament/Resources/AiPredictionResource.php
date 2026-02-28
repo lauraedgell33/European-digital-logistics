@@ -19,6 +19,7 @@ class AiPredictionResource extends Resource
     protected static ?string $navigationGroup = 'AI & Analytics';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -135,6 +136,11 @@ class AiPredictionResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['prediction_type'];
     }
 
     public static function getRelations(): array

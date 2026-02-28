@@ -61,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                     <link rel="preconnect" href="https://rsms.me/" crossorigin>
                     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
                     <link rel="stylesheet" href="' . asset('css/filament-geist-theme.css') . '?v=' . time() . '">
+                    <link rel="stylesheet" href="' . asset('css/admin-animations.css') . '?v=' . time() . '">
                 ')
             )
             ->renderHook(

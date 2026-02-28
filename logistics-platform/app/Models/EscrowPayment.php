@@ -29,6 +29,11 @@ class EscrowPayment extends Model
     public function payer() { return $this->belongsTo(Company::class, 'payer_company_id'); }
     public function payee() { return $this->belongsTo(Company::class, 'payee_company_id'); }
 
+    public function transactions()
+    {
+        return $this->hasMany(PaymentTransaction::class);
+    }
+
     public function fund(): void
     {
         $this->update(['status' => 'funded', 'funded_at' => now()]);

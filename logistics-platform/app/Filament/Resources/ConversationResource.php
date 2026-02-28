@@ -17,6 +17,7 @@ class ConversationResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
     protected static ?string $navigationLabel = 'Messages';
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'subject';
 
     public static function form(Form $form): Form
     {
@@ -51,13 +52,13 @@ class ConversationResource extends Resource
                     ->sortable()->label('#'),
                 Tables\Columns\TextColumn::make('subject')
                     ->searchable()->limit(40)->placeholder('(No subject)'),
-                Tables\Columns\BadgeColumn::make('type')
-                    ->colors([
-                        'primary' => 'direct',
-                        'success' => 'freight_inquiry',
-                        'warning' => 'order_discussion',
-                        'info' => 'tender_discussion',
-                    ]),
+                Tables\Columns\TextColumn::make('type')->badge()->color(fn (string $state): string => match ($state) {
+                    'direct' => 'primary',
+                    'freight_inquiry' => 'success',
+                    'order_discussion' => 'warning',
+                    'tender_discussion' => 'info',
+                    default => 'gray',
+                }),
                 Tables\Columns\TextColumn::make('creator.name')
                     ->searchable()->label('Started By'),
                 Tables\Columns\TextColumn::make('messages_count')
@@ -87,6 +88,11 @@ class ConversationResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['subject'];
     }
 
     public static function getRelations(): array

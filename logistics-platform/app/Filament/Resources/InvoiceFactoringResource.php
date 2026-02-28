@@ -19,6 +19,7 @@ class InvoiceFactoringResource extends Resource
     protected static ?string $navigationGroup = 'Finance';
 
     protected static ?int $navigationSort = 4;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Form $form): Form
     {
@@ -134,6 +135,11 @@ class InvoiceFactoringResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['status'];
     }
 
     public static function getRelations(): array

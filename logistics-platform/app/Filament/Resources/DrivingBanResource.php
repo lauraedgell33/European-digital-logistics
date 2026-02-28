@@ -16,6 +16,7 @@ class DrivingBanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-no-symbol';
     protected static ?string $navigationGroup = 'Tracking & Logistics';
     protected static ?int $navigationSort = 1;
+    protected static ?string $recordTitleAttribute = 'country_code';
 
     public static function form(Form $form): Form
     {
@@ -84,6 +85,11 @@ class DrivingBanResource extends Resource
             ])
             ->actions([Tables\Actions\EditAction::make()])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['country_code', 'ban_type'];
     }
 
     public static function getRelations(): array { return []; }

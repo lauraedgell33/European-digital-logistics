@@ -3,9 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SmartContractResource\Pages;
+use App\Filament\Resources\SmartContractResource\RelationManagers;
 use App\Models\SmartContract;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,6 +22,7 @@ class SmartContractResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'contract_name';
 
     public static function form(Form $form): Form
     {
@@ -173,18 +177,55 @@ class SmartContractResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['transportOrder']))
+            ->defaultPaginationPageOption(25);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+            Infolists\Components\Section::make('Contract Details')->schema([
+                Infolists\Components\TextEntry::make('contract_hash')->label('Contract Hash')->copyable(),
+                Infolists\Components\TextEntry::make('transportOrder.order_number')->label('Transport Order'),
+                Infolists\Components\TextEntry::make('partyA.name')->label('Party A'),
+                Infolists\Components\TextEntry::make('partyB.name')->label('Party B'),
+                Infolists\Components\TextEntry::make('contract_type')->badge()->label('Contract Type'),
+            ])->columns(2),
+            Infolists\Components\Section::make('Value & Status')->schema([
+                Infolists\Components\TextEntry::make('value')->money('EUR'),
+                Infolists\Components\TextEntry::make('currency'),
+                Infolists\Components\IconEntry::make('condition_met')->boolean()->label('Condition Met'),
+                Infolists\Components\IconEntry::make('action_executed')->boolean()->label('Action Executed'),
+                Infolists\Components\TextEntry::make('triggered_at')->dateTime()->label('Triggered At'),
+                Infolists\Components\TextEntry::make('executed_at')->dateTime()->label('Executed At'),
+                Infolists\Components\TextEntry::make('status')->badge()->color(fn (string $state): string => match ($state) {
+                    'draft' => 'gray', 'active' => 'info', 'triggered' => 'warning',
+                    'executed' => 'success', 'expired' => 'gray', 'cancelled' => 'danger', default => 'gray',
+                }),
+                Infolists\Components\TextEntry::make('expires_at')->dateTime()->label('Expires At'),
+            ])->columns(2),
+        ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['contract_name', 'status'];
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RelationManagers\TransportOrderRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
@@ -192,6 +233,7 @@ class SmartContractResource extends Resource
         return [
             'index' => Pages\ListSmartContracts::route('/'),
             'create' => Pages\CreateSmartContract::route('/create'),
+            'view' => Pages\ViewSmartContract::route('/{record}'),
             'edit' => Pages\EditSmartContract::route('/{record}/edit'),
         ];
     }

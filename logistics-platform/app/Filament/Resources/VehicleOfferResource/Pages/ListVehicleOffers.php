@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\VehicleOfferResource\Pages;
 
 use App\Filament\Resources\VehicleOfferResource;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Exports\VehicleOfferExporter;
 use Filament\Actions;
+use Filament\Actions\ExportAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListVehicleOffers extends ListRecords
 {
@@ -12,6 +14,9 @@ class ListVehicleOffers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [
+            ExportAction::make()->exporter(VehicleOfferExporter::class),
+            Actions\CreateAction::make(),
+        ];
     }
 }

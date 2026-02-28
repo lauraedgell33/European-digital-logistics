@@ -8,7 +8,10 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Notifications\Notification;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ApiKeyResource extends Resource
 {
@@ -19,6 +22,7 @@ class ApiKeyResource extends Resource
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?int $navigationSort = 2;
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
@@ -112,14 +116,55 @@ class ApiKeyResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active'),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('regenerate')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalDescription('This will generate a new API key. The old key will stop working immediately.')
+                    ->action(function (ApiKey $record) {
+                        $newKey = \Illuminate\Support\Str::random(64);
+                        $record->update([
+                            'key_hash' => hash('sha256', $newKey),
+                            'key_prefix' => substr($newKey, 0, 8),
+                        ]);
+                        Notification::make()->title('New API Key: ' . $newKey)->success()->persistent()->send();
+                    }),
+                Tables\Actions\Action::make('revoke')
+                    ->icon('heroicon-o-no-symbol')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalDescription('This will permanently revoke this API key.')
+                    ->visible(fn (ApiKey $record) => $record->is_active)
+                    ->action(function (ApiKey $record) {
+                        $record->update(['is_active' => false]);
+                        Notification::make()->title('API Key Revoked')->danger()->send();
+                    }),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
             ]);
     }
 

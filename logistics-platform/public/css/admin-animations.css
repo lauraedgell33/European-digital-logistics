@@ -1,0 +1,217 @@
+/* ===== LogiMarket Filament Admin Animations ===== */
+
+/* Fade-in animation for page content */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide-up for cards */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scale-in for modals */
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Pulse for badges and notifications */
+@keyframes subtlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Slide-in from right for notifications */
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Apply animations */
+.fi-page > * {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.fi-section {
+    animation: slideUp 0.4s ease-out both;
+}
+
+.fi-section:nth-child(1) { animation-delay: 0s; }
+.fi-section:nth-child(2) { animation-delay: 0.05s; }
+.fi-section:nth-child(3) { animation-delay: 0.1s; }
+.fi-section:nth-child(4) { animation-delay: 0.15s; }
+.fi-section:nth-child(5) { animation-delay: 0.2s; }
+.fi-section:nth-child(6) { animation-delay: 0.25s; }
+
+/* Stats widget cards staggered */
+.fi-wi-stats-overview-stat {
+    animation: slideUp 0.4s ease-out both;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.fi-wi-stats-overview-stat:nth-child(1) { animation-delay: 0s; }
+.fi-wi-stats-overview-stat:nth-child(2) { animation-delay: 0.05s; }
+.fi-wi-stats-overview-stat:nth-child(3) { animation-delay: 0.08s; }
+.fi-wi-stats-overview-stat:nth-child(4) { animation-delay: 0.12s; }
+
+/* Table rows */
+.fi-ta-row {
+    animation: fadeIn 0.25s ease-out both;
+    transition: background-color 0.15s ease;
+}
+
+.fi-ta-row:nth-child(1) { animation-delay: 0s; }
+.fi-ta-row:nth-child(2) { animation-delay: 0.02s; }
+.fi-ta-row:nth-child(3) { animation-delay: 0.04s; }
+.fi-ta-row:nth-child(4) { animation-delay: 0.06s; }
+.fi-ta-row:nth-child(5) { animation-delay: 0.08s; }
+
+/* Modal animations */
+.fi-modal-window {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* Badge pulse for danger/warning */
+.fi-badge-danger {
+    animation: subtlePulse 3s ease-in-out infinite;
+}
+
+/* Notification slide-in */
+.fi-notification {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Smooth button hover */
+.fi-btn {
+    transition: all 0.15s ease;
+}
+
+.fi-btn:hover {
+    transform: translateY(-1px);
+}
+
+.fi-btn:active {
+    transform: translateY(0);
+}
+
+/* Chart widget fade-in */
+.fi-wi-chart {
+    animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+/* Navigation items */
+.fi-sidebar-item {
+    transition: all 0.15s ease;
+}
+
+.fi-sidebar-item:hover {
+    transform: translateX(2px);
+}
+
+/* Tab transitions */
+.fi-tabs-tab {
+    transition: all 0.2s ease;
+}
+
+/* Form sections */
+.fi-fo-component-ctn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Action buttons group */
+.fi-ta-actions {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.fi-ta-row:hover .fi-ta-actions {
+    opacity: 1;
+}
+
+/* Empty state */
+.fi-ta-empty-state {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Skeleton loading shimmer */
+.fi-loading-indicator {
+    background: linear-gradient(90deg, transparent, rgba(0, 112, 243, 0.08), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Smooth scrollbar */
+.fi-main-ctn {
+    scroll-behavior: smooth;
+}
+
+/* Focus ring improvements for accessibility */
+*:focus-visible {
+    outline: 2px solid #0070f3;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Global search animation */
+.fi-global-search-modal {
+    animation: scaleIn 0.15s ease-out;
+}
+
+/* Sticky table header */
+.fi-ta-header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+}
+
+/* Improved dark mode transitions */
+.dark .fi-section {
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Improved tooltips */
+[x-tooltip] {
+    transition: opacity 0.15s ease;
+}
+
+/* Money columns tabular nums */
+.fi-ta-text-item [data-prefix="€"],
+.fi-ta-text-item [data-suffix="€"],
+.fi-ta-text-item .tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .fi-wi-stats-overview-stat {
+        animation-delay: 0s !important;
+    }
+    
+    .fi-section {
+        animation-delay: 0s !important;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
