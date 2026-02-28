@@ -1,0 +1,760 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   LogiMarket Admin — Geist Design System Theme
+   Matches the frontend's Vercel/Geist-inspired UI/UX
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────
+   CSS Variables — Light Theme
+   ─────────────────────────────────────────────── */
+:root {
+    /* Geist spacing */
+    --geist-space: 4px;
+    --geist-radius: 6px;
+    --geist-marketing-radius: 8px;
+
+    /* Geist Gray Scale — Light */
+    --ds-gray-100: hsl(0, 0%, 95%);
+    --ds-gray-200: hsl(0, 0%, 92%);
+    --ds-gray-300: hsl(0, 0%, 90%);
+    --ds-gray-400: hsl(0, 0%, 92%);
+    --ds-gray-500: hsl(0, 0%, 79%);
+    --ds-gray-600: hsl(0, 0%, 66%);
+    --ds-gray-700: hsl(0, 0%, 56%);
+    --ds-gray-800: hsl(0, 0%, 49%);
+    --ds-gray-900: hsl(0, 0%, 40%);
+    --ds-gray-1000: hsl(0, 0%, 9%);
+
+    /* Geist Blue — Light */
+    --ds-blue-100: hsl(212, 100%, 97%);
+    --ds-blue-200: hsl(210, 100%, 96%);
+    --ds-blue-400: hsl(209, 100%, 90%);
+    --ds-blue-600: hsl(208, 100%, 66%);
+    --ds-blue-700: hsl(212, 100%, 48%);
+    --ds-blue-900: hsl(211, 100%, 42%);
+
+    /* Geist Semantic — Light */
+    --ds-background-100: #fff;
+    --ds-background-200: #fafafa;
+    --geist-foreground: #000;
+    --geist-background: #fff;
+
+    /* Shadows */
+    --ds-shadow-border-base: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    --ds-shadow-border: var(--ds-shadow-border-base);
+    --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.04);
+    --ds-shadow-border-small: var(--ds-shadow-border-base), var(--ds-shadow-small);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ───────────────────────────────────────────────
+   CSS Variables — Dark Theme
+   ─────────────────────────────────────────────── */
+.dark {
+    --ds-gray-100: hsl(0, 0%, 10%);
+    --ds-gray-200: hsl(0, 0%, 12%);
+    --ds-gray-300: hsl(0, 0%, 16%);
+    --ds-gray-400: hsl(0, 0%, 18%);
+    --ds-gray-500: hsl(0, 0%, 27%);
+    --ds-gray-600: hsl(0, 0%, 53%);
+    --ds-gray-700: hsl(0, 0%, 56%);
+    --ds-gray-800: hsl(0, 0%, 49%);
+    --ds-gray-900: hsl(0, 0%, 63%);
+    --ds-gray-1000: hsl(0, 0%, 93%);
+
+    --ds-blue-100: hsl(216, 50%, 12%);
+    --ds-blue-200: hsl(214, 59%, 15%);
+    --ds-blue-400: hsl(212, 78%, 23%);
+    --ds-blue-600: hsl(206, 100%, 50%);
+    --ds-blue-700: hsl(212, 100%, 48%);
+    --ds-blue-900: hsl(210, 100%, 66%);
+
+    --ds-background-100: #0a0a0a;
+    --ds-background-200: #0a0a0a;
+    --geist-foreground: #fff;
+    --geist-background: #000;
+
+    --ds-shadow-border-base: 0 0 0 1px rgba(255, 255, 255, 0.145);
+    --ds-shadow-border: var(--ds-shadow-border-base);
+    --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.16);
+    --ds-shadow-border-small: var(--ds-shadow-border-base), var(--ds-shadow-small);
+    --shadow-medium: 0 0 0 1px rgba(255, 255, 255, 0.145);
+}
+
+/* ───────────────────────────────────────────────
+   Base
+   ─────────────────────────────────────────────── */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    text-rendering: optimizeLegibility;
+}
+
+/* ───────────────────────────────────────────────
+   Scrollbar — Subtle like frontend
+   ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ds-gray-400);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ds-gray-500);
+}
+
+/* ───────────────────────────────────────────────
+   Sidebar — Geist Style
+   ─────────────────────────────────────────────── */
+.fi-sidebar {
+    background: var(--ds-background-100) !important;
+    border-right: 1px solid var(--ds-gray-400) !important;
+}
+
+.dark .fi-sidebar {
+    background: var(--ds-background-100) !important;
+    border-right-color: var(--ds-gray-400) !important;
+}
+
+/* Sidebar nav items */
+.fi-sidebar-nav-groups {
+    padding: 4px 8px !important;
+}
+
+.fi-sidebar-item a,
+.fi-sidebar-item button {
+    border-radius: var(--geist-radius) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 6px 12px !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    color: var(--ds-gray-900) !important;
+}
+
+.fi-sidebar-item a:hover,
+.fi-sidebar-item button:hover {
+    background: var(--ds-gray-100) !important;
+}
+
+.fi-sidebar-item-active a,
+.fi-sidebar-item-active button,
+.fi-sidebar-item a[aria-current="page"],
+.fi-sidebar-item button[aria-current="page"] {
+    background: var(--ds-gray-200) !important;
+    color: var(--ds-gray-1000) !important;
+    font-weight: 600 !important;
+}
+
+/* Sidebar group labels */
+.fi-sidebar-group-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--ds-gray-700) !important;
+    padding: 16px 12px 4px !important;
+}
+
+/* Sidebar icons */
+.fi-sidebar-item-icon {
+    width: 18px !important;
+    height: 18px !important;
+    color: inherit !important;
+}
+
+/* ───────────────────────────────────────────────
+   Top Bar / Header — Geist Style
+   ─────────────────────────────────────────────── */
+.fi-topbar {
+    background: var(--ds-background-100) !important;
+    border-bottom: 1px solid var(--ds-gray-400) !important;
+    height: 64px !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+.dark .fi-topbar {
+    background: rgba(10, 10, 10, 0.8) !important;
+    border-bottom-color: var(--ds-gray-400) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Breadcrumbs
+   ─────────────────────────────────────────────── */
+.fi-breadcrumbs li {
+    font-size: 13px !important;
+    color: var(--ds-gray-700) !important;
+}
+
+.fi-breadcrumbs li:last-child {
+    color: var(--ds-gray-1000) !important;
+    font-weight: 500 !important;
+}
+
+/* ───────────────────────────────────────────────
+   Cards — Geist Card Style
+   ─────────────────────────────────────────────── */
+.fi-section,
+.fi-wi-stats-overview-stat,
+.fi-ta,
+.fi-wi-chart,
+.fi-fo,
+.fi-in {
+    background: var(--ds-background-100) !important;
+    border-radius: var(--geist-radius) !important;
+    box-shadow: var(--ds-shadow-border-small) !important;
+    border: none !important;
+    transition: box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.fi-section:hover,
+.fi-wi-stats-overview-stat:hover {
+    box-shadow: var(--shadow-medium) !important;
+}
+
+/* Stats widgets */
+.fi-wi-stats-overview-stat {
+    padding: 16px 20px !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--ds-gray-700) !important;
+}
+
+.fi-wi-stats-overview-stat-description {
+    font-size: 12px !important;
+    color: var(--ds-gray-600) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Buttons — Geist Style Buttons
+   ─────────────────────────────────────────────── */
+.fi-btn {
+    border-radius: var(--geist-radius) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    height: 36px !important;
+    padding: 0 14px !important;
+    transition: background 0.15s ease, color 0.15s ease,
+                box-shadow 0.15s ease, opacity 0.15s ease,
+                transform 0.1s ease !important;
+}
+
+.fi-btn:active:not(:disabled) {
+    transform: scale(0.97) !important;
+}
+
+/* Primary button */
+.fi-btn-primary,
+.fi-btn[wire\:click="create"],
+button[type="submit"].fi-btn {
+    background: var(--geist-foreground) !important;
+    color: var(--geist-background) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fi-btn-primary:hover,
+.fi-btn[wire\:click="create"]:hover,
+button[type="submit"].fi-btn:hover {
+    opacity: 0.88 !important;
+}
+
+/* Secondary / outlined buttons */
+.fi-btn-outlined,
+.fi-btn:not(.fi-btn-primary):not(.fi-btn-danger) {
+    background: var(--ds-background-100) !important;
+    color: var(--ds-gray-1000) !important;
+    box-shadow: var(--ds-shadow-border) !important;
+}
+
+.fi-btn-outlined:hover,
+.fi-btn:not(.fi-btn-primary):not(.fi-btn-danger):hover {
+    background: var(--ds-gray-100) !important;
+}
+
+/* Danger btn */
+.fi-btn-danger {
+    background: hsl(358, 75%, 59%) !important;
+    color: #fff !important;
+}
+
+.fi-btn-danger:hover {
+    opacity: 0.88 !important;
+}
+
+/* Icon buttons (sm sizing) */
+.fi-icon-btn {
+    border-radius: var(--geist-radius) !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.fi-icon-btn:hover {
+    background: var(--ds-gray-100) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Forms / Inputs — Geist Input Style
+   ─────────────────────────────────────────────── */
+.fi-input,
+.fi-input input,
+.fi-select select,
+.fi-textarea textarea {
+    border-radius: var(--geist-radius) !important;
+    font-size: 14px !important;
+    background: var(--ds-background-100) !important;
+    color: var(--ds-gray-1000) !important;
+    box-shadow: var(--ds-shadow-border) !important;
+    border: none !important;
+    transition: box-shadow 0.15s ease, background 0.15s ease !important;
+}
+
+.fi-input:focus-within,
+.fi-input input:focus,
+.fi-select select:focus,
+.fi-textarea textarea:focus {
+    box-shadow: 0 0 0 1px var(--ds-blue-700), 0 0 0 4px var(--ds-blue-200) !important;
+    outline: none !important;
+}
+
+.fi-input::placeholder,
+.fi-input input::placeholder,
+.fi-textarea textarea::placeholder {
+    color: var(--ds-gray-700) !important;
+}
+
+.fi-input:disabled,
+.fi-input input:disabled {
+    background: var(--ds-gray-100) !important;
+    color: var(--ds-gray-700) !important;
+    opacity: 0.7 !important;
+}
+
+/* Input wrapper borders */
+.fi-input-wrp {
+    border: none !important;
+    box-shadow: var(--ds-shadow-border) !important;
+    border-radius: var(--geist-radius) !important;
+    background: var(--ds-background-100) !important;
+    transition: box-shadow 0.15s ease !important;
+}
+
+.fi-input-wrp:focus-within {
+    box-shadow: 0 0 0 1px var(--ds-blue-700), 0 0 0 4px var(--ds-blue-200) !important;
+}
+
+/* Field labels */
+.fi-fo-field-wrp-label label {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--ds-gray-900) !important;
+}
+
+/* Section headers */
+.fi-section-header h3,
+.fi-section-header-heading {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-section-header-description {
+    font-size: 13px !important;
+    color: var(--ds-gray-700) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Tables — Clean Geist Table
+   ─────────────────────────────────────────────── */
+.fi-ta-header-cell {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: var(--ds-gray-700) !important;
+    background: var(--ds-background-200) !important;
+    border-bottom: 1px solid var(--ds-gray-400) !important;
+    padding: 10px 16px !important;
+}
+
+.fi-ta-row {
+    border-bottom: 1px solid var(--ds-gray-200) !important;
+    transition: background 0.1s ease !important;
+}
+
+.fi-ta-row:hover {
+    background: var(--ds-gray-100) !important;
+}
+
+.fi-ta-cell {
+    font-size: 13px !important;
+    color: var(--ds-gray-1000) !important;
+    padding: 12px 16px !important;
+}
+
+/* Table empty state */
+.fi-ta-empty-state {
+    padding: 48px 24px !important;
+}
+
+.fi-ta-empty-state-heading {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-ta-empty-state-description {
+    font-size: 13px !important;
+    color: var(--ds-gray-700) !important;
+}
+
+/* Pagination */
+.fi-pagination {
+    border-top: 1px solid var(--ds-gray-200) !important;
+    padding: 12px 16px !important;
+}
+
+/* ───────────────────────────────────────────────
+   Badges — Geist Style
+   ─────────────────────────────────────────────── */
+.fi-badge {
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    padding: 2px 10px !important;
+    letter-spacing: 0.01em !important;
+}
+
+/* ───────────────────────────────────────────────
+   Modals / Dialogs
+   ─────────────────────────────────────────────── */
+.fi-modal-window {
+    border-radius: 12px !important;
+    box-shadow: 0 16px 70px rgba(0, 0, 0, 0.2) !important;
+    background: var(--ds-background-100) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+}
+
+.dark .fi-modal-window {
+    box-shadow: 0 16px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+.fi-modal-header {
+    border-bottom: 1px solid var(--ds-gray-200) !important;
+    padding: 20px 24px !important;
+}
+
+.fi-modal-content {
+    padding: 20px 24px !important;
+}
+
+.fi-modal-footer {
+    border-top: 1px solid var(--ds-gray-200) !important;
+    padding: 16px 24px !important;
+}
+
+/* ───────────────────────────────────────────────
+   Notifications / Toasts
+   ─────────────────────────────────────────────── */
+.fi-notification {
+    border-radius: var(--geist-radius) !important;
+    box-shadow: var(--ds-shadow-border-small) !important;
+    background: var(--ds-background-100) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+}
+
+.fi-notification-title {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-notification-body {
+    font-size: 13px !important;
+    color: var(--ds-gray-700) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Global Search
+   ─────────────────────────────────────────────── */
+.fi-global-search-field input {
+    background: var(--ds-gray-100) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+    border-radius: var(--geist-radius) !important;
+    font-size: 13px !important;
+    color: var(--ds-gray-1000) !important;
+    padding: 8px 12px !important;
+}
+
+.fi-global-search-field input:focus {
+    border-color: var(--ds-blue-700) !important;
+    box-shadow: 0 0 0 3px var(--ds-blue-200) !important;
+}
+
+.fi-global-search-field input::placeholder {
+    color: var(--ds-gray-700) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Tabs
+   ─────────────────────────────────────────────── */
+.fi-tabs-tab {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 8px 14px !important;
+    transition: color 0.15s ease, border-color 0.15s ease !important;
+    color: var(--ds-gray-700) !important;
+}
+
+.fi-tabs-tab:hover {
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-tabs-tab-active {
+    color: var(--ds-gray-1000) !important;
+    font-weight: 600 !important;
+    border-bottom-color: var(--geist-foreground) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Toggle / Switch — Geist style
+   ─────────────────────────────────────────────── */
+.fi-toggle-on {
+    background-color: var(--geist-foreground) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Main Content Area
+   ─────────────────────────────────────────────── */
+.fi-main {
+    background: var(--ds-background-200) !important;
+}
+
+.dark .fi-main {
+    background: var(--ds-background-200) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Page Headers
+   ─────────────────────────────────────────────── */
+.fi-header-heading {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+.fi-header-subheading {
+    font-size: 14px !important;
+    color: var(--ds-gray-700) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Filters Panel
+   ─────────────────────────────────────────────── */
+.fi-ta-filters {
+    border-radius: var(--geist-radius) !important;
+    background: var(--ds-background-100) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Brand Logo
+   ─────────────────────────────────────────────── */
+.fi-sidebar-header {
+    border-bottom: 1px solid var(--ds-gray-400) !important;
+}
+
+.fi-sidebar-header a {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Login Page — Geist minimal
+   ─────────────────────────────────────────────── */
+.fi-simple-page {
+    background: var(--ds-background-200) !important;
+    min-height: 100vh !important;
+}
+
+.fi-simple-main-ctn {
+    max-width: 380px !important;
+}
+
+.fi-simple-page .fi-simple-main-ctn > div {
+    border-radius: 12px !important;
+    box-shadow: var(--ds-shadow-border-small) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+    background: var(--ds-background-100) !important;
+    padding: 32px !important;
+}
+
+.fi-simple-page h1 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--ds-gray-1000) !important;
+    text-align: center !important;
+}
+
+/* ───────────────────────────────────────────────
+   Action Dropdown Menus
+   ─────────────────────────────────────────────── */
+.fi-dropdown-panel {
+    border-radius: var(--geist-radius) !important;
+    background: var(--ds-background-100) !important;
+    border: 1px solid var(--ds-gray-400) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+.dark .fi-dropdown-panel {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.fi-dropdown-list-item-button {
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    transition: background 0.1s ease !important;
+}
+
+.fi-dropdown-list-item-button:hover {
+    background: var(--ds-gray-100) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Focus Ring — Geist blue
+   ─────────────────────────────────────────────── */
+*:focus-visible {
+    outline: 2px solid var(--ds-blue-700) !important;
+    outline-offset: 2px !important;
+}
+
+/* ───────────────────────────────────────────────
+   Selection
+   ─────────────────────────────────────────────── */
+::selection {
+    background: var(--ds-gray-1000);
+    color: var(--ds-gray-100);
+}
+
+/* ───────────────────────────────────────────────
+   Animations — Smooth Geist transitions
+   ─────────────────────────────────────────────── */
+.fi-sidebar,
+.fi-topbar,
+.fi-main,
+.fi-section,
+.fi-ta,
+.fi-fo,
+.fi-modal-window,
+.fi-notification {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Skeleton loading */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.fi-loading-indicator {
+    background: linear-gradient(90deg,
+        var(--ds-gray-200) 25%,
+        var(--ds-gray-300) 50%,
+        var(--ds-gray-200) 75%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: shimmer 1.5s infinite !important;
+}
+
+/* Tabular nums for data columns */
+.fi-ta-cell,
+.fi-wi-stats-overview-stat-value {
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* ───────────────────────────────────────────────
+   Infolist sections
+   ─────────────────────────────────────────────── */
+.fi-in-entry-wrp-label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: var(--ds-gray-700) !important;
+}
+
+.fi-in-text-item {
+    font-size: 14px !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Widget / Chart containers
+   ─────────────────────────────────────────────── */
+.fi-wi-chart {
+    padding: 16px !important;
+}
+
+.fi-wi-chart .fi-wi-chart-heading {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--ds-gray-1000) !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* ───────────────────────────────────────────────
+   Avatar — Geist circular avatar
+   ─────────────────────────────────────────────── */
+.fi-avatar {
+    border-radius: 50% !important;
+    box-shadow: var(--ds-shadow-border) !important;
+}
+
+/* ───────────────────────────────────────────────
+   User Menu
+   ─────────────────────────────────────────────── */
+.fi-user-name {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--ds-gray-1000) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Database Notifications — Geist style panel
+   ─────────────────────────────────────────────── */
+.fi-notification-close-btn {
+    border-radius: var(--geist-radius) !important;
+}
+
+/* ───────────────────────────────────────────────
+   Action Headers — Page header spacing
+   ─────────────────────────────────────────────── */
+.fi-header {
+    margin-bottom: 24px !important;
+}
+
+.fi-header-actions {
+    gap: 8px !important;
+}

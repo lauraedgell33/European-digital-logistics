@@ -11,12 +11,15 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\MaxWidth;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -29,25 +32,48 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Blue,
-                'danger' => Color::Red,
+                // Geist-matched color palette using HSL values from frontend
+                'primary' => Color::hex('#0070f3'),   // Geist Blue 700
+                'danger' => Color::hex('#e5484d'),     // Geist Red 700
                 'gray' => Color::Zinc,
-                'info' => Color::Sky,
-                'success' => Color::Green,
-                'warning' => Color::Amber,
+                'info' => Color::hex('#0070f3'),       // Geist Blue
+                'success' => Color::hex('#45a557'),    // Geist Green 700
+                'warning' => Color::hex('#f5a623'),    // Geist Amber 700
             ])
-            ->brandName('LogiMarket Admin')
+            ->font('Inter')
+            ->brandName('LogiMarket')
+            ->brandLogo(fn () => view('filament.brand-logo'))
+            ->darkModeBrandLogo(fn () => view('filament.brand-logo-dark'))
             ->favicon(asset('favicon.ico'))
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop()
             ->sidebarFullyCollapsibleOnDesktop()
             ->breadcrumbs()
-            ->maxContentWidth('full')
+            ->maxContentWidth(MaxWidth::Full)
             ->spa()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchFieldKeyBindingSuffix()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): HtmlString => new HtmlString('
+                    <link rel="preconnect" href="https://rsms.me/" crossorigin>
+                    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+                    <link rel="stylesheet" href="' . asset('css/filament-geist-theme.css') . '?v=' . time() . '">
+                ')
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): HtmlString => new HtmlString('
+                    <script>
+                        // Auto-detect and persist dark mode
+                        if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                            document.documentElement.classList.add("dark");
+                        }
+                    </script>
+                ')
+            )
             ->navigationGroups([
                 NavigationGroup::make('Dashboard')
                     ->icon('heroicon-o-home')
