@@ -29,6 +29,9 @@ desktop.ini
 
 # Build outputs
 logistics-frontend/out/
+logistics-frontend/.auth/
+logistics-frontend/test-results/
+logistics-frontend/playwright-report/
 logistics-mobile/dist/
 logistics-mobile/android/
 logistics-mobile/ios/
@@ -65,3 +68,7 @@ logistics-platform/public/build/
 
 # Old backup files
 README.old.md
+
+# Test output files
+pw-*.txt
+playwright-results.txt

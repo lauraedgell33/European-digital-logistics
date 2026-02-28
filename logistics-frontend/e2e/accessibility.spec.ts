@@ -1,21 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const CREDENTIALS = {
-  email: 'admin@logistics.eu',
-  password: 'Admin@2026!',
-};
-
-async function login(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel(/email/i).fill(CREDENTIALS.email);
-  await page.getByLabel(/password/i).fill(CREDENTIALS.password);
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL('**/dashboard', { timeout: 15_000 });
-}
-
 // ─── Keyboard Navigation ─────────────────────────────
 test.describe('Keyboard Navigation', () => {
   test('login form should be keyboard-navigable', async ({ page }) => {
+    // Use fresh session for login page test
+    await page.context().clearCookies();
     await page.goto('/login');
 
     // Tab to email field
@@ -29,14 +18,15 @@ test.describe('Keyboard Navigation', () => {
     await page.keyboard.press('Tab');
 
     // Should be able to submit with Enter
-    await page.getByLabel(/email/i).fill(CREDENTIALS.email);
-    await page.getByLabel(/password/i).fill(CREDENTIALS.password);
+    await page.getByLabel(/email/i).fill('admin@logistics.eu');
+    await page.getByLabel(/password/i).fill('Admin@2026!');
     await page.getByLabel(/password/i).press('Enter');
     await page.waitForTimeout(3000);
   });
 
   test('sidebar navigation should be keyboard accessible', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     // All nav links should be focusable
     const navLinks = page.locator('nav a[href]');
     const count = await navLinks.count();
@@ -69,7 +59,8 @@ test.describe('ARIA & Semantic HTML', () => {
   });
 
   test('dashboard should have proper heading hierarchy', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const h1 = page.locator('h1');
     await expect(h1.first()).toBeVisible();
 
@@ -111,7 +102,8 @@ test.describe('ARIA & Semantic HTML', () => {
   });
 
   test('images should have alt text', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const images = page.locator('img');
     const count = await images.count();
 
@@ -129,7 +121,8 @@ test.describe('ARIA & Semantic HTML', () => {
   });
 
   test('buttons should have accessible names', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const buttons = page.locator('button');
     const count = await buttons.count();
 
@@ -150,7 +143,8 @@ test.describe('ARIA & Semantic HTML', () => {
   });
 
   test('links should have descriptive text', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const links = page.locator('a[href]');
     const count = await links.count();
 
@@ -224,7 +218,8 @@ test.describe('Screen Reader Compatibility', () => {
   });
 
   test('navigation should be marked as nav landmark', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const navs = page.locator('nav, [role="navigation"]');
     const count = await navs.count();
     expect(count).toBeGreaterThan(0);
@@ -243,7 +238,8 @@ test.describe('Screen Reader Compatibility', () => {
   });
 
   test('modals and dialogs should have proper roles', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     // Check if any dialogs/modals have proper ARIA
     const dialogs = page.locator('[role="dialog"], [role="alertdialog"]');
     const count = await dialogs.count();

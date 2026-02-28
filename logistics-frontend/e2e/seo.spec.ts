@@ -1,18 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const CREDENTIALS = {
-  email: 'admin@logistics.eu',
-  password: 'Admin@2026!',
-};
-
-async function login(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel(/email/i).fill(CREDENTIALS.email);
-  await page.getByLabel(/password/i).fill(CREDENTIALS.password);
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL('**/dashboard', { timeout: 15_000 });
-}
-
 // ─── Meta Tags & SEO ─────────────────────────────────
 test.describe('SEO Meta Tags', () => {
   test('login page should have proper title', async ({ page }) => {
@@ -116,7 +103,8 @@ test.describe('SEO Heading Structure', () => {
   });
 
   test('dashboard should have proper H1', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const h1 = page.locator('h1').first();
     await expect(h1).toBeVisible();
     const text = await h1.textContent();
@@ -124,7 +112,8 @@ test.describe('SEO Heading Structure', () => {
   });
 
   test('headings should be in proper order', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const headings = await page.evaluate(() => {
       return Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).map(
         (h) => parseInt(h.tagName.charAt(1))
@@ -146,7 +135,8 @@ test.describe('SEO Heading Structure', () => {
 // ─── Links & Navigation SEO ──────────────────────────
 test.describe('SEO Links', () => {
   test('internal links should have href attributes', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const links = page.locator('a');
     const count = await links.count();
 
@@ -159,7 +149,8 @@ test.describe('SEO Links', () => {
   });
 
   test('external links should have rel noopener', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const externalLinks = page.locator('a[target="_blank"]');
     const count = await externalLinks.count();
 
@@ -175,7 +166,8 @@ test.describe('SEO Links', () => {
 // ─── Image SEO ────────────────────────────────────────
 test.describe('Image SEO', () => {
   test('images should have alt attributes', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const images = page.locator('img');
     const count = await images.count();
 

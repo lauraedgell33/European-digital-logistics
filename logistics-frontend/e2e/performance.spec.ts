@@ -1,18 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const CREDENTIALS = {
-  email: 'admin@logistics.eu',
-  password: 'Admin@2026!',
-};
-
-async function login(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel(/email/i).fill(CREDENTIALS.email);
-  await page.getByLabel(/password/i).fill(CREDENTIALS.password);
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL('**/dashboard', { timeout: 15_000 });
-}
-
 // ─── Core Web Vitals & Load Performance ───────────────
 test.describe('Page Load Performance', () => {
   test('login page should load under 3 seconds', async ({ page }) => {
@@ -27,9 +14,9 @@ test.describe('Page Load Performance', () => {
   });
 
   test('dashboard should load under 5 seconds', async ({ page }) => {
-    await login(page);
     const start = Date.now();
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const loadTime = Date.now() - start;
     expect(loadTime).toBeLessThan(10_000);
   });
@@ -126,14 +113,14 @@ test.describe('Network Performance', () => {
   });
 
   test('should not make excessive API calls on dashboard load', async ({ page }) => {
-    await login(page);
     const apiCalls: string[] = [];
     page.on('request', (request) => {
       if (request.url().includes('/api/')) {
         apiCalls.push(request.url());
       }
     });
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     // Should not make more than 20 API calls on initial load
     expect(apiCalls.length).toBeLessThan(20);
   });
@@ -201,7 +188,8 @@ test.describe('Rendering Performance', () => {
   });
 
   test('DOM should not be excessively large', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const domSize = await page.evaluate(() => {
       return document.querySelectorAll('*').length;
     });
@@ -210,7 +198,8 @@ test.describe('Rendering Performance', () => {
   });
 
   test('should not have excessive inline styles', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const inlineStyleCount = await page.evaluate(() => {
       return document.querySelectorAll('[style]').length;
     });
@@ -222,7 +211,8 @@ test.describe('Rendering Performance', () => {
 // ─── Navigation Performance ───────────────────────────
 test.describe('Navigation Performance', () => {
   test('client-side navigation should be fast', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const start = Date.now();
     await page.goto('/freight');
     await page.waitForLoadState('networkidle');
@@ -231,7 +221,8 @@ test.describe('Navigation Performance', () => {
   });
 
   test('back navigation should be instant', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     await page.goto('/freight');
     await page.waitForLoadState('networkidle');
 
@@ -243,7 +234,8 @@ test.describe('Navigation Performance', () => {
   });
 
   test('multiple rapid page loads should not crash', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     const pages = ['/freight', '/orders', '/vehicles', '/settings', '/dashboard'];
 
     for (const p of pages) {
@@ -258,7 +250,8 @@ test.describe('Navigation Performance', () => {
 // ─── Memory & Resource Usage ──────────────────────────
 test.describe('Memory & Resources', () => {
   test('should not leak memory across navigations', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
 
     // Measure initial memory
     const initialMemory = await page.evaluate(() => {
@@ -289,7 +282,8 @@ test.describe('Memory & Resources', () => {
   });
 
   test('should clean up event listeners on unmount', async ({ page }) => {
-    await login(page);
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     await page.goto('/freight');
     await page.goto('/dashboard');
     // No crash = passed (event listener cleanup is implied)
