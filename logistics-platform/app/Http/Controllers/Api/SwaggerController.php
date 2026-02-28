@@ -216,226 +216,262 @@ use App\Http\Controllers\Controller;
  *     @OA\Property(property="goods_description", type="array", @OA\Items(type="string"))
  * )
  *
- * ── Auth Endpoint Documentation ────────────────────────────
- *
- * @OA\Post(
- *     path="/auth/register",
- *     tags={"Authentication"},
- *     summary="Register a new company and admin user",
- *     @OA\RequestBody(required=true,
- *         @OA\JsonContent(required={"name","email","password","password_confirmation","company_name","company_type","vat_number","country_code","city","address","postal_code"},
- *             @OA\Property(property="name", type="string", example="John Doe"),
- *             @OA\Property(property="email", type="string", format="email", example="john@acme.eu"),
- *             @OA\Property(property="password", type="string", format="password", minLength=8),
- *             @OA\Property(property="password_confirmation", type="string", format="password"),
- *             @OA\Property(property="company_name", type="string", example="Acme Logistics GmbH"),
- *             @OA\Property(property="company_type", type="string", enum={"shipper","carrier","forwarder"}),
- *             @OA\Property(property="vat_number", type="string", example="DE123456789"),
- *             @OA\Property(property="country_code", type="string", example="DE", minLength=2, maxLength=2),
- *             @OA\Property(property="city", type="string", example="Berlin"),
- *             @OA\Property(property="address", type="string", example="Musterstraße 1"),
- *             @OA\Property(property="postal_code", type="string", example="10115")
- *         )
- *     ),
- *     @OA\Response(response=201, description="Registered successfully",
- *         @OA\JsonContent(@OA\Property(property="user", ref="#/components/schemas/User"),
- *             @OA\Property(property="token", type="string"), @OA\Property(property="message", type="string"))
- *     ),
- *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ErrorResponse"))
- * )
- *
- * @OA\Post(
- *     path="/auth/login",
- *     tags={"Authentication"},
- *     summary="Login and receive a bearer token",
- *     @OA\RequestBody(required=true,
- *         @OA\JsonContent(required={"email","password"},
- *             @OA\Property(property="email", type="string", format="email", example="admin@logistics.eu"),
- *             @OA\Property(property="password", type="string", format="password", example="Admin@2026!")
- *         )
- *     ),
- *     @OA\Response(response=200, description="Login successful",
- *         @OA\JsonContent(@OA\Property(property="user", ref="#/components/schemas/User"),
- *             @OA\Property(property="token", type="string", example="1|abc123token"))
- *     ),
- *     @OA\Response(response=422, description="Invalid credentials", @OA\JsonContent(ref="#/components/schemas/ErrorResponse"))
- * )
- *
- * @OA\Post(
- *     path="/auth/logout",
- *     tags={"Authentication"},
- *     summary="Logout and revoke current token",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Logged out successfully")
- * )
- *
- * @OA\Get(
- *     path="/auth/profile",
- *     tags={"Authentication"},
- *     summary="Get authenticated user profile",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="User profile", @OA\JsonContent(ref="#/components/schemas/User"))
- * )
- *
- * ── Freight Endpoints ──────────────────────────────────────
- *
- * @OA\Get(
- *     path="/freight",
- *     tags={"Freight Exchange"},
- *     summary="List freight offers with filtering",
- *     security={{"sanctum":{}}},
- *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
- *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15)),
- *     @OA\Parameter(name="origin_country", in="query", @OA\Schema(type="string")),
- *     @OA\Parameter(name="destination_country", in="query", @OA\Schema(type="string")),
- *     @OA\Parameter(name="cargo_type", in="query", @OA\Schema(type="string")),
- *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Paginated freight list")
- * )
- *
- * @OA\Post(
- *     path="/freight",
- *     tags={"Freight Exchange"},
- *     summary="Create a new freight offer",
- *     security={{"sanctum":{}}},
- *     @OA\RequestBody(required=true,
- *         @OA\JsonContent(ref="#/components/schemas/FreightOffer")
- *     ),
- *     @OA\Response(response=201, description="Freight offer created")
- * )
- *
- * @OA\Post(
- *     path="/freight/search",
- *     tags={"Freight Exchange"},
- *     summary="Search freight offers with advanced filters",
- *     security={{"sanctum":{}}},
- *     @OA\RequestBody(@OA\JsonContent(
- *         @OA\Property(property="origin_country", type="string"),
- *         @OA\Property(property="destination_country", type="string"),
- *         @OA\Property(property="min_weight", type="number"),
- *         @OA\Property(property="max_weight", type="number"),
- *         @OA\Property(property="loading_date_from", type="string", format="date"),
- *         @OA\Property(property="loading_date_to", type="string", format="date"),
- *         @OA\Property(property="cargo_type", type="string"),
- *         @OA\Property(property="vehicle_type", type="string")
- *     )),
- *     @OA\Response(response=200, description="Search results")
- * )
- *
- * ── Orders Endpoints ───────────────────────────────────────
- *
- * @OA\Get(
- *     path="/orders",
- *     tags={"Transport Orders"},
- *     summary="List transport orders",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Paginated orders list")
- * )
- *
- * @OA\Post(
- *     path="/orders",
- *     tags={"Transport Orders"},
- *     summary="Create a transport order",
- *     security={{"sanctum":{}}},
- *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/TransportOrder")),
- *     @OA\Response(response=201, description="Order created")
- * )
- *
- * @OA\Get(
- *     path="/orders/stats/overview",
- *     tags={"Transport Orders"},
- *     summary="Get order statistics overview",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Order statistics")
- * )
- *
- * ── Tracking Endpoints ─────────────────────────────────────
- *
- * @OA\Get(
- *     path="/tracking/{trackingCode}",
- *     tags={"Tracking"},
- *     summary="Track a shipment by tracking code (public)",
- *     @OA\Parameter(name="trackingCode", in="path", required=true, @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Shipment tracking data"),
- *     @OA\Response(response=404, description="Tracking code not found")
- * )
- *
- * @OA\Get(
- *     path="/tracking/active",
- *     tags={"Tracking"},
- *     summary="Get all active shipments for the authenticated user",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Active shipments list")
- * )
- *
- * ── Blockchain / eCMR ──────────────────────────────────────
- *
- * @OA\Post(
- *     path="/ecmr",
- *     tags={"Blockchain & eCMR"},
- *     summary="Create an electronic CMR document",
- *     security={{"sanctum":{}}},
- *     @OA\RequestBody(required=true, @OA\JsonContent(
- *         required={"sender_country","place_of_taking_over","place_of_delivery","goods_description"},
- *         @OA\Property(property="sender_country", type="string", example="DE"),
- *         @OA\Property(property="place_of_taking_over", type="string", example="Berlin"),
- *         @OA\Property(property="place_of_delivery", type="string", example="Paris"),
- *         @OA\Property(property="goods_description", type="array", @OA\Items(type="string"))
- *     )),
- *     @OA\Response(response=201, description="eCMR created with blockchain hash")
- * )
- *
- * ── Invoicing ──────────────────────────────────────────────
- *
- * @OA\Get(
- *     path="/invoices",
- *     tags={"Invoicing"},
- *     summary="List invoices",
- *     security={{"sanctum":{}}},
- *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string")),
- *     @OA\Response(response=200, description="Paginated invoices")
- * )
- *
- * @OA\Post(
- *     path="/invoices",
- *     tags={"Invoicing"},
- *     summary="Create a new invoice",
- *     security={{"sanctum":{}}},
- *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/Invoice")),
- *     @OA\Response(response=201, description="Invoice created")
- * )
- *
- * ── Payments ───────────────────────────────────────────────
- *
- * @OA\Get(
- *     path="/payments/history",
- *     tags={"Payments"},
- *     summary="Get payment history",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Payment transactions")
- * )
- *
- * @OA\Get(
- *     path="/payments/exchange-rates",
- *     tags={"Payments"},
- *     summary="Get current EUR exchange rates",
- *     security={{"sanctum":{}}},
- *     @OA\Response(response=200, description="Exchange rate data")
- * )
- *
- * ── Health ──────────────────────────────────────────────────
- *
- * @OA\Get(
- *     path="/health",
- *     tags={"Health"},
- *     summary="Basic health check",
- *     @OA\Response(response=200, description="System is healthy",
- *         @OA\JsonContent(@OA\Property(property="status", type="string", example="ok"))
- *     )
- * )
  */
 class SwaggerController extends Controller
 {
-    // This controller only holds OpenAPI annotations.
-    // Swagger UI is served via /api/documentation route.
+    /**
+     * @OA\Post(
+     *     path="/auth/register",
+     *     tags={"Authentication"},
+     *     summary="Register a new company and admin user",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"name","email","password","password_confirmation","company_name","company_type","vat_number","country_code","city","address","postal_code"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@acme.eu"),
+     *             @OA\Property(property="password", type="string", format="password", minLength=8),
+     *             @OA\Property(property="password_confirmation", type="string", format="password"),
+     *             @OA\Property(property="company_name", type="string", example="Acme Logistics GmbH"),
+     *             @OA\Property(property="company_type", type="string", enum={"shipper","carrier","forwarder"}),
+     *             @OA\Property(property="vat_number", type="string", example="DE123456789"),
+     *             @OA\Property(property="country_code", type="string", example="DE", minLength=2, maxLength=2),
+     *             @OA\Property(property="city", type="string", example="Berlin"),
+     *             @OA\Property(property="address", type="string", example="Musterstraße 1"),
+     *             @OA\Property(property="postal_code", type="string", example="10115")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Registered successfully",
+     *         @OA\JsonContent(@OA\Property(property="user", ref="#/components/schemas/User"),
+     *             @OA\Property(property="token", type="string"), @OA\Property(property="message", type="string"))
+     *     ),
+     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ErrorResponse"))
+     * )
+     */
+    public function register() {}
+
+    /**
+     * @OA\Post(
+     *     path="/auth/login",
+     *     tags={"Authentication"},
+     *     summary="Login and receive a bearer token",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="admin@logistics.eu"),
+     *             @OA\Property(property="password", type="string", format="password", example="Admin@2026!")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Login successful",
+     *         @OA\JsonContent(@OA\Property(property="user", ref="#/components/schemas/User"),
+     *             @OA\Property(property="token", type="string", example="1|abc123token"))
+     *     ),
+     *     @OA\Response(response=422, description="Invalid credentials", @OA\JsonContent(ref="#/components/schemas/ErrorResponse"))
+     * )
+     */
+    public function login() {}
+
+    /**
+     * @OA\Post(
+     *     path="/auth/logout",
+     *     tags={"Authentication"},
+     *     summary="Logout and revoke current token",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Logged out successfully")
+     * )
+     */
+    public function logout() {}
+
+    /**
+     * @OA\Get(
+     *     path="/auth/profile",
+     *     tags={"Authentication"},
+     *     summary="Get authenticated user profile",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="User profile", @OA\JsonContent(ref="#/components/schemas/User"))
+     * )
+     */
+    public function profile() {}
+
+    /**
+     * @OA\Get(
+     *     path="/freight",
+     *     tags={"Freight Exchange"},
+     *     summary="List freight offers with filtering",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=15)),
+     *     @OA\Parameter(name="origin_country", in="query", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="destination_country", in="query", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="cargo_type", in="query", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Paginated freight list")
+     * )
+     */
+    public function listFreight() {}
+
+    /**
+     * @OA\Post(
+     *     path="/freight",
+     *     tags={"Freight Exchange"},
+     *     summary="Create a new freight offer",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/FreightOffer")
+     *     ),
+     *     @OA\Response(response=201, description="Freight offer created")
+     * )
+     */
+    public function createFreight() {}
+
+    /**
+     * @OA\Post(
+     *     path="/freight/search",
+     *     tags={"Freight Exchange"},
+     *     summary="Search freight offers with advanced filters",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(@OA\JsonContent(
+     *         @OA\Property(property="origin_country", type="string"),
+     *         @OA\Property(property="destination_country", type="string"),
+     *         @OA\Property(property="min_weight", type="number"),
+     *         @OA\Property(property="max_weight", type="number"),
+     *         @OA\Property(property="loading_date_from", type="string", format="date"),
+     *         @OA\Property(property="loading_date_to", type="string", format="date"),
+     *         @OA\Property(property="cargo_type", type="string"),
+     *         @OA\Property(property="vehicle_type", type="string")
+     *     )),
+     *     @OA\Response(response=200, description="Search results")
+     * )
+     */
+    public function searchFreight() {}
+
+    /**
+     * @OA\Get(
+     *     path="/orders",
+     *     tags={"Transport Orders"},
+     *     summary="List transport orders",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Paginated orders list")
+     * )
+     */
+    public function listOrders() {}
+
+    /**
+     * @OA\Post(
+     *     path="/orders",
+     *     tags={"Transport Orders"},
+     *     summary="Create a transport order",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/TransportOrder")),
+     *     @OA\Response(response=201, description="Order created")
+     * )
+     */
+    public function createOrder() {}
+
+    /**
+     * @OA\Get(
+     *     path="/orders/stats/overview",
+     *     tags={"Transport Orders"},
+     *     summary="Get order statistics overview",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Order statistics")
+     * )
+     */
+    public function orderStats() {}
+
+    /**
+     * @OA\Get(
+     *     path="/tracking/{trackingCode}",
+     *     tags={"Tracking"},
+     *     summary="Track a shipment by tracking code (public)",
+     *     @OA\Parameter(name="trackingCode", in="path", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Shipment tracking data"),
+     *     @OA\Response(response=404, description="Tracking code not found")
+     * )
+     */
+    public function trackShipment() {}
+
+    /**
+     * @OA\Get(
+     *     path="/tracking/active",
+     *     tags={"Tracking"},
+     *     summary="Get all active shipments for the authenticated user",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Active shipments list")
+     * )
+     */
+    public function activeShipments() {}
+
+    /**
+     * @OA\Post(
+     *     path="/ecmr",
+     *     tags={"Blockchain & eCMR"},
+     *     summary="Create an electronic CMR document",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(required=true, @OA\JsonContent(
+     *         required={"sender_country","place_of_taking_over","place_of_delivery","goods_description"},
+     *         @OA\Property(property="sender_country", type="string", example="DE"),
+     *         @OA\Property(property="place_of_taking_over", type="string", example="Berlin"),
+     *         @OA\Property(property="place_of_delivery", type="string", example="Paris"),
+     *         @OA\Property(property="goods_description", type="array", @OA\Items(type="string"))
+     *     )),
+     *     @OA\Response(response=201, description="eCMR created with blockchain hash")
+     * )
+     */
+    public function createEcmr() {}
+
+    /**
+     * @OA\Get(
+     *     path="/invoices",
+     *     tags={"Invoicing"},
+     *     summary="List invoices",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Paginated invoices")
+     * )
+     */
+    public function listInvoices() {}
+
+    /**
+     * @OA\Post(
+     *     path="/invoices",
+     *     tags={"Invoicing"},
+     *     summary="Create a new invoice",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/Invoice")),
+     *     @OA\Response(response=201, description="Invoice created")
+     * )
+     */
+    public function createInvoice() {}
+
+    /**
+     * @OA\Get(
+     *     path="/payments/history",
+     *     tags={"Payments"},
+     *     summary="Get payment history",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Payment transactions")
+     * )
+     */
+    public function paymentHistory() {}
+
+    /**
+     * @OA\Get(
+     *     path="/payments/exchange-rates",
+     *     tags={"Payments"},
+     *     summary="Get current EUR exchange rates",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Exchange rate data")
+     * )
+     */
+    public function exchangeRates() {}
+
+    /**
+     * @OA\Get(
+     *     path="/health",
+     *     tags={"Health"},
+     *     summary="Basic health check",
+     *     @OA\Response(response=200, description="System is healthy",
+     *         @OA\JsonContent(@OA\Property(property="status", type="string", example="ok"))
+     *     )
+     * )
+     */
+    public function health() {}
 }
