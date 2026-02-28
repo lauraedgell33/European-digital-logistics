@@ -128,11 +128,11 @@ export default function WarehousesPage() {
                 <span
                   className="text-[11px] font-medium px-2 py-0.5 rounded-full"
                   style={{
-                    background: wh.available_space_sqm > 0 ? 'var(--ds-green-200)' : 'var(--ds-red-200)',
-                    color: wh.available_space_sqm > 0 ? 'var(--ds-green-900)' : 'var(--ds-red-900)',
+                    background: (wh.available_space_sqm || wh.available_area_m2 || 0) > 0 ? 'var(--ds-green-200)' : 'var(--ds-red-200)',
+                    color: (wh.available_space_sqm || wh.available_area_m2 || 0) > 0 ? 'var(--ds-green-900)' : 'var(--ds-red-900)',
                   }}
                 >
-                  {wh.available_space_sqm > 0 ? 'Available' : 'Full'}
+                  {(wh.available_space_sqm || wh.available_area_m2 || 0) > 0 ? 'Available' : 'Full'}
                 </span>
               </div>
 
@@ -281,7 +281,7 @@ function WarehouseDetailModal({ warehouse: wh, onClose }: { warehouse: Warehouse
         </div>
 
         {/* Booking Form */}
-        {wh.available_space_sqm > 0 && !booked && (
+        {(wh.available_space_sqm || wh.available_area_m2 || 0) > 0 && !booked && (
           <div className="border-t pt-4 space-y-3" style={{ borderColor: 'var(--ds-gray-300)' }}>
             <h3 className="text-sm font-bold" style={{ color: 'var(--ds-gray-1000)' }}>Book Space</h3>
             <div className="grid grid-cols-3 gap-3">

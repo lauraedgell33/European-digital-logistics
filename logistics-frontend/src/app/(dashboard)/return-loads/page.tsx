@@ -235,13 +235,13 @@ export default function ReturnLoadsPage() {
                           className="h-full rounded-full"
                           style={{
                             width: `${Math.min((leg.supply_demand_ratio || 0) * 50, 100)}%`,
-                            background: leg.supply_demand_ratio > 1.5 ? 'var(--ds-green-600)' : leg.supply_demand_ratio > 0.8 ? 'var(--ds-amber-500)' : 'var(--ds-red-500)',
+                            background: (leg.supply_demand_ratio || 0) > 1.5 ? 'var(--ds-green-600)' : (leg.supply_demand_ratio || 0) > 0.8 ? 'var(--ds-amber-500)' : 'var(--ds-red-500)',
                           }}
                         />
                       </div>
                       <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>
                         Supply/Demand: {leg.supply_demand_ratio?.toFixed(2)}
-                        {leg.supply_demand_ratio > 1.5 ? ' — Oversupply' : leg.supply_demand_ratio > 0.8 ? ' — Balanced' : ' — High Demand'}
+                        {(leg.supply_demand_ratio || 0) > 1.5 ? ' — Oversupply' : (leg.supply_demand_ratio || 0) > 0.8 ? ' — Balanced' : ' — High Demand'}
                       </p>
                     </div>
                   </Card>

@@ -195,7 +195,7 @@ export default function InsurancePage() {
                   <div className="text-center p-4 rounded-lg" style={{ background: 'var(--ds-gray-100)' }}>
                     <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Rate</p>
                     <p className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
-                      {((quoteResult.premium_amount / quoteResult.coverage_amount) * 100).toFixed(2)}%
+                      {(((quoteResult.premium_amount || quoteResult.premium || 0) / (quoteResult.coverage_amount || quoteResult.cargo_value || 1)) * 100).toFixed(2)}%
                     </p>
                   </div>
                 </div>

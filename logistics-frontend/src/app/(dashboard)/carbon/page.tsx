@@ -216,8 +216,9 @@ export default function CarbonPage() {
                   <div className="p-4">
                     <div className="space-y-2">
                       {Object.entries(result.comparison).map(([mode, co2]) => {
-                        const pct = ((co2 as number) / result.total_co2_kg * 100).toFixed(0);
-                        const savings = result.total_co2_kg - (co2 as number);
+                        const totalCo2 = result.total_co2_kg || result.co2_kg || 1;
+                        const pct = ((co2 as number) / totalCo2 * 100).toFixed(0);
+                        const savings = totalCo2 - (co2 as number);
                         return (
                           <div key={mode} className="flex items-center gap-3">
                             <span className="text-xs w-24 capitalize" style={{ color: 'var(--ds-gray-900)' }}>
@@ -267,8 +268,8 @@ export default function CarbonPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <MetricCard
                   label="Total CO₂ (Year)"
-                  value={`${(dashboard.total_co2_year / 1000)?.toFixed(1)} t`}
-                  sub={`${dashboard.shipments_count} shipments`}
+                  value={`${((dashboard.total_co2_year || dashboard.totals?.total_co2_kg || 0) / 1000).toFixed(1)} t`}
+                  sub={`${dashboard.shipments_count || dashboard.totals?.transport_count || 0} shipments`}
                   color="var(--ds-gray-1000)"
                 />
                 <MetricCard
@@ -292,15 +293,16 @@ export default function CarbonPage() {
               </div>
 
               {/* Monthly Trends */}
-              {dashboard.monthly_trends && dashboard.monthly_trends.length > 0 && (
+              {(dashboard.monthly_trends || dashboard.monthly_trend) && (dashboard.monthly_trends || dashboard.monthly_trend)!.length > 0 && (
                 <Card>
                   <CardHeader>
                     <h3 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Monthly Emissions</h3>
                   </CardHeader>
                   <div className="p-4">
                     <div className="flex items-end gap-1 h-40">
-                      {dashboard.monthly_trends.map((m: { month: string; co2_kg: number }, i: number) => {
-                        const maxCo2 = Math.max(...dashboard.monthly_trends.map((t: { co2_kg: number }) => t.co2_kg));
+                      {(dashboard.monthly_trends || dashboard.monthly_trend)!.map((m: { month: string; co2_kg: number }, i: number) => {
+                        const trends = (dashboard.monthly_trends || dashboard.monthly_trend)!;
+                        const maxCo2 = Math.max(...trends.map((t: { co2_kg: number }) => t.co2_kg));
                         const pct = maxCo2 > 0 ? (m.co2_kg / maxCo2) * 100 : 0;
                         return (
                           <div key={i} className="flex-1 flex flex-col items-center gap-1">

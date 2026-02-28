@@ -269,8 +269,8 @@ export default function DebtCollectionPage() {
                       <span style={{ color: urgencyColor, fontWeight: daysOverdue > 30 ? 600 : 400 }}>
                         <ExclamationTriangleIcon className="inline h-3 w-3" /> {daysOverdue} days overdue
                       </span>
-                      {dc.reminders_sent > 0 && (
-                        <span><BellAlertIcon className="inline h-3 w-3" /> {dc.reminders_sent} reminder{dc.reminders_sent > 1 ? 's' : ''}</span>
+                      {(dc.reminders_sent || 0) > 0 && (
+                        <span><BellAlertIcon className="inline h-3 w-3" /> {dc.reminders_sent} reminder{(dc.reminders_sent || 0) > 1 ? 's' : ''}</span>
                       )}
                     </div>
                   </div>
@@ -278,9 +278,9 @@ export default function DebtCollectionPage() {
                     <p className="text-lg font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
                       {formatCurrency(dc.original_amount || 0, dc.currency || 'EUR')}
                     </p>
-                    {dc.total_with_fees && dc.total_with_fees > dc.original_amount && (
+                    {dc.total_with_fees && dc.total_with_fees > (dc.original_amount || 0) && (
                       <p className="text-xs" style={{ color: 'var(--ds-red-700)' }}>
-                        + {formatCurrency(dc.total_with_fees - dc.original_amount, dc.currency || 'EUR')} fees
+                        + {formatCurrency(dc.total_with_fees - (dc.original_amount || 0), dc.currency || 'EUR')} fees
                       </p>
                     )}
                   </div>
