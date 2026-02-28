@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Loading';
 import { paymentApi, vatApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
+import StripeCheckout from '@/components/payments/StripeCheckout';
 import {
   CreditCardIcon,
   BanknotesIcon,
@@ -15,12 +16,17 @@ import {
   CurrencyEuroIcon,
   DocumentChartBarIcon,
   ReceiptPercentIcon,
+  PlusIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import type { PaymentTransaction, PaymentSummary } from '@/types';
 
 export default function PaymentsPage() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'history' | 'vat' | 'rates'>('history');
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentCurrency, setPaymentCurrency] = useState('EUR');
 
   const { data: payments, isLoading } = useQuery({
     queryKey: ['payments-history'],
@@ -99,7 +105,74 @@ export default function PaymentsPage() {
                 ? Object.keys(sumData.by_provider).join(', ')
                 : 'N/A'}
             </p>
-            <p className="text-xs text-gray-500">Providers</p>
+        
+
+      {/* Make Payment */}
+      <Card>
+        <CardHeader title="Make a Payment" />
+        <div className="p-4">
+          {!showCheckout ? (
+            <div className="flex flex-col sm:flex-row items-end gap-3">
+              <div className="flex-1 w-full">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  value={paymentAmount}
+                  onChange={e => setPaymentAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
+                />
+              </div>
+              <div className="w-full sm:w-32">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
+                <select
+                  value={paymentCurrency}
+                  onChange={e => setPaymentCurrency(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
+                >
+                  {['EUR', 'USD', 'GBP', 'CHF', 'PLN', 'CZK', 'SEK', 'DKK', 'NOK'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                onClick={() => {
+                  if (Number(paymentAmount) >= 1) setShowCheckout(true);
+                }}
+                disabled={!paymentAmount || Number(paymentAmount) < 1}
+              >
+                <PlusIcon className="h-4 w-4 mr-1" />
+                Pay with Card
+              </Button>
+            </div>
+          ) : (
+            <div className="max-w-md mx-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Card Payment</h3>
+                <button
+                  onClick={() => setShowCheckout(false)}
+                  className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+              <StripeCheckout
+                amount={Number(paymentAmount)}
+                currency={paymentCurrency}
+                onSuccess={() => {
+                  setShowCheckout(false);
+                  setPaymentAmount('');
+                  queryClient.invalidateQueries({ queryKey: ['payments-history'] });
+                  queryClient.invalidateQueries({ queryKey: ['payments-summary'] });
+                }}
+                onCancel={() => setShowCheckout(false)}
+              />
+            </div>
+          )}
+        </div>
+      </Card>    <p className="text-xs text-gray-500">Providers</p>
           </Card>
         </div>
       )}

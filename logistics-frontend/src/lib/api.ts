@@ -436,6 +436,11 @@ export const paymentApi = {
     api.post('/payments/stripe', data),
   processSepa: (data: { invoice_id: number; iban: string; bic?: string; mandate_reference?: string }) =>
     api.post('/payments/sepa', data),
+  createIntent: (data: { amount: number; currency?: string; invoice_id?: number; transport_order_id?: number; payment_method_id?: string }) =>
+    api.post('/payments/create-intent', data),
+  confirmPayment: (paymentIntentId: string) =>
+    api.post('/payments/confirm', { payment_intent_id: paymentIntentId }),
+  setupIntent: () => api.post('/payments/setup-intent'),
   refund: (paymentId: number, data?: { amount?: number; reason?: string }) =>
     api.post(`/payments/${paymentId}/refund`, data),
   history: (params?: ListParams) => api.get('/payments/history', { params }),
@@ -500,6 +505,28 @@ export const ediApi = {
   send: (data: { message_type: string; format: string; content: string; transport_order_id?: number }) =>
     api.post('/edi/send', data),
   stats: () => api.get('/edi/stats'),
+};
+
+// ── Customer Portal API (public, no auth) ─────────────
+export const portalApi = {
+  trackByNumber: (trackingNumber: string) =>
+    api.post('/portal/track', { tracking_number: trackingNumber }),
+  trackByToken: (token: string) =>
+    api.get(`/portal/track/${token}`),
+  getProofOfDelivery: (trackingNumber: string) =>
+    api.get(`/portal/pod/${trackingNumber}`),
+  submitFeedback: (data: { tracking_number: string; rating: number; comment?: string; categories?: string[] }) =>
+    api.post('/portal/feedback', data),
+};
+
+// ══════════════════════════════════════════════════════
+// AI Copilot
+// ══════════════════════════════════════════════════════
+
+export const copilotApi = {
+  chat: (data: { message: string; context?: Record<string, unknown> }) =>
+    api.post('/copilot/chat', data),
+  suggestions: () => api.get('/copilot/suggestions'),
 };
 
 export default api;

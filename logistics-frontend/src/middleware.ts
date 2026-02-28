@@ -37,6 +37,7 @@ const PUBLIC_PREFIXES = [
   '/opengraph-image',
   '/twitter-image',
   '/apple-touch-icon',
+  '/portal',
 ];
 
 export function middleware(request: NextRequest) {

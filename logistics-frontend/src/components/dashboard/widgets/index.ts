@@ -1,0 +1,12 @@
+export { StatsOverviewWidget } from './StatsOverviewWidget';
+export { RecentOrdersWidget } from './RecentOrdersWidget';
+export { ActiveShipmentsWidget } from './ActiveShipmentsWidget';
+export { FreightChartWidget } from './FreightChartWidget';
+export { RevenueChartWidget } from './RevenueChartWidget';
+export { QuickActionsWidget } from './QuickActionsWidget';
+export { NotificationsWidget } from './NotificationsWidget';
+export { MapOverviewWidget } from './MapOverviewWidget';
+export { MarketBarometerWidget } from './MarketBarometerWidget';
+export { CarbonFootprintWidget } from './CarbonFootprintWidget';
+export { PendingTasksWidget } from './PendingTasksWidget';
+export { CompanyPerformanceWidget } from './CompanyPerformanceWidget';

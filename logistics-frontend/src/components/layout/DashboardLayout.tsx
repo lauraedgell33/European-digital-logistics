@@ -3,6 +3,8 @@
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import CopilotWidget from '@/components/copilot/CopilotWidget';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +20,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
+      <OnboardingWizard />
+      <CopilotWidget />
     </div>
   );
 }

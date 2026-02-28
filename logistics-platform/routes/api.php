@@ -41,6 +41,8 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MultimodalController;
 use App\Http\Controllers\Api\EnterpriseController;
 use App\Http\Controllers\Api\TwoFactorController;
+use App\Http\Controllers\Api\AiCopilotController;
+use App\Http\Controllers\Api\CustomerPortalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +53,9 @@ use App\Http\Controllers\Api\TwoFactorController;
 // Health check routes (no auth, no prefix)
 Route::get('/health', [HealthController::class, 'index']);
 Route::get('/health/detailed', [HealthController::class, 'detailed']);
+
+// Stripe webhook (no auth)
+Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
 
 // Public routes
 Route::prefix('v1')->group(function () {
@@ -96,6 +101,14 @@ Route::prefix('v1')->group(function () {
     // Public price insights (limited, no auth)
     Route::get('/price-insights/top-routes', [PriceInsightController::class, 'topRoutes']);
     Route::get('/price-insights/heatmap', [PriceInsightController::class, 'heatmap']);
+
+    // Customer Portal (public, no auth required)
+    Route::prefix('portal')->group(function () {
+        Route::post('/track', [CustomerPortalController::class, 'trackByNumber']);
+        Route::get('/track/{token}', [CustomerPortalController::class, 'trackByToken']);
+        Route::get('/pod/{trackingNumber}', [CustomerPortalController::class, 'getProofOfDelivery']);
+        Route::post('/feedback', [CustomerPortalController::class, 'submitFeedback']);
+    });
 
     // Public insurance coverage types
     Route::get('/insurance/coverage-types', [InsuranceController::class, 'coverageTypes']);
@@ -396,6 +409,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     // ─── Payments ─────────────────────────────────────────────────
     Route::prefix('payments')->group(function () {
         Route::post('/stripe', [PaymentController::class, 'processStripe']);
+        Route::post('/create-intent', [PaymentController::class, 'processStripe']);
+        Route::post('/confirm', [PaymentController::class, 'confirm']);
+        Route::post('/setup-intent', [PaymentController::class, 'setupIntent']);
         Route::post('/sepa', [PaymentController::class, 'processSepa']);
         Route::post('/{paymentTransaction}/refund', [PaymentController::class, 'refund']);
         Route::get('/history', [PaymentController::class, 'history']);
@@ -452,5 +468,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::get('/', [EnterpriseController::class, 'listEdiMessages']);
         Route::post('/send', [EnterpriseController::class, 'sendEdiMessage']);
         Route::get('/stats', [EnterpriseController::class, 'ediStats']);
+    });
+
+    // ─── AI Copilot ───────────────────────────────────────────────
+    Route::prefix('copilot')->group(function () {
+        Route::post('/chat', [AiCopilotController::class, 'chat']);
+        Route::get('/suggestions', [AiCopilotController::class, 'suggestions']);
     });
 });
