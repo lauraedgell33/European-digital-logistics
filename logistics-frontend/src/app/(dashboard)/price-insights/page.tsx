@@ -76,7 +76,7 @@ export default function PriceInsightsPage() {
   async function handleCompare() {
     setComparing(true);
     try {
-      const res = await priceInsightApi.compare({ routes: compareRoutes });
+      const res = await priceInsightApi.compare(compareRoutes);
       setCompareResults(res.data.data || []);
     } catch {
       // fallback
@@ -282,9 +282,9 @@ export default function PriceInsightsPage() {
             <Card>
               <div className="p-4 space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <StatBox label="Estimated Price" value={formatCurrency(estimate.estimated_price || 0, 'EUR')} highlight />
+                  <StatBox label="Estimated Price" value={formatCurrency(estimate.estimated_price || estimate.estimated_price_eur || 0, 'EUR')} highlight />
                   <StatBox label="Price/km" value={formatCurrency(estimate.price_per_km || 0, 'EUR')} />
-                  <StatBox label="Confidence" value={`${((estimate.confidence || 0) * 100).toFixed(0)}%`} />
+                  <StatBox label="Confidence" value={String(estimate.confidence || '—').replace('_', ' ')} />
                 </div>
                 {estimate.price_range && (
                   <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--ds-gray-700)' }}>

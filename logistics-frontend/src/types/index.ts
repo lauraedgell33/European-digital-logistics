@@ -601,6 +601,20 @@ export interface Warehouse {
   visibility: 'public' | 'network' | 'private';
   photos?: string[];
   created_at: string;
+  // Aliases used by frontend pages
+  available_space_sqm?: number;
+  total_space_sqm?: number;
+  warehouse_type?: string;
+  price_per_sqm_month?: number;
+  has_forklift?: boolean;
+  is_temperature_controlled?: boolean;
+  is_bonded?: boolean;
+  has_cctv?: boolean;
+  has_sprinklers?: boolean;
+  has_alarm?: boolean;
+  loading_docks_count?: number;
+  min_temperature?: number;
+  max_temperature?: number;
 }
 
 export interface WarehouseBooking {
@@ -709,6 +723,8 @@ export interface CarbonCalculationResult {
   co2_kg: number;
   co2_per_km: number;
   co2_per_ton_km?: number;
+  co2_per_tkm?: number;
+  total_co2_kg?: number;
   distance_km: number;
   vehicle_type: string;
   fuel_type: string;
@@ -716,6 +732,7 @@ export interface CarbonCalculationResult {
   industry_avg_co2_kg: number;
   savings_vs_avg_pct: number;
   offset_cost_eur: number;
+  comparison?: Record<string, number>;
 }
 
 export interface CarbonDashboard {
@@ -730,9 +747,15 @@ export interface CarbonDashboard {
   };
   sustainability_score: number;
   monthly_trend: { month: string; co2_kg: number; count: number; avg_co2_per_km: number }[];
+  monthly_trends?: { month: string; co2_kg: number; count: number; avg_co2_per_km: number }[];
   by_vehicle_type: { vehicle_type: string; co2_kg: number; count: number; avg_co2_per_km: number }[];
   by_fuel_type: { fuel_type: string; co2_kg: number; count: number }[];
   carbon_neutral_pct: number;
+  // Top-level aliases for dashboard page
+  total_co2_year?: number;
+  shipments_count?: number;
+  avg_co2_per_shipment?: number;
+  total_offset_kg?: number;
 }
 
 // ── Lexicon Articles ──────────────────────────────────
@@ -742,6 +765,7 @@ export interface LexiconArticle {
   title: string;
   excerpt?: string;
   content: string;
+  content_html?: string;
   category: string;
   tags?: string[];
   language: string;
@@ -750,6 +774,7 @@ export interface LexiconArticle {
   is_published: boolean;
   published_at?: string;
   created_at: string;
+  related_articles?: LexiconArticle[];
 }
 
 // ── Tracking Share ────────────────────────────────────
@@ -793,20 +818,25 @@ export interface PriceInsight {
   vehicle_type?: string;
   period_date: string;
   period_type: 'daily' | 'weekly' | 'monthly';
+  period?: string;
   sample_count: number;
   avg_price: number;
   min_price: number;
   max_price: number;
   median_price?: number;
   avg_price_per_km?: number;
+  min_price_per_km?: number;
+  max_price_per_km?: number;
+  median_price_per_km?: number;
   avg_distance_km?: number;
 }
 
 export interface PriceEstimate {
   estimated_price_eur: number;
+  estimated_price?: number;
   price_per_km: number;
   distance_km: number;
-  confidence: 'very_low' | 'low' | 'medium' | 'high';
+  confidence: string;
   based_on_samples: number;
   price_range?: { min: number; max: number };
 }
@@ -820,6 +850,9 @@ export interface InsuranceQuote {
   provider: string;
   cargo_value: number;
   premium: number;
+  premium_amount?: number;
+  coverage_amount?: number;
+  cargo_type?: string;
   currency: string;
   coverage_type: 'basic' | 'all_risk' | 'extended';
   coverage_details?: string[];
@@ -835,6 +868,8 @@ export interface CoverageType {
   type: string;
   name: string;
   rate_pct: number;
+  base_rate?: number;
+  description?: string;
   inclusions: string[];
   exclusions: string[];
 }
@@ -843,6 +878,7 @@ export interface CoverageType {
 export interface EscrowPayment {
   id: number;
   transport_order_id: number;
+  order_id?: number;
   transport_order?: TransportOrder;
   payer_company_id: number;
   payer_company?: Company;
@@ -850,6 +886,7 @@ export interface EscrowPayment {
   payee_company?: Company;
   amount: number;
   currency: string;
+  description?: string;
   status: 'pending' | 'funded' | 'released' | 'disputed' | 'refunded' | 'cancelled';
   payment_reference: string;
   payment_method?: string;
@@ -869,6 +906,7 @@ export interface DebtCollection {
   debtor_company_id: number;
   debtor_company?: Company;
   transport_order_id?: number;
+  order_id?: number;
   transport_order?: TransportOrder;
   debtor_name: string;
   debtor_email?: string;
@@ -878,11 +916,16 @@ export interface DebtCollection {
   invoice_number: string;
   invoice_date: string;
   invoice_due_date: string;
+  due_date?: string;
   invoice_amount: number;
+  original_amount?: number;
+  total_with_fees?: number;
   currency: string;
   description?: string;
   status: 'new' | 'reminder_sent' | 'second_reminder' | 'final_notice' | 'collection_agency' | 'legal_action' | 'paid' | 'cancelled' | 'written_off';
   reminder_count: number;
+  reminders_sent?: number;
+  days_overdue?: number;
   last_reminder_at?: string;
   collected_amount: number;
   collection_fee: number;
@@ -893,15 +936,19 @@ export interface DebtCollectionStats {
   total_cases: number;
   active_cases: number;
   total_owed: number;
+  total_outstanding?: number;
   total_collected: number;
   paid_cases: number;
   written_off_cases: number;
   recovery_rate: number;
+  avg_days_overdue?: number;
 }
 
 // ── Return Loads ──────────────────────────────────────
-export interface ReturnLoadSuggestion extends FreightOffer {
+export interface ReturnLoadSuggestion {
+  offer?: FreightOffer & { cargo_weight?: number };
   relevance_score: number;
+  distance_km?: number;
 }
 
 export interface EmptyLeg {
@@ -911,4 +958,5 @@ export interface EmptyLeg {
   freight_demand: number;
   surplus_vehicles: number;
   fill_rate_pct: number;
+  supply_demand_ratio?: number;
 }

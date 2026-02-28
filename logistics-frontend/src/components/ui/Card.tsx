@@ -37,13 +37,17 @@ export function Card({ children, className, hover = false, flat = false, interac
 }
 
 interface CardHeaderProps {
-  title: string;
+  title?: string;
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export function CardHeader({ title, description, action, className }: CardHeaderProps) {
+export function CardHeader({ title, description, action, className, children }: CardHeaderProps) {
+  if (children) {
+    return <div className={cn('mb-4', className)}>{children}</div>;
+  }
   return (
     <div className={cn('flex items-start justify-between mb-4', className)}>
       <div>

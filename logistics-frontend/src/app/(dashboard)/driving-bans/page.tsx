@@ -153,7 +153,7 @@ export default function DrivingBansPage() {
                   }}
                 >
                   {COUNTRIES.map(c => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
+                    <option key={c.code} value={c.code}>{c.name}</option>
                   ))}
                 </Select>
                 {i < routeCountries.length - 1 && (

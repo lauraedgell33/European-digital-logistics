@@ -243,7 +243,7 @@ export const drivingBanApi = {
 
 // ── Carbon Footprint API ──────────────────────────────
 export const carbonApi = {
-  calculate: (data: { distance_km: number; vehicle_type: string; fuel_type?: string; weight_kg?: number; load_factor_pct?: number; emission_standard?: string }) =>
+  calculate: (data: { distance_km: number; vehicle_type: string; fuel_type?: string; weight_kg?: number; weight_tons?: number; load_factor_pct?: number; load_factor?: number; emission_standard?: string; euro_class?: string; empty_return?: boolean; [key: string]: unknown }) =>
     api.post('/carbon/calculate', data),
   dashboard: (months?: number) => api.get('/carbon/dashboard', { params: { months } }),
   forOrder: (orderId: number) => api.get(`/carbon/orders/${orderId}`),
@@ -258,6 +258,7 @@ export const lexiconApi = {
   list: (params?: { category?: string; language?: string; tag?: string; search?: string; page?: number }) =>
     api.get('/lexicon', { params }),
   get: (slug: string) => api.get(`/lexicon/${slug}`),
+  show: (slug: string) => api.get(`/lexicon/${slug}`),
   categories: () => api.get('/lexicon/categories'),
   popular: (limit?: number) => api.get('/lexicon/popular', { params: { limit } }),
 };
@@ -279,13 +280,13 @@ export const priceInsightApi = {
   heatmap: () => api.get('/price-insights/heatmap'),
   compare: (routes: { origin_country: string; destination_country: string }[]) =>
     api.post('/price-insights/compare', { routes }),
-  estimate: (data: { origin_country: string; destination_country: string; distance_km: number; vehicle_type?: string }) =>
+  estimate: (data: { origin_country: string; destination_country: string; distance_km?: number; vehicle_type?: string; weight_tons?: number; [key: string]: unknown }) =>
     api.post('/price-insights/estimate', data),
 };
 
 // ── Return Load API ───────────────────────────────────
 export const returnLoadApi = {
-  suggest: (data: { current_country: string; current_city?: string; current_lat?: number; current_lng?: number; destination_country?: string; vehicle_type?: string; max_weight_kg?: number; max_radius_km?: number }) =>
+  suggest: (data: Record<string, unknown>) =>
     api.post('/return-loads/suggest', data),
   forOrder: (orderId: number) => api.get(`/return-loads/for-order/${orderId}`),
   emptyLegs: () => api.get('/return-loads/empty-legs'),
@@ -293,7 +294,7 @@ export const returnLoadApi = {
 
 // ── Insurance API ─────────────────────────────────────
 export const insuranceApi = {
-  quote: (data: { cargo_value: number; coverage_type: 'basic' | 'all_risk' | 'extended'; distance_km?: number; is_hazardous?: boolean; cargo_type?: string }) =>
+  quote: (data: { cargo_value: number; coverage_type: string; distance_km?: number; is_hazardous?: boolean; cargo_type?: string; origin_country?: string; destination_country?: string; [key: string]: unknown }) =>
     api.post('/insurance/quote', data),
   createForOrder: (orderId: number, data: Record<string, unknown>) =>
     api.post(`/insurance/orders/${orderId}`, data),
@@ -307,14 +308,18 @@ export const insuranceApi = {
 // ── Escrow API ────────────────────────────────────────
 export const escrowApi = {
   list: (params?: { status?: string } & ListParams) => api.get('/escrow', { params }),
-  create: (orderId: number, data: { amount: number; currency?: string }) =>
-    api.post(`/escrow/orders/${orderId}`, data),
+  create: (orderIdOrData: number | Record<string, unknown>, data?: { amount: number; currency?: string }) => {
+    if (typeof orderIdOrData === 'number') {
+      return api.post(`/escrow/orders/${orderIdOrData}`, data);
+    }
+    return api.post('/escrow', orderIdOrData);
+  },
   forOrder: (orderId: number) => api.get(`/escrow/orders/${orderId}`),
   fund: (escrowId: number, paymentMethod?: string) =>
     api.post(`/escrow/${escrowId}/fund`, { payment_method: paymentMethod }),
   release: (escrowId: number) => api.post(`/escrow/${escrowId}/release`),
-  dispute: (escrowId: number, reason: string) =>
-    api.post(`/escrow/${escrowId}/dispute`, { reason }),
+  dispute: (escrowId: number, reason: string | { reason: string }) =>
+    api.post(`/escrow/${escrowId}/dispute`, typeof reason === 'string' ? { reason } : reason),
   refund: (escrowId: number) => api.post(`/escrow/${escrowId}/refund`),
   cancel: (escrowId: number) => api.post(`/escrow/${escrowId}/cancel`),
 };
@@ -328,9 +333,9 @@ export const debtCollectionApi = {
   calculateFee: (amount: number) => api.post('/debt-collection/calculate-fee', { amount }),
   sendReminder: (id: number) => api.post(`/debt-collection/${id}/reminder`),
   escalate: (id: number) => api.post(`/debt-collection/${id}/escalate`),
-  markPaid: (id: number, amount: number) => api.post(`/debt-collection/${id}/pay`, { amount }),
-  cancel: (id: number, action: 'cancel' | 'write_off') =>
-    api.post(`/debt-collection/${id}/cancel`, { action }),
+  markPaid: (id: number, amount?: number) => api.post(`/debt-collection/${id}/pay`, { amount: amount || 0 }),
+  cancel: (id: number, action?: 'cancel' | 'write_off') =>
+    api.post(`/debt-collection/${id}/cancel`, { action: action || 'cancel' }),
 };
 
 export default api;
