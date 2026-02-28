@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+
 /**
  * @OA\Info(
  *     title="LogiMarket API — European Digital Logistics Platform",
