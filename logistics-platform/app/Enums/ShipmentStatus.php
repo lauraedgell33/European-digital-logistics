@@ -7,21 +7,25 @@ use Filament\Support\Contracts\HasLabel;
 
 enum ShipmentStatus: string implements HasLabel, HasColor
 {
-    case Created = 'created';
-    case AtPickup = 'at_pickup';
+    case WaitingPickup = 'waiting_pickup';
+    case PickedUp = 'picked_up';
     case InTransit = 'in_transit';
-    case AtDelivery = 'at_delivery';
+    case AtCustoms = 'at_customs';
+    case OutForDelivery = 'out_for_delivery';
     case Delivered = 'delivered';
+    case Delayed = 'delayed';
     case Exception = 'exception';
 
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::Created => 'Created',
-            self::AtPickup => 'At Pickup',
+            self::WaitingPickup => 'Waiting Pickup',
+            self::PickedUp => 'Picked Up',
             self::InTransit => 'In Transit',
-            self::AtDelivery => 'At Delivery',
+            self::AtCustoms => 'At Customs',
+            self::OutForDelivery => 'Out for Delivery',
             self::Delivered => 'Delivered',
+            self::Delayed => 'Delayed',
             self::Exception => 'Exception',
         };
     }
@@ -29,11 +33,13 @@ enum ShipmentStatus: string implements HasLabel, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::Created => 'gray',
-            self::AtPickup => 'info',
+            self::WaitingPickup => 'gray',
+            self::PickedUp => 'info',
             self::InTransit => 'primary',
-            self::AtDelivery => 'warning',
+            self::AtCustoms => 'warning',
+            self::OutForDelivery => 'info',
             self::Delivered => 'success',
+            self::Delayed => 'danger',
             self::Exception => 'danger',
         };
     }

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class OrderActivityWidget extends ChartWidget
 {
     protected static ?string $heading = 'Order Activity (Last 30 Days)';
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
     protected static ?string $maxHeight = '300px';
 
     protected function getData(): array

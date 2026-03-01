@@ -13,6 +13,11 @@ use Illuminate\Support\Carbon;
 class ActivityLog extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Administration';
     protected static ?int $navigationSort = 12;
     protected static ?string $title = 'Activity Log';

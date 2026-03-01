@@ -135,17 +135,17 @@ class Company extends Model implements HasMedia
 
     public function escrowPayments(): HasMany
     {
-        return $this->hasMany(\App\Models\EscrowPayment::class);
+        return $this->hasMany(\App\Models\EscrowPayment::class, 'payer_company_id');
     }
 
     public function debtCollections(): HasMany
     {
-        return $this->hasMany(\App\Models\DebtCollection::class);
+        return $this->hasMany(\App\Models\DebtCollection::class, 'creditor_company_id');
     }
 
     public function warehouseBookings(): HasMany
     {
-        return $this->hasMany(\App\Models\WarehouseBooking::class);
+        return $this->hasMany(\App\Models\WarehouseBooking::class, 'tenant_company_id');
     }
 
     // ── Scopes ────────────────────────────────────────────
@@ -172,7 +172,7 @@ class Company extends Model implements HasMedia
     // ── Helpers ───────────────────────────────────────────
     public function isVerified(): bool
     {
-        return $this->verification_status === 'verified';
+        return $this->verification_status === \App\Enums\CompanyVerificationStatus::Verified;
     }
 
     public function isShipper(): bool

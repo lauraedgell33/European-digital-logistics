@@ -19,7 +19,7 @@ class DocumentScanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
     protected static ?string $navigationGroup = 'Documents';
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'document_name';
+    protected static ?string $recordTitleAttribute = 'original_filename';
 
     public static function form(Form $form): Form
     {
@@ -177,7 +177,7 @@ class DocumentScanResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['document_name', 'status'];
+        return ['original_filename', 'status'];
     }
 
     public static function getRelations(): array

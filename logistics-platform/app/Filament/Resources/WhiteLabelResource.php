@@ -19,7 +19,7 @@ class WhiteLabelResource extends Resource
     protected static ?string $navigationGroup = 'Administration';
 
     protected static ?int $navigationSort = 4;
-    protected static ?string $recordTitleAttribute = 'company_name';
+    protected static ?string $recordTitleAttribute = 'brand_name';
 
     public static function form(Form $form): Form
     {
@@ -118,7 +118,7 @@ class WhiteLabelResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['company_name', 'domain'];
+        return ['brand_name', 'custom_domain'];
     }
 
     public static function getRelations(): array

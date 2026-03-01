@@ -80,7 +80,7 @@ class TrackingPositionResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['location_name'];
+        return ['lat', 'lng'];
     }
 
     public static function getRelations(): array

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class DashboardStatsWidget extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
     protected static ?string $pollingInterval = '30s';
 
     protected function getStats(): array

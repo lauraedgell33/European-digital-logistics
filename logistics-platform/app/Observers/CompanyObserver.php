@@ -12,9 +12,8 @@ class CompanyObserver
         if ($company->isDirty('verification_status')) {
             $newStatus = is_string($company->verification_status) ? $company->verification_status : $company->verification_status->value;
             if ($newStatus === 'verified' && !$company->verified_at) {
-                $company->withoutEvents(function () use ($company) {
-                    $company->update(['verified_at' => now()]);
-                });
+                $company->verified_at = now();
+                $company->saveQuietly();
             }
         }
 

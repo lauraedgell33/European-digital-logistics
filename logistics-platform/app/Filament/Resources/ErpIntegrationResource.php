@@ -134,7 +134,7 @@ class ErpIntegrationResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'provider', 'status'];
+        return ['name', 'integration_type'];
     }
 
     public static function getRelations(): array

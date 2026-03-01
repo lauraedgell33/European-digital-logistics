@@ -102,13 +102,22 @@ class Invoice extends Model
 
     public function isOverdue(): bool
     {
-        return $this->due_date->isPast() && !in_array($this->status, ['paid', 'cancelled']);
+        return $this->due_date->isPast() && !in_array($this->status, [\App\Enums\InvoiceStatus::Paid, \App\Enums\InvoiceStatus::Cancelled]);
     }
 
-    public static function generateNumber(int $companyId): string
+    public static function generateNumber(): string
     {
-        $count = self::where('company_id', $companyId)->whereYear('created_at', now()->year)->count() + 1;
-        return 'INV-' . now()->format('Y') . '-' . str_pad($count, 5, '0', STR_PAD_LEFT);
+        return \Illuminate\Support\Facades\DB::transaction(function () {
+            $prefix = 'INV-' . date('Y') . '-';
+            $latest = static::withTrashed()
+                ->where('invoice_number', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->orderByRaw("CAST(SUBSTRING(invoice_number, " . (strlen($prefix) + 1) . ") AS UNSIGNED) DESC")
+                ->value('invoice_number');
+            
+            $sequence = $latest ? (int)substr($latest, strlen($prefix)) + 1 : 1;
+            return $prefix . str_pad($sequence, 5, '0', STR_PAD_LEFT);
+        });
     }
 
     public function scopePaid($query)

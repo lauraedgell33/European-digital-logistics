@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 class FinancialReports extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Finance';
     protected static ?int $navigationSort = 8;
     protected static ?string $title = 'Financial Reports';

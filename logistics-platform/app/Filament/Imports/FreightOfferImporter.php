@@ -14,29 +14,44 @@ class FreightOfferImporter extends Importer
     public static function getColumns(): array
     {
         return [
-            ImportColumn::make('title')
-                ->requiredMapping()
-                ->rules(['required', 'string', 'max:255']),
             ImportColumn::make('origin_city')
                 ->requiredMapping()
                 ->rules(['required', 'string']),
             ImportColumn::make('origin_country')
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:2']),
+            ImportColumn::make('origin_postal_code')
+                ->requiredMapping()
+                ->rules(['required', 'string', 'max:20']),
             ImportColumn::make('destination_city')
                 ->requiredMapping()
                 ->rules(['required', 'string']),
             ImportColumn::make('destination_country')
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:2']),
-            ImportColumn::make('price')
-                ->numeric()
-                ->rules(['nullable', 'numeric']),
+            ImportColumn::make('destination_postal_code')
+                ->requiredMapping()
+                ->rules(['required', 'string', 'max:20']),
+            ImportColumn::make('cargo_type')
+                ->requiredMapping()
+                ->rules(['required', 'string']),
             ImportColumn::make('weight')
                 ->numeric()
                 ->rules(['nullable', 'numeric']),
-            ImportColumn::make('cargo_type')
+            ImportColumn::make('volume')
+                ->numeric()
+                ->rules(['nullable', 'numeric']),
+            ImportColumn::make('loading_date')
+                ->rules(['nullable', 'date']),
+            ImportColumn::make('unloading_date')
+                ->rules(['nullable', 'date']),
+            ImportColumn::make('vehicle_type')
                 ->rules(['nullable', 'string']),
+            ImportColumn::make('price')
+                ->numeric()
+                ->rules(['nullable', 'numeric']),
+            ImportColumn::make('currency')
+                ->rules(['nullable', 'string', 'max:3']),
         ];
     }
 

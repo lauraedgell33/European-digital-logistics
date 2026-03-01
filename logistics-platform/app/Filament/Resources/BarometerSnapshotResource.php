@@ -141,7 +141,7 @@ class BarometerSnapshotResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['corridor_name'];
+        return ['origin_country', 'destination_country'];
     }
 
     public static function getRelations(): array

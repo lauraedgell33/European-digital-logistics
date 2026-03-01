@@ -189,7 +189,7 @@ class WarehouseBookingResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['warehouse', 'company']))
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['warehouse', 'tenant']))
             ->defaultPaginationPageOption(25);
     }
 

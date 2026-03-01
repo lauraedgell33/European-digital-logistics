@@ -118,6 +118,6 @@ class Shipment extends Model
 
     public function isDelayed(): bool
     {
-        return $this->eta && $this->eta->isPast() && $this->status !== 'delivered';
+        return $this->eta && $this->eta->isPast() && $this->status !== \App\Enums\ShipmentStatus::Delivered;
     }
 }

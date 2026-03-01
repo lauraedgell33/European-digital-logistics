@@ -10,7 +10,6 @@ enum CompanyVerificationStatus: string implements HasLabel, HasColor
     case Pending = 'pending';
     case Verified = 'verified';
     case Rejected = 'rejected';
-    case Suspended = 'suspended';
 
     public function getLabel(): ?string
     {
@@ -18,7 +17,6 @@ enum CompanyVerificationStatus: string implements HasLabel, HasColor
             self::Pending => 'Pending',
             self::Verified => 'Verified',
             self::Rejected => 'Rejected',
-            self::Suspended => 'Suspended',
         };
     }
 
@@ -28,7 +26,6 @@ enum CompanyVerificationStatus: string implements HasLabel, HasColor
             self::Pending => 'warning',
             self::Verified => 'success',
             self::Rejected => 'danger',
-            self::Suspended => 'gray',
         };
     }
 }

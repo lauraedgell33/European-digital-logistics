@@ -11,18 +11,11 @@ class InvoiceObserver
     {
         // Auto-generate invoice number if empty
         if (empty($invoice->invoice_number)) {
-            $prefix = 'INV-' . date('Y') . '-';
-            $lastNumber = Invoice::withTrashed()
-                ->where('invoice_number', 'like', $prefix . '%')
-                ->orderByRaw("CAST(SUBSTRING(invoice_number, " . (strlen($prefix) + 1) . ") AS UNSIGNED) DESC")
-                ->value('invoice_number');
-            
-            $sequence = $lastNumber ? (int) substr($lastNumber, strlen($prefix)) + 1 : 1;
-            $invoice->invoice_number = $prefix . str_pad($sequence, 5, '0', STR_PAD_LEFT);
+            $invoice->invoice_number = Invoice::generateNumber();
         }
 
         // Auto-calculate totals
-        if ($invoice->subtotal && $invoice->tax_rate && !$invoice->total_amount) {
+        if ($invoice->subtotal !== null && $invoice->tax_rate !== null && !$invoice->total_amount) {
             $invoice->tax_amount = round($invoice->subtotal * $invoice->tax_rate / 100, 2);
             $invoice->total_amount = $invoice->subtotal + $invoice->tax_amount;
         }
@@ -32,11 +25,10 @@ class InvoiceObserver
     {
         // Auto-mark as paid when paid_amount >= total_amount
         if ($invoice->isDirty('paid_amount') && !$invoice->isDirty('status')) {
-            $statusValue = is_string($invoice->status) ? $invoice->status : $invoice->status->value;
-            if ($invoice->paid_amount >= $invoice->total_amount && $statusValue !== 'paid') {
-                $invoice->withoutEvents(function () use ($invoice) {
-                    $invoice->update(['status' => 'paid', 'paid_at' => now()]);
-                });
+            if ($invoice->paid_amount >= $invoice->total_amount && $invoice->status !== \App\Enums\InvoiceStatus::Paid) {
+                $invoice->status = 'paid';
+                $invoice->paid_at = now();
+                $invoice->saveQuietly();
             }
         }
     }

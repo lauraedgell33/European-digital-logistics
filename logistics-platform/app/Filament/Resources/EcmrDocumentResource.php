@@ -22,7 +22,7 @@ class EcmrDocumentResource extends Resource
     protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'eCMR Documents';
     protected static ?int $navigationSort = 6;
-    protected static ?string $recordTitleAttribute = 'document_number';
+    protected static ?string $recordTitleAttribute = 'ecmr_number';
 
     public static function form(Form $form): Form
     {
@@ -208,7 +208,7 @@ class EcmrDocumentResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['document_number', 'shipper_name', 'carrier_name'];
+        return ['ecmr_number', 'sender_name', 'carrier_name'];
     }
 
     public static function getEloquentQuery(): Builder

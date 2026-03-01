@@ -19,7 +19,7 @@ class DigitalIdentityResource extends Resource
     protected static ?string $navigationGroup = 'Platform';
 
     protected static ?int $navigationSort = 3;
-    protected static ?string $recordTitleAttribute = 'identifier';
+    protected static ?string $recordTitleAttribute = 'did_identifier';
 
     public static function form(Form $form): Form
     {
@@ -114,7 +114,7 @@ class DigitalIdentityResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['identifier'];
+        return ['did_identifier'];
     }
 
     public static function getRelations(): array

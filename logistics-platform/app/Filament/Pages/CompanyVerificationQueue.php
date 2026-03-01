@@ -10,6 +10,11 @@ use Filament\Pages\Page;
 class CompanyVerificationQueue extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'Platform';
     protected static ?int $navigationSort = 8;
     protected static ?string $title = 'Verification Queue';

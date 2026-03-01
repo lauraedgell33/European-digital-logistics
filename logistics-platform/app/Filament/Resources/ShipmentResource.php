@@ -28,7 +28,7 @@ class ShipmentResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::whereIn('status', ['in_transit', 'at_pickup'])->count() ?: null;
+        return static::getModel()::whereIn('status', ['in_transit', 'waiting_pickup'])->count() ?: null;
     }
 
     public static function getNavigationBadgeColor(): string|array|null
@@ -170,7 +170,7 @@ class ShipmentResource extends Resource
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (Shipment $record) => $record->status !== 'delivered')
+                    ->visible(fn (Shipment $record) => $record->status !== \App\Enums\ShipmentStatus::Delivered)
                     ->action(function (Shipment $record) {
                         $record->update(['status' => 'delivered']);
                         $record->addEvent('delivery', 'Shipment delivered');
@@ -204,8 +204,9 @@ class ShipmentResource extends Resource
                     Infolists\Components\TextEntry::make('tracking_code')->label('Tracking Code')->copyable(),
                     Infolists\Components\TextEntry::make('transportOrder.order_number')->label('Transport Order'),
                     Infolists\Components\TextEntry::make('status')->badge()->color(fn (string $state): string => match ($state) {
-                        'pending' => 'gray', 'at_pickup' => 'warning', 'in_transit' => 'primary',
-                        'at_delivery' => 'info', 'delivered' => 'success', 'exception' => 'danger', default => 'gray',
+                        'waiting_pickup' => 'gray', 'picked_up' => 'info', 'in_transit' => 'primary',
+                        'at_customs' => 'warning', 'out_for_delivery' => 'info', 'delivered' => 'success',
+                        'delayed' => 'danger', 'exception' => 'danger', default => 'gray',
                     }),
                     Infolists\Components\TextEntry::make('tracking_device_id')->label('Tracking Device'),
                 ])->columns(2),

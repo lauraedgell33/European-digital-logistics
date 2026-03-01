@@ -34,6 +34,7 @@ class TransportOrderRelationManager extends RelationManager
                 }),
             ])
             ->filters([])
+            ->headerActions([])
             ->actions([Tables\Actions\ViewAction::make()])
             ->bulkActions([]);
     }

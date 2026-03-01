@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\DB;
 class AnalyticsDashboard extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $navigationGroup = 'AI & Analytics';
     protected static ?int $navigationSort = 0;
     protected static ?string $title = 'Analytics Dashboard';

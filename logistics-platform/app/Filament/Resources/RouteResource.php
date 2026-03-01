@@ -19,7 +19,7 @@ class RouteResource extends Resource
     protected static ?string $navigationGroup = 'Tracking & Logistics';
 
     protected static ?int $navigationSort = 4;
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'origin_city';
 
     public static function form(Form $form): Form
     {
@@ -142,7 +142,7 @@ class RouteResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'origin_city', 'destination_city'];
+        return ['origin_city', 'destination_city'];
     }
 
     public static function getRelations(): array

@@ -11,6 +11,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Enums\TransportOrderStatus;
 
 class TransportOrder extends Model implements HasMedia
 {
@@ -174,49 +175,49 @@ class TransportOrder extends Model implements HasMedia
     // ── State Transitions ─────────────────────────────────
     public function accept(): bool
     {
-        if ($this->status !== 'pending') return false;
+        if ($this->status !== TransportOrderStatus::Pending) return false;
         $this->update(['status' => 'accepted', 'accepted_at' => now()]);
         return true;
     }
 
     public function reject(): bool
     {
-        if ($this->status !== 'pending') return false;
+        if ($this->status !== TransportOrderStatus::Pending) return false;
         $this->update(['status' => 'rejected']);
         return true;
     }
 
     public function markPickedUp(): bool
     {
-        if (!in_array($this->status, ['accepted', 'pickup_scheduled'])) return false;
+        if (!in_array($this->status, [TransportOrderStatus::Accepted, TransportOrderStatus::PickupScheduled])) return false;
         $this->update(['status' => 'picked_up', 'picked_up_at' => now()]);
         return true;
     }
 
     public function markInTransit(): bool
     {
-        if ($this->status !== 'picked_up') return false;
+        if ($this->status !== TransportOrderStatus::PickedUp) return false;
         $this->update(['status' => 'in_transit']);
         return true;
     }
 
     public function markDelivered(): bool
     {
-        if ($this->status !== 'in_transit') return false;
+        if ($this->status !== TransportOrderStatus::InTransit) return false;
         $this->update(['status' => 'delivered', 'delivered_at' => now()]);
         return true;
     }
 
     public function complete(): bool
     {
-        if ($this->status !== 'delivered') return false;
+        if ($this->status !== TransportOrderStatus::Delivered) return false;
         $this->update(['status' => 'completed', 'completed_at' => now()]);
         return true;
     }
 
     public function cancel(string $reason = null): bool
     {
-        if (in_array($this->status, ['delivered', 'completed', 'cancelled'])) return false;
+        if (in_array($this->status, [TransportOrderStatus::Delivered, TransportOrderStatus::Completed, TransportOrderStatus::Cancelled])) return false;
         $this->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),

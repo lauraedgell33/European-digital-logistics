@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 class FreightVolumeChartWidget extends ChartWidget
 {
     protected static ?string $heading = 'Freight vs Vehicle Offers (30 days)';
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 8;
     protected static ?string $maxHeight = '280px';
     protected static bool $isLazy = true;
 

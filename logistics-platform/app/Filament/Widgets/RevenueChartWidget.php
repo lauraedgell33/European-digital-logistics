@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 class RevenueChartWidget extends ChartWidget
 {
     protected static ?string $heading = 'Monthly Revenue';
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
     protected static ?string $maxHeight = '300px';
     protected static bool $isLazy = true;
 

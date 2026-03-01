@@ -24,7 +24,7 @@ class FreightOfferResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cube';
     protected static ?string $navigationGroup = 'Marketplace';
     protected static ?int $navigationSort = 1;
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'origin_city';
 
     public static function getNavigationBadge(): ?string
     {
@@ -39,6 +39,12 @@ class FreightOfferResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            Forms\Components\Select::make('company_id')
+                ->relationship('company', 'name')
+                ->required()
+                ->searchable()
+                ->preload()
+                ->columnSpanFull(),
             Forms\Components\Tabs::make('FreightOffer')->schema([
                 Forms\Components\Tabs\Tab::make('Origin')
                     ->icon('heroicon-o-arrow-up-tray')
@@ -267,7 +273,7 @@ class FreightOfferResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'origin_city', 'destination_city'];
+        return ['origin_city', 'destination_city'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

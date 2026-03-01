@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class PendingActionsWidget extends StatsOverviewWidget
 {
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 13;
     protected static ?string $pollingInterval = '30s';
 
     protected function getStats(): array
@@ -34,7 +34,7 @@ class PendingActionsWidget extends StatsOverviewWidget
                     ->color('info')
                     ->description('Awaiting acceptance')
                     ->url(route('filament.admin.resources.transport-orders.index')),
-                Stat::make('Active Shipments', Shipment::whereIn('status', ['in_transit', 'at_pickup'])->count())
+                Stat::make('Active Shipments', Shipment::whereIn('status', ['in_transit', 'waiting_pickup'])->count())
                     ->icon('heroicon-o-truck')
                     ->color('success')
                     ->description('Currently in transit'),

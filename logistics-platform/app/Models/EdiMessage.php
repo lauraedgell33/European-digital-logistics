@@ -40,6 +40,11 @@ class EdiMessage extends Model
         return $this->belongsTo(TransportOrder::class);
     }
 
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Invoice::class);
+    }
+
     public function scopeInbound($query)
     {
         return $query->where('direction', 'inbound');

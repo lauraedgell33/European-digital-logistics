@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 class AiInsightsWidget extends StatsOverviewWidget
 {
     protected ?string $heading = 'AI & Automation';
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 12;
 
     protected function getStats(): array
     {

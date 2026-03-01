@@ -14,6 +14,13 @@ class TransportOrderImporter extends Importer
     public static function getColumns(): array
     {
         return [
+            ImportColumn::make('shipper_id')
+                ->requiredMapping()
+                ->numeric()
+                ->rules(['required', 'integer', 'exists:companies,id']),
+            ImportColumn::make('carrier_id')
+                ->numeric()
+                ->rules(['nullable', 'integer', 'exists:companies,id']),
             ImportColumn::make('pickup_country')
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:2']),
@@ -49,7 +56,6 @@ class TransportOrderImporter extends Importer
     {
         $order = new TransportOrder();
         $order->status = 'draft';
-        $order->created_by = auth()->id();
         return $order;
     }
 

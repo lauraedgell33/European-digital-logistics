@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class PlatformOverviewWidget extends StatsOverviewWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 7;
 
     protected function getStats(): array
     {
@@ -40,7 +40,7 @@ class PlatformOverviewWidget extends StatsOverviewWidget
             ? round((($monthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
             : 0;
 
-        $activeShipments = Shipment::whereIn('status', ['in_transit', 'at_pickup', 'at_delivery'])->count();
+        $activeShipments = Shipment::whereIn('status', ['in_transit', 'waiting_pickup', 'out_for_delivery'])->count();
 
         return [
             Stat::make('Total Users', User::count())

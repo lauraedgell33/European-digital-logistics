@@ -11,12 +11,11 @@ class TransportOrderObserver
     public function updated(TransportOrder $order): void
     {
         if ($order->isDirty('status')) {
-            $oldStatus = $order->getOriginal('status');
             $newStatus = $order->status;
+            $statusValue = $newStatus instanceof \App\Enums\TransportOrderStatus ? $newStatus->value : (string)$newStatus;
 
             // Auto-create shipment event when status changes
-            if ($order->shipment && in_array(is_string($newStatus) ? $newStatus : $newStatus->value, ['picked_up', 'in_transit', 'delivered', 'completed'])) {
-                $statusValue = is_string($newStatus) ? $newStatus : $newStatus->value;
+            if ($order->shipment && in_array($statusValue, ['picked_up', 'in_transit', 'delivered', 'completed'])) {
                 $order->shipment->events()->create([
                     'event_type' => $statusValue,
                     'description' => "Order status changed to {$statusValue}",

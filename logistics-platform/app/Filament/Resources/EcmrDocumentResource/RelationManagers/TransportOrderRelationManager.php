@@ -36,6 +36,7 @@ class TransportOrderRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('total_price')->money('eur'),
             ])
             ->filters([])
+            ->headerActions([])
             ->actions([Tables\Actions\ViewAction::make()])
             ->bulkActions([]);
     }
