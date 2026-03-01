@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useNetworks, useCreateNetwork } from '@/hooks/useApi';
 import { Card, CardHeader, StatCard } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -23,6 +24,7 @@ import {
 import type { PartnerNetwork } from '@/types';
 
 export default function NetworksPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [createModal, setCreateModal] = useState(false);
   const [newNetwork, setNewNetwork] = useState({
@@ -49,22 +51,22 @@ export default function NetworksPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Partner Networks
+            {t('networks.partnerNetworks')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Build trusted logistics partnerships across Europe
+            {t('networks.networksDesc')}
           </p>
         </div>
         <Button onClick={() => setCreateModal(true)}>
           <PlusIcon className="h-4 w-4 mr-2" />
-          Create Network
+          {t('networks.createNetwork')}
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="My Networks"
+          title={t('networks.myNetworks')}
           value={networks.length || '—'}
           icon={<UserGroupIcon className="h-5 w-5" />}
         />
@@ -111,14 +113,13 @@ export default function NetworksPage() {
               className="text-lg font-semibold"
               style={{ color: 'var(--ds-gray-1000)' }}
             >
-              No networks found
+              {t('networks.noNetworks')}
             </h3>
             <p
               className="text-[14px] mt-2 max-w-md mx-auto"
               style={{ color: 'var(--ds-gray-800)' }}
             >
-              Create a new partner network to start collaborating with trusted logistics
-              companies across Europe.
+              {t('networks.noNetworksDesc')}
             </p>
             <Button className="mt-6" onClick={() => setCreateModal(true)}>
               <PlusIcon className="h-4 w-4 mr-2" />
@@ -205,7 +206,7 @@ export default function NetworksPage() {
                   </Badge>
                 ) : (
                   <Button variant="secondary" size="sm">
-                    Join
+                    {t('networks.join')}
                   </Button>
                 )}
               </div>
@@ -218,12 +219,12 @@ export default function NetworksPage() {
       <Modal
         open={createModal}
         onClose={() => setCreateModal(false)}
-        title="Create Partner Network"
+        title={t('networks.createNetwork')}
         size="md"
       >
         <div className="space-y-4">
           <Input
-            label="Network Name"
+            label={t('networks.networkName')}
             value={newNetwork.name}
             onChange={(e) =>
               setNewNetwork((p) => ({ ...p, name: e.target.value }))
@@ -233,7 +234,7 @@ export default function NetworksPage() {
           />
 
           <Textarea
-            label="Description"
+            label={t('networks.description')}
             value={newNetwork.description}
             onChange={(e) =>
               setNewNetwork((p) => ({ ...p, description: e.target.value }))
@@ -256,7 +257,7 @@ export default function NetworksPage() {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" onClick={() => setCreateModal(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               loading={createNetwork.isPending}
@@ -273,7 +274,7 @@ export default function NetworksPage() {
                 );
               }}
             >
-              Create Network
+              {t('networks.createNetwork')}
             </Button>
           </div>
         </div>

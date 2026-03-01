@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +19,7 @@ import {
 import type { EcmrDocument, SmartContract, DigitalIdentity } from '@/types';
 
 export default function BlockchainPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'ecmr' | 'contracts' | 'identity'>('ecmr');
   const [showCreateEcmr, setShowCreateEcmr] = useState(false);
@@ -77,9 +79,9 @@ export default function BlockchainPage() {
   };
 
   const tabs = [
-    { key: 'ecmr' as const, label: 'eCMR Documents', icon: DocumentDuplicateIcon },
-    { key: 'contracts' as const, label: 'Smart Contracts', icon: LinkIcon },
-    { key: 'identity' as const, label: 'Digital Identity', icon: FingerPrintIcon },
+    { key: 'ecmr' as const, label: t('blockchain.ecmrDocuments'), icon: DocumentDuplicateIcon },
+    { key: 'contracts' as const, label: t('blockchain.smartContracts'), icon: LinkIcon },
+    { key: 'identity' as const, label: t('blockchain.digitalIdentity'), icon: FingerPrintIcon },
   ];
 
   return (
@@ -87,21 +89,21 @@ export default function BlockchainPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShieldCheckIcon className="h-7 w-7" style={{ color: 'var(--ds-purple-500)' }} />
-          Blockchain & eCMR
+          {t('blockchain.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Digital consignment notes, smart contracts, and verified identity</p>
+        <p className="text-sm text-gray-500 mt-1">{t('blockchain.subtitle')}</p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+        {tabs.map(tb => (
+          <button key={tb.key} onClick={() => setTab(tb.key)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === tb.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <t.icon className="h-4 w-4" />
-            {t.label}
+            <tb.icon className="h-4 w-4" />
+            {tb.label}
           </button>
         ))}
       </div>
@@ -118,7 +120,7 @@ export default function BlockchainPage() {
 
           {showCreateEcmr && (
             <Card>
-              <CardHeader title="Create eCMR" subtitle="Digital consignment note" />
+              <CardHeader title={t('blockchain.createEcmr')} subtitle={t('blockchain.subtitle')} />
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Object.entries(ecmrForm).map(([key, val]) => (
                   <div key={key}>
@@ -133,7 +135,7 @@ export default function BlockchainPage() {
                 ))}
                 <div className="sm:col-span-2">
                   <Button onClick={() => createEcmrMutation.mutate(ecmrForm)} disabled={createEcmrMutation.isPending}>
-                    {createEcmrMutation.isPending ? <Spinner size="sm" /> : 'Create eCMR'}
+                    {createEcmrMutation.isPending ? <Spinner size="sm" /> : t('blockchain.createEcmr')}
                   </Button>
                 </div>
               </div>
@@ -141,13 +143,13 @@ export default function BlockchainPage() {
           )}
 
           <Card>
-            <CardHeader title="eCMR Documents" />
+            <CardHeader title={t('blockchain.ecmrDocuments')} />
             {loadingEcmr ? (
               <div className="flex justify-center p-8"><Spinner /></div>
             ) : (ecmrList || []).length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <DocumentDuplicateIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-                <p>No eCMR documents yet.</p>
+                <p>{t('blockchain.noDocuments')}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -164,13 +166,13 @@ export default function BlockchainPage() {
                         <p className="text-xs text-gray-500">{doc.goods_description} • {doc.weight_kg} kg • {doc.number_of_packages} packages</p>
                         <div className="flex gap-4 mt-2 text-xs">
                           <span className={doc.sender_signature ? 'text-green-600' : 'text-gray-400'}>
-                            {doc.sender_signature ? '✓' : '○'} Sender
+                            {doc.sender_signature ? '✓' : '○'} {t('blockchain.sender')}
                           </span>
                           <span className={doc.carrier_signature ? 'text-green-600' : 'text-gray-400'}>
-                            {doc.carrier_signature ? '✓' : '○'} Carrier
+                            {doc.carrier_signature ? '✓' : '○'} {t('blockchain.carrier')}
                           </span>
                           <span className={doc.consignee_signature ? 'text-green-600' : 'text-gray-400'}>
-                            {doc.consignee_signature ? '✓' : '○'} Consignee
+                            {doc.consignee_signature ? '✓' : '○'} {t('blockchain.consignee')}
                           </span>
                         </div>
                       </div>
@@ -197,13 +199,13 @@ export default function BlockchainPage() {
       {/* Smart Contracts Tab */}
       {tab === 'contracts' && (
         <Card>
-          <CardHeader title="Smart Contracts" subtitle="Automated logistics agreements" />
+          <CardHeader title={t('blockchain.smartContracts')} subtitle={t('blockchain.subtitle')} />
           {loadingContracts ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (contracts || []).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <LinkIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No smart contracts yet.</p>
+              <p>{t('blockchain.noDocuments')}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -228,13 +230,13 @@ export default function BlockchainPage() {
       {/* Digital Identity Tab */}
       {tab === 'identity' && (
         <Card>
-          <CardHeader title="Digital Identity" subtitle="Your company's decentralized identity (DID)" />
+          <CardHeader title={t('blockchain.digitalIdentity')} subtitle={t('blockchain.subtitle')} />
           {loadingIdentity ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : !identity ? (
             <div className="p-8 text-center text-gray-500">
               <FingerPrintIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No digital identity found.</p>
+              <p>{t('blockchain.noDocuments')}</p>
               <Button className="mt-4" onClick={() => verifyIdentityMutation.mutate()}>Create Identity</Button>
             </div>
           ) : (

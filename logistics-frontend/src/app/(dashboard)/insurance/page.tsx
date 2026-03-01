@@ -15,6 +15,7 @@ import {
   CheckCircleIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { InsuranceQuote, CoverageType } from '@/types';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
@@ -28,6 +29,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 export default function InsurancePage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<'quote' | 'policies' | 'coverage'>('quote');
   const [coverageTypes, setCoverageTypes] = useState<CoverageType[]>([]);
   const [myQuotes, setMyQuotes] = useState<InsuranceQuote[]>([]);
@@ -104,21 +106,21 @@ export default function InsurancePage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
             <ShieldCheckIcon className="inline h-7 w-7 mr-2" />
-            Freight Insurance
+            {t('insurance.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-            Instant cargo insurance quotes and policy management
+            {t('insurance.instantQuotesDesc')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant={tab === 'quote' ? 'primary' : 'secondary'} size="sm" onClick={() => setTab('quote')}>
-            <CalculatorIcon className="h-4 w-4 mr-1" /> Get Quote
+            <CalculatorIcon className="h-4 w-4 mr-1" /> {t('insurance.getQuote')}
           </Button>
           <Button variant={tab === 'policies' ? 'primary' : 'secondary'} size="sm" onClick={() => setTab('policies')}>
-            <DocumentCheckIcon className="h-4 w-4 mr-1" /> My Policies
+            <DocumentCheckIcon className="h-4 w-4 mr-1" /> {t('insurance.myPolicies')}
           </Button>
           <Button variant={tab === 'coverage' ? 'primary' : 'secondary'} size="sm" onClick={() => setTab('coverage')}>
-            <ShieldCheckIcon className="h-4 w-4 mr-1" /> Coverage Info
+            <ShieldCheckIcon className="h-4 w-4 mr-1" /> {t('insurance.coverageInfo')}
           </Button>
         </div>
       </div>
@@ -128,16 +130,16 @@ export default function InsurancePage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Insurance Quote Calculator</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('insurance.quoteCalculator')}</h2>
             </CardHeader>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Cargo Value (EUR)</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.cargoValueEur')}</label>
                   <Input type="number" value={cargoValue} onChange={(e) => setCargoValue(e.target.value)} placeholder="e.g. 50000" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Cargo Type</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.cargoType')}</label>
                   <Select value={cargoType} onChange={(e) => setCargoType(e.target.value)}>
                     <option value="general">General Goods</option>
                     <option value="electronics">Electronics</option>
@@ -150,7 +152,7 @@ export default function InsurancePage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Coverage Type</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.coverageType')}</label>
                   <Select value={coverageType} onChange={(e) => setCoverageType(e.target.value)}>
                     <option value="basic">Basic</option>
                     <option value="all_risk">All Risk</option>
@@ -158,16 +160,16 @@ export default function InsurancePage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Origin Country</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.originCountry')}</label>
                   <Input value={originCountry} onChange={(e) => setOriginCountry(e.target.value.toUpperCase())} placeholder="DE" maxLength={2} />
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Destination Country</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.destinationCountry')}</label>
                   <Input value={destCountry} onChange={(e) => setDestCountry(e.target.value.toUpperCase())} placeholder="FR" maxLength={2} />
                 </div>
               </div>
               <Button onClick={handleQuote} disabled={quoting || !cargoValue}>
-                {quoting ? 'Calculating...' : 'Get Instant Quote'}
+                {quoting ? t('insurance.calculating') : t('insurance.getInstantQuote')}
               </Button>
             </div>
           </Card>
@@ -177,23 +179,23 @@ export default function InsurancePage() {
               <div className="p-6 space-y-4">
                 <div className="text-center">
                   <CheckCircleIcon className="h-10 w-10 mx-auto" style={{ color: 'var(--ds-green-700)' }} />
-                  <h3 className="text-lg font-bold mt-2" style={{ color: 'var(--ds-gray-1000)' }}>Insurance Quote Ready</h3>
+                  <h3 className="text-lg font-bold mt-2" style={{ color: 'var(--ds-gray-1000)' }}>{t('insurance.quoteReady')}</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center p-4 rounded-lg" style={{ background: 'var(--ds-blue-100)' }}>
-                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Premium</p>
+                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.premium')}</p>
                     <p className="text-2xl font-bold" style={{ color: 'var(--ds-blue-900)' }}>
                       {formatCurrency(quoteResult.premium_amount || 0, 'EUR')}
                     </p>
                   </div>
                   <div className="text-center p-4 rounded-lg" style={{ background: 'var(--ds-gray-100)' }}>
-                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Coverage</p>
+                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.coverage')}</p>
                     <p className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
                       {formatCurrency(quoteResult.coverage_amount || 0, 'EUR')}
                     </p>
                   </div>
                   <div className="text-center p-4 rounded-lg" style={{ background: 'var(--ds-gray-100)' }}>
-                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Rate</p>
+                    <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.rate')}</p>
                     <p className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
                       {(((quoteResult.premium_amount || quoteResult.premium || 0) / (quoteResult.coverage_amount || quoteResult.cargo_value || 1)) * 100).toFixed(2)}%
                     </p>
@@ -201,15 +203,15 @@ export default function InsurancePage() {
                 </div>
                 {quoteResult.deductible && (
                   <p className="text-xs text-center" style={{ color: 'var(--ds-gray-700)' }}>
-                    Deductible: {formatCurrency(quoteResult.deductible, 'EUR')}
+                    {t('insurance.deductible')}: {formatCurrency(quoteResult.deductible, 'EUR')}
                   </p>
                 )}
                 <div className="flex justify-center gap-3">
                   <Button onClick={() => quoteResult.id && acceptQuote(quoteResult.id)}>
-                    Accept & Purchase
+                    {t('insurance.acceptPurchase')}
                   </Button>
                   <Button variant="secondary" onClick={() => setQuoteResult(null)}>
-                    New Quote
+                    {t('insurance.newQuote')}
                   </Button>
                 </div>
               </div>
@@ -255,7 +257,7 @@ export default function InsurancePage() {
                         <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>premium</p>
                         {quote.status === 'quoted' && (
                           <Button size="sm" className="mt-2" onClick={() => acceptQuote(quote.id)}>
-                            Accept
+                            {t('orders.accept')}
                           </Button>
                         )}
                       </div>
@@ -267,7 +269,7 @@ export default function InsurancePage() {
           ) : (
             <div className="text-center py-12" style={{ color: 'var(--ds-gray-700)' }}>
               <ShieldCheckIcon className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p>No insurance policies yet. Get a quote to get started.</p>
+              <p>{t('insurance.noPoliciesYet')}</p>
             </div>
           )}
         </div>
@@ -288,7 +290,7 @@ export default function InsurancePage() {
                       {(ct.base_rate * 100).toFixed(2)}%
                     </p>
                   )}
-                  <p className="text-xs" style={{ color: 'var(--ds-gray-700)' }}>base rate</p>
+                  <p className="text-xs" style={{ color: 'var(--ds-gray-700)' }}>{t('insurance.baseRate')}</p>
                 </div>
 
                 {ct.description && (
@@ -297,7 +299,7 @@ export default function InsurancePage() {
 
                 {ct.inclusions && ct.inclusions.length > 0 && (
                   <div>
-                    <p className="text-[10px] uppercase font-medium mb-1" style={{ color: 'var(--ds-green-700)' }}>Included</p>
+                    <p className="text-[10px] uppercase font-medium mb-1" style={{ color: 'var(--ds-green-700)' }}>{t('insurance.included')}</p>
                     <ul className="space-y-1">
                       {ct.inclusions.map((inc: string, j: number) => (
                         <li key={j} className="text-xs flex items-start gap-1" style={{ color: 'var(--ds-gray-900)' }}>
@@ -310,7 +312,7 @@ export default function InsurancePage() {
 
                 {ct.exclusions && ct.exclusions.length > 0 && (
                   <div>
-                    <p className="text-[10px] uppercase font-medium mb-1" style={{ color: 'var(--ds-red-700)' }}>Excluded</p>
+                    <p className="text-[10px] uppercase font-medium mb-1" style={{ color: 'var(--ds-red-700)' }}>{t('insurance.excluded')}</p>
                     <ul className="space-y-1">
                       {ct.exclusions.map((exc: string, j: number) => (
                         <li key={j} className="text-xs flex items-start gap-1" style={{ color: 'var(--ds-gray-700)' }}>
@@ -322,7 +324,7 @@ export default function InsurancePage() {
                 )}
 
                 <Button className="w-full" onClick={() => { setCoverageType(ct.type || 'all_risk'); setTab('quote'); }}>
-                  Get Quote
+                  {t('insurance.getQuote')}
                 </Button>
               </div>
             </Card>

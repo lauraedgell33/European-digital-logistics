@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -28,6 +29,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function LexiconPage() {
+  const { t } = useTranslation();
   const [articles, setArticles] = useState<LexiconArticle[]>([]);
   const [popular, setPopular] = useState<LexiconArticle[]>([]);
   const [categories, setCategories] = useState<{ category: string; count: number }[]>([]);
@@ -106,7 +108,7 @@ export default function LexiconPage() {
     return (
       <div className="space-y-6 max-w-3xl">
         <Button variant="secondary" size="sm" onClick={() => { setSelectedArticle(null); setArticleDetail(null); }}>
-          <ArrowLeftIcon className="h-4 w-4 mr-1" /> Back to Lexicon
+          <ArrowLeftIcon className="h-4 w-4 mr-1" /> {t('lexicon.backToLexicon')}
         </Button>
 
         <div>
@@ -156,7 +158,7 @@ export default function LexiconPage() {
 
         {articleDetail.related_articles && articleDetail.related_articles.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>Related Articles</h3>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>{t('lexicon.relatedArticles')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {articleDetail.related_articles.map((ra: LexiconArticle) => (
                 <Card key={ra.id}>
@@ -183,10 +185,10 @@ export default function LexiconPage() {
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
           <BookOpenIcon className="inline h-7 w-7 mr-2" />
-          Transport Lexicon
+          {t('lexicon.title')}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-          Knowledge base for transport & logistics terminology
+          {t('lexicon.subtitle')}
         </p>
       </div>
 
@@ -196,7 +198,7 @@ export default function LexiconPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search articles..."
+            placeholder={t('lexicon.searchArticles')}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           <Button onClick={handleSearch} variant="secondary">
@@ -204,7 +206,7 @@ export default function LexiconPage() {
           </Button>
         </div>
         <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All Categories</option>
+          <option value="">{t('lexicon.allCategories')}</option>
           {categories.map(c => (
             <option key={c.category} value={c.category}>
               {CATEGORY_LABELS[c.category] || c.category} ({c.count})
@@ -216,7 +218,7 @@ export default function LexiconPage() {
       {/* Popular Articles */}
       {!category && !search && popular.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>Popular Articles</h2>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>{t('lexicon.popularArticles')}</h2>
           <div className="flex gap-2 flex-wrap">
             {popular.slice(0, 5).map(article => (
               <Button
@@ -279,7 +281,7 @@ export default function LexiconPage() {
 
       {articles.length === 0 && (
         <div className="text-center py-12" style={{ color: 'var(--ds-gray-700)' }}>
-          No articles found. Try adjusting your search or filters.
+          {t('lexicon.noArticles')}
         </div>
       )}
     </div>

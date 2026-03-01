@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -25,6 +26,7 @@ const BAN_TYPE_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default function DrivingBansPage() {
+  const { t } = useTranslation();
   const [bans, setBans] = useState<DrivingBan[]>([]);
   const [activeBans, setActiveBans] = useState<DrivingBan[]>([]);
   const [countries, setCountries] = useState<{ country: string; count: number }[]>([]);
@@ -96,10 +98,10 @@ export default function DrivingBansPage() {
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
           <ShieldExclamationIcon className="inline h-7 w-7 mr-2" />
-          Truck Driving Bans
+          {t('drivingBans.title')}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-          Weekend, holiday, night & seasonal driving restrictions across Europe
+          {t('drivingBans.subtitle')}
         </p>
       </div>
 
@@ -112,7 +114,7 @@ export default function DrivingBansPage() {
           <ExclamationTriangleIcon className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--ds-red-900)' }} />
           <div>
             <p className="text-sm font-semibold" style={{ color: 'var(--ds-red-900)' }}>
-              {activeBans.length} ban{activeBans.length > 1 ? 's' : ''} currently active
+              {activeBans.length} ban{activeBans.length > 1 ? 's' : ''} {t('drivingBans.currentlyActive')}
             </p>
             <div className="mt-2 space-y-1">
               {activeBans.slice(0, 5).map((ban, i) => (
@@ -134,7 +136,7 @@ export default function DrivingBansPage() {
       <Card>
         <CardHeader>
           <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-            <MapPinIcon className="inline h-5 w-5 mr-1" /> Route Check
+            <MapPinIcon className="inline h-5 w-5 mr-1" /> {t('drivingBans.routeCheck')}
           </h2>
         </CardHeader>
         <div className="p-4 space-y-4">
@@ -162,11 +164,11 @@ export default function DrivingBansPage() {
               </div>
             ))}
             <Button variant="secondary" size="sm" onClick={() => setRouteCountries([...routeCountries, 'FR'])}>
-              + Add Country
+              + {t('drivingBans.addCountry')}
             </Button>
           </div>
           <Button onClick={checkRoute} disabled={checkingRoute}>
-            {checkingRoute ? 'Checking...' : 'Check Route'}
+            {checkingRoute ? t('common.loading') : t('drivingBans.checkRoute')}
           </Button>
 
           {routeResult && (
@@ -174,14 +176,14 @@ export default function DrivingBansPage() {
               {routeResult.bans.length === 0 && routeResult.warnings.length === 0 ? (
                 <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: 'var(--ds-green-200)' }}>
                   <CheckCircleIcon className="h-5 w-5" style={{ color: 'var(--ds-green-900)' }} />
-                  <span className="text-sm font-medium" style={{ color: 'var(--ds-green-900)' }}>Route is clear — no active bans found!</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--ds-green-900)' }}>{t('drivingBans.routeClear')} — {t('drivingBans.routeClearDesc')}</span>
                 </div>
               ) : (
                 <>
                   {routeResult.bans.length > 0 && (
                     <div>
                       <p className="text-sm font-semibold mb-2" style={{ color: 'var(--ds-red-900)' }}>
-                        ⛔ Active Bans ({routeResult.bans.length})
+                        ⛔ {t('drivingBans.activeBans')} ({routeResult.bans.length})
                       </p>
                       {routeResult.bans.map((ban, i) => (
                         <BanCard key={i} ban={ban} highlight />
@@ -191,7 +193,7 @@ export default function DrivingBansPage() {
                   {routeResult.warnings.length > 0 && (
                     <div>
                       <p className="text-sm font-semibold mb-2" style={{ color: 'var(--ds-amber-900)' }}>
-                        ⚠️ Upcoming Bans ({routeResult.warnings.length})
+                        ⚠️ {t('drivingBans.upcomingBans')} ({routeResult.warnings.length})
                       </p>
                       {routeResult.warnings.map((ban, i) => (
                         <BanCard key={i} ban={ban} />
@@ -230,7 +232,7 @@ export default function DrivingBansPage() {
         ))}
         {filteredBans.length === 0 && (
           <div className="col-span-2 text-center py-12" style={{ color: 'var(--ds-gray-700)' }}>
-            No driving bans found matching your filters.
+            {t('drivingBans.noBans')}
           </div>
         )}
       </div>

@@ -16,9 +16,11 @@ import {
   CurrencyEuroIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Invoice, InvoiceStats } from '@/types';
 
 export default function InvoicesPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
@@ -79,13 +81,13 @@ export default function InvoicesPage() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <DocumentTextIcon className="h-7 w-7" style={{ color: 'var(--ds-blue-500)' }} />
-            Invoices
+            {t('invoices.title')}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Create, send, and manage invoices with factoring support</p>
+          <p className="text-sm text-gray-500 mt-1">{t('invoices.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreate(!showCreate)}>
           <PlusIcon className="h-4 w-4 mr-2" />
-          New Invoice
+          {t('invoices.newInvoice')}
         </Button>
       </div>
 
@@ -94,19 +96,19 @@ export default function InvoicesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{statCards.total_invoices}</p>
-            <p className="text-xs text-gray-500">Total Invoices</p>
+            <p className="text-xs text-gray-500">{t('invoices.totalInvoices')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{formatCurrency(statCards.total_amount || 0, 'EUR')}</p>
-            <p className="text-xs text-gray-500">Total Amount</p>
+            <p className="text-xs text-gray-500">{t('invoices.totalAmount')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-green-600)' }}>{formatCurrency(statCards.paid_amount || 0, 'EUR')}</p>
-            <p className="text-xs text-gray-500">Collected</p>
+            <p className="text-xs text-gray-500">{t('invoices.collected')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-red-600)' }}>{formatCurrency(statCards.overdue_amount || 0, 'EUR')}</p>
-            <p className="text-xs text-gray-500">Overdue ({statCards.overdue_count})</p>
+            <p className="text-xs text-gray-500">{t('invoices.overdue')} ({statCards.overdue_count})</p>
           </Card>
         </div>
       )}
@@ -114,21 +116,21 @@ export default function InvoicesPage() {
       {/* Create Form */}
       {showCreate && (
         <Card>
-          <CardHeader title="Create Invoice" />
+          <CardHeader title={t('invoices.createInvoice')} />
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Client Company ID</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t('invoices.clientCompanyId')}</label>
                 <input type="number" className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                   value={form.client_company_id} onChange={e => setForm({ ...form, client_company_id: Number(e.target.value) })} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Due Date</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t('invoices.dueDate')}</label>
                 <input type="date" className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                   value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Currency</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t('invoices.currency')}</label>
                 <select className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                   value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value })}>
                   <option>EUR</option><option>USD</option><option>GBP</option><option>PLN</option><option>CZK</option><option>RON</option>
@@ -136,7 +138,7 @@ export default function InvoicesPage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Line Items</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('invoices.lineItems')}</label>
               {form.line_items.map((item, i) => (
                 <div key={i} className="flex gap-2 mb-2">
                   <input className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
@@ -151,11 +153,11 @@ export default function InvoicesPage() {
                 </div>
               ))}
               <Button size="sm" variant="secondary" onClick={() => setForm({ ...form, line_items: [...form.line_items, { description: '', quantity: 1, unit_price: 0 }] })}>
-                + Add Line
+                {t('invoices.addLine')}
               </Button>
             </div>
             <Button onClick={() => createMutation.mutate(form as Record<string, unknown>)} disabled={createMutation.isPending}>
-              {createMutation.isPending ? <Spinner size="sm" /> : 'Create Invoice'}
+              {createMutation.isPending ? <Spinner size="sm" /> : t('invoices.createInvoice')}
             </Button>
           </div>
         </Card>
@@ -166,7 +168,7 @@ export default function InvoicesPage() {
         {['', 'draft', 'sent', 'paid', 'overdue', 'cancelled'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-md text-sm ${statusFilter === s ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-            {s || 'All'}
+            {s ? t(`invoices.${s}`) : t('common.all')}
           </button>
         ))}
       </div>
@@ -178,7 +180,7 @@ export default function InvoicesPage() {
         ) : (invoices || []).length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <DocumentTextIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-            <p>No invoices found.</p>
+            <p>{t('invoices.noInvoices')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -188,33 +190,33 @@ export default function InvoicesPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-bold">{inv.invoice_number}</span>
                     <Badge variant={statusColor(inv.status)}>{inv.status}</Badge>
-                    {inv.is_overdue && <Badge variant="red"><ExclamationTriangleIcon className="h-3 w-3 mr-1" />Overdue</Badge>}
+                    {inv.is_overdue && <Badge variant="red"><ExclamationTriangleIcon className="h-3 w-3 mr-1" />{t('invoices.overdue')}</Badge>}
                   </div>
                   <p className="text-sm mt-1">
                     Client #{inv.client_company_id} • Due: {new Date(inv.due_date).toLocaleDateString()}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {inv.line_items?.length || 0} items • Tax: {inv.tax_rate}% ({formatCurrency(inv.tax_amount, inv.currency)})
+                    {inv.line_items?.length || 0} {t('invoices.items')} • {t('invoices.tax')}: {inv.tax_rate}% ({formatCurrency(inv.tax_amount, inv.currency)})
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold">{formatCurrency(inv.total_amount, inv.currency)}</p>
                   {inv.balance_due !== undefined && inv.balance_due > 0 && (
-                    <p className="text-xs text-red-600">Due: {formatCurrency(inv.balance_due, inv.currency)}</p>
+                    <p className="text-xs text-red-600">{t('invoices.due')}: {formatCurrency(inv.balance_due, inv.currency)}</p>
                   )}
                   <div className="flex gap-1 mt-2 justify-end">
                     {inv.status === 'draft' && (
                       <Button size="sm" variant="primary" onClick={() => sendMutation.mutate(inv.id)}>
-                        <PaperAirplaneIcon className="h-3 w-3 mr-1" /> Send
+                        <PaperAirplaneIcon className="h-3 w-3 mr-1" /> {t('invoices.sendInvoice')}
                       </Button>
                     )}
                     {['sent', 'overdue', 'partially_paid'].includes(inv.status) && (
                       <>
                         <Button size="sm" variant="primary" onClick={() => markPaidMutation.mutate(inv.id)}>
-                          <BanknotesIcon className="h-3 w-3 mr-1" /> Mark Paid
+                          <BanknotesIcon className="h-3 w-3 mr-1" /> {t('invoices.markAsPaid')}
                         </Button>
                         <Button size="sm" variant="secondary" onClick={() => factoringMutation.mutate(inv.id)}>
-                          Factoring
+                          {t('invoices.factoring')}
                         </Button>
                       </>
                     )}

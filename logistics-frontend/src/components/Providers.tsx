@@ -9,6 +9,7 @@ import ThemeProvider from '@/components/providers/ThemeProvider';
 import { LocaleSync } from '@/components/LocaleSync';
 import { SeoHead } from '@/components/SeoHead';
 import dynamic from 'next/dynamic';
+import { PWAProvider } from '@/components/pwa/PWAProvider';
 
 const CommandPalette = dynamic(() => import('@/components/ui/CommandPalette'), {
   ssr: false,
@@ -38,12 +39,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <LocaleSync />
-        <SeoHead />
-        <WebSocketProvider />
-        <NotificationContainer />
-        <CommandPalette />
-        {children}
+        <PWAProvider>
+          <LocaleSync />
+          <SeoHead />
+          <WebSocketProvider />
+          <NotificationContainer />
+          <CommandPalette />
+          {children}
+        </PWAProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -134,11 +134,8 @@ class InvoiceController extends Controller
                 'avg_payment_days' => round(Invoice::where('company_id', $companyId)
                     ->where('status', 'paid')
                     ->whereNotNull('paid_at')
-                    ->get()
-                    ->avg(function ($invoice) {
-                        return \Carbon\Carbon::parse($invoice->issue_date)
-                            ->diffInDays(\Carbon\Carbon::parse($invoice->paid_at));
-                    }) ?? 0),
+                    ->selectRaw('AVG(DATEDIFF(paid_at, issue_date)) as avg_days')
+                    ->value('avg_days') ?? 0),
             ],
         ]);
     }

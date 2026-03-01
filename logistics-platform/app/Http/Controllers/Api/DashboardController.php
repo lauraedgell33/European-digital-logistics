@@ -7,6 +7,7 @@ use App\Models\TransportOrder;
 use App\Models\FreightOffer;
 use App\Models\VehicleOffer;
 use App\Models\Shipment;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,10 +17,13 @@ class DashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         $companyId = $request->user()->company_id;
-        $overview = $this->getOverview($companyId);
 
-        return response()->json([
-            'data' => [
+        $cacheKey = CacheService::companyKey('dashboard:overview', $companyId);
+
+        $data = CacheService::remember($cacheKey, 120, function () use ($companyId) {
+            $overview = $this->getOverview($companyId);
+
+            return [
                 'active_freight' => $overview['active_freight_offers'],
                 'available_vehicles' => $overview['active_vehicle_offers'],
                 'active_orders' => $overview['active_orders'],
@@ -29,8 +33,10 @@ class DashboardController extends Controller
                 'pending_orders' => $overview['pending_orders'],
                 'recent_orders' => $this->getRecentOrders($companyId),
                 'active_shipments' => $this->getActiveShipments($companyId),
-            ],
-        ]);
+            ];
+        }, ['dashboard', 'orders', 'freight', 'vehicles']);
+
+        return response()->json(['data' => $data]);
     }
 
     private function getOverview(int $companyId): array
@@ -107,49 +113,54 @@ class DashboardController extends Controller
         $months = (int) $request->input('months', $request->input('period', 6));
         if ($months < 1 || $months > 24) $months = 6;
 
-        $monthlyOrders = TransportOrder::forCompany($companyId)
-            ->where('created_at', '>=', now()->subMonths($months))
-            ->select(
-                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed'),
-                DB::raw('SUM(total_price) as revenue')
-            )
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        $cacheKey = CacheService::companyKey('dashboard:analytics', $companyId, ['months' => $months]);
 
-        $topRoutes = TransportOrder::forCompany($companyId)
-            ->where('created_at', '>=', now()->subMonths($months))
-            ->select(
-                'pickup_country', 'pickup_city',
-                'delivery_country', 'delivery_city',
-                DB::raw('COUNT(*) as total_orders'),
-                DB::raw('AVG(total_price) as avg_price')
-            )
-            ->groupBy('pickup_country', 'pickup_city', 'delivery_country', 'delivery_city')
-            ->orderBy('total_orders', 'desc')
-            ->limit(10)
-            ->get();
+        $data = CacheService::remember($cacheKey, 600, function () use ($companyId, $months) {
+            $monthlyOrders = TransportOrder::forCompany($companyId)
+                ->where('created_at', '>=', now()->subMonths($months))
+                ->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+                    DB::raw('COUNT(*) as total'),
+                    DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed'),
+                    DB::raw('SUM(total_price) as revenue')
+                )
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get();
 
-        // Aggregate summary for the period
-        $summary = TransportOrder::forCompany($companyId)
-            ->where('created_at', '>=', now()->subMonths($months))
-            ->select(
-                DB::raw('SUM(total_price) as total_revenue'),
-                DB::raw('SUM(CASE WHEN status IN ("completed","delivered") THEN 1 ELSE 0 END) as completed_orders'),
-                DB::raw('AVG(total_price) as avg_order_value')
-            )
-            ->first();
+            $topRoutes = TransportOrder::forCompany($companyId)
+                ->where('created_at', '>=', now()->subMonths($months))
+                ->select(
+                    'pickup_country', 'pickup_city',
+                    'delivery_country', 'delivery_city',
+                    DB::raw('COUNT(*) as total_orders'),
+                    DB::raw('AVG(total_price) as avg_price')
+                )
+                ->groupBy('pickup_country', 'pickup_city', 'delivery_country', 'delivery_city')
+                ->orderBy('total_orders', 'desc')
+                ->limit(10)
+                ->get();
 
-        return response()->json([
-            'data' => [
+            $summary = TransportOrder::forCompany($companyId)
+                ->where('created_at', '>=', now()->subMonths($months))
+                ->select(
+                    DB::raw('SUM(total_price) as total_revenue'),
+                    DB::raw('SUM(CASE WHEN status IN ("completed","delivered") THEN 1 ELSE 0 END) as completed_orders'),
+                    DB::raw('AVG(total_price) as avg_order_value')
+                )
+                ->first();
+
+            return [
                 'monthly_orders' => $monthlyOrders,
                 'top_routes' => $topRoutes,
                 'total_revenue' => (float) ($summary->total_revenue ?? 0),
                 'completed_orders' => (int) ($summary->completed_orders ?? 0),
                 'avg_order_value' => (float) ($summary->avg_order_value ?? 0),
-            ],
+            ];
+        }, ['dashboard', 'orders']);
+
+        return response()->json([
+            'data' => $data,
         ]);
     }
 }

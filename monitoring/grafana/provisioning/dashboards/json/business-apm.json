@@ -1,0 +1,262 @@
+{
+  "annotations": { "list": [] },
+  "description": "Business Analytics — Freight, vehicles, orders, and revenue KPIs",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Platform KPIs",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "blue", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
+      "id": 2,
+      "title": "Total API Requests (24h)",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "increase(http_requests_total[24h])", "legendFormat": "Requests" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "red", "value": 1000 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
+      "id": 3,
+      "title": "Avg Response Time",
+      "type": "stat",
+      "options": { "colorMode": "background", "graphMode": "area" },
+      "targets": [
+        { "expr": "avg(http_request_duration_avg_ms)", "legendFormat": "Avg (ms)" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "orange", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+      "id": 4,
+      "title": "Slow Requests (>1s)",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "http_slow_requests_total", "legendFormat": "Slow" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
+      "id": 5,
+      "title": "5xx Error Rate",
+      "type": "stat",
+      "options": { "colorMode": "background", "graphMode": "area" },
+      "targets": [
+        { "expr": "http_requests_total{status_group=\"5xx\"} / http_requests_total", "legendFormat": "Error Rate" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "purple", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+      "id": 6,
+      "title": "Active Connections",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "http_active_requests", "legendFormat": "Active" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+      "id": 7,
+      "title": "Queue Pending",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "laravel_queue_size", "legendFormat": "Pending" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 10,
+      "title": "API Endpoint Performance",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 7 },
+      "id": 11,
+      "title": "Average Response Time per Route",
+      "type": "table",
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Value" }]
+      },
+      "targets": [
+        {
+          "expr": "topk(20, http_request_duration_avg_ms)",
+          "legendFormat": "{{ method }} {{ path }}",
+          "format": "table",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 20,
+      "title": "Request Distribution",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "id": 21,
+      "title": "Response Time Distribution",
+      "type": "histogram",
+      "targets": [
+        {
+          "expr": "http_request_duration_milliseconds_bucket",
+          "legendFormat": "{{ le }}ms",
+          "format": "heatmap"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "id": 22,
+      "title": "Requests by Status Code Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "increase(http_requests_total{status_group=\"2xx\"}[5m])",
+          "legendFormat": "2xx Success"
+        },
+        {
+          "expr": "increase(http_requests_total{status_group=\"4xx\"}[5m])",
+          "legendFormat": "4xx Client Error"
+        },
+        {
+          "expr": "increase(http_requests_total{status_group=\"5xx\"}[5m])",
+          "legendFormat": "5xx Server Error"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "id": 30,
+      "title": "Search Performance",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ops" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
+      "id": 31,
+      "title": "Elasticsearch Search Throughput",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(elasticsearch_indices_search_query_total[5m])",
+          "legendFormat": "Queries/s"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
+      "id": 32,
+      "title": "Search API Response Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "http_request_duration_avg_ms{path=~\"/api/v1/search.*\"}",
+          "legendFormat": "{{ method }} {{ path }}"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["logistics", "business", "analytics"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Business & APM Analytics",
+  "uid": "logistics-business-apm",
+  "version": 1
+}

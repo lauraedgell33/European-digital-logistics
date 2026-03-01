@@ -15,6 +15,7 @@ import {
   CurrencyEuroIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function StatCard({ title, value, subtitle, trend, icon: Icon }: {
   title: string; value: string; subtitle?: string; trend?: 'up' | 'down' | 'neutral'; icon: React.ElementType;
@@ -39,7 +40,7 @@ function StatCard({ title, value, subtitle, trend, icon: Icon }: {
             <ArrowTrendingDownIcon className="h-4 w-4 mr-1" style={{ color: 'var(--ds-red-600)' }} />
           ) : null}
           <span style={{ color: trend === 'up' ? 'var(--ds-green-600)' : 'var(--ds-red-600)' }}>
-            {trend === 'up' ? 'Trending up' : 'Trending down'}
+            {trend === 'up' ? t('predictions.trendingUp') : t('predictions.trendingDown')}
           </span>
         </div>
       )}
@@ -48,6 +49,7 @@ function StatCard({ title, value, subtitle, trend, icon: Icon }: {
 }
 
 export default function PredictionsPage() {
+  const { t } = useTranslation();
   const [region, setRegion] = useState('DE');
   const [tab, setTab] = useState<'demand' | 'pricing' | 'capacity' | 'market'>('market');
 
@@ -69,10 +71,10 @@ export default function PredictionsPage() {
   });
 
   const tabs = [
-    { key: 'market' as const, label: 'Market Overview', icon: GlobeEuropeAfricaIcon },
-    { key: 'demand' as const, label: 'Demand Forecast', icon: ChartBarIcon },
-    { key: 'pricing' as const, label: 'Price Forecast', icon: CurrencyEuroIcon },
-    { key: 'capacity' as const, label: 'Capacity', icon: TruckIcon },
+    { key: 'market' as const, label: t('predictions.marketOverview'), icon: GlobeEuropeAfricaIcon },
+    { key: 'demand' as const, label: t('predictions.demandForecast'), icon: ChartBarIcon },
+    { key: 'pricing' as const, label: t('predictions.priceForecast'), icon: CurrencyEuroIcon },
+    { key: 'capacity' as const, label: t('predictions.capacityForecast'), icon: TruckIcon },
   ];
 
   return (
@@ -80,9 +82,9 @@ export default function PredictionsPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ChartBarIcon className="h-7 w-7" style={{ color: 'var(--ds-blue-500)' }} />
-          Predictive Analytics
+          {t('predictions.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">AI-powered market forecasts and trend analysis</p>
+        <p className="text-sm text-gray-500 mt-1">{t('predictions.aiPoweredForecasts')}</p>
       </div>
 
       {/* Tab Navigation */}
@@ -127,20 +129,20 @@ export default function PredictionsPage() {
         loadingMarket ? <div className="flex justify-center p-12"><Spinner /></div> : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard title="Total Freight Offers" value={String(marketData?.total_freight_offers || 0)} icon={TruckIcon} trend="up" />
-              <StatCard title="Active Vehicles" value={String(marketData?.total_vehicle_offers || 0)} icon={TruckIcon} trend="neutral" />
-              <StatCard title="Avg Price/km" value={`€${(marketData?.average_price_per_km || 0).toFixed(2)}`} icon={CurrencyEuroIcon} trend="up" />
-              <StatCard title="Market Utilization" value={`${(marketData?.market_utilization || 0).toFixed(0)}%`} icon={ChartBarIcon} />
+              <StatCard title={t('predictions.totalFreightOffers')} value={String(marketData?.total_freight_offers || 0)} icon={TruckIcon} trend="up" />
+              <StatCard title={t('predictions.activeVehicles')} value={String(marketData?.total_vehicle_offers || 0)} icon={TruckIcon} trend="neutral" />
+              <StatCard title={t('predictions.avgPricePerKm')} value={`€${(marketData?.average_price_per_km || 0).toFixed(2)}`} icon={CurrencyEuroIcon} trend="up" />
+              <StatCard title={t('predictions.utilizationRate')} value={`${(marketData?.market_utilization || 0).toFixed(0)}%`} icon={ChartBarIcon} />
             </div>
 
             {marketData?.top_routes && (
               <Card>
-                <CardHeader title="Top Routes" subtitle="Most popular trade lanes" />
+                <CardHeader title={t('analytics.topRoutes')} subtitle={t('predictions.mostPopularTradeLanes')} />
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {(marketData.top_routes || []).map((route: Record<string, unknown>, i: number) => (
                     <div key={i} className="p-3 flex items-center justify-between text-sm">
                       <span>{String(route.origin_country || '')} → {String(route.destination_country || '')}</span>
-                      <Badge variant="blue">{String(route.count || 0)} offers</Badge>
+                      <Badge variant="blue">{String(route.count || 0)} {t('predictions.offers')}</Badge>
                     </div>
                   ))}
                 </div>
@@ -154,7 +156,7 @@ export default function PredictionsPage() {
       {tab === 'demand' && (
         loadingDemand ? <div className="flex justify-center p-12"><Spinner /></div> : (
           <Card>
-            <CardHeader title={`Demand Forecast — ${region}`} subtitle="7-day freight demand prediction" />
+            <CardHeader title={`${t('predictions.demandForecast')} — ${region}`} subtitle={t('predictions.sevenDayForecast')} />
             <div className="p-4">
               {demandData?.predictions ? (
                 <div className="space-y-3">
@@ -176,7 +178,7 @@ export default function PredictionsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500">No forecast data available.</p>
+                <p className="text-center text-gray-500">{t('predictions.noForecastData')}</p>
               )}
             </div>
           </Card>
@@ -187,7 +189,7 @@ export default function PredictionsPage() {
       {tab === 'capacity' && (
         loadingCapacity ? <div className="flex justify-center p-12"><Spinner /></div> : (
           <Card>
-            <CardHeader title={`Capacity Forecast — ${region}`} subtitle="Available transport capacity prediction" />
+            <CardHeader title={`${t('predictions.capacityForecast')} — ${region}`} subtitle={t('predictions.capacityPrediction')} />
             <div className="p-4">
               {capacityData?.predictions ? (
                 <div className="space-y-3">
@@ -208,7 +210,7 @@ export default function PredictionsPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500">No capacity data available.</p>
+                <p className="text-center text-gray-500">{t('predictions.noCapacityData')}</p>
               )}
             </div>
           </Card>
@@ -218,10 +220,10 @@ export default function PredictionsPage() {
       {/* Pricing tab placeholder - uses same data structure */}
       {tab === 'pricing' && (
         <Card>
-          <CardHeader title={`Price Forecast — ${region}`} subtitle="Expected price trends for key routes" />
+          <CardHeader title={`${t('predictions.priceForecast')} — ${region}`} subtitle={t('predictions.priceForecastDesc')} />
           <div className="p-8 text-center text-gray-500">
             <CurrencyEuroIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-            <p>Select a specific route in the Dynamic Pricing page for detailed price forecasts.</p>
+            <p>{t('predictions.priceForecastDesc')}</p>
           </div>
         </Card>
       )}

@@ -12,10 +12,45 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Laravel\Scout\Searchable;
 
 class Company extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
+    use HasFactory, InteractsWithMedia, LogsActivity, Searchable, SoftDeletes;
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'vat_number' => $this->vat_number,
+            'registration_number' => $this->registration_number,
+            'type' => $this->type,
+            'verification_status' => $this->verification_status?->value ?? $this->verification_status,
+            'country_code' => $this->country_code,
+            'address' => $this->address,
+            'city' => $this->city,
+            'postal_code' => $this->postal_code,
+            'email' => $this->email,
+            'website' => $this->website,
+            'rating' => (float) $this->rating,
+            'total_reviews' => $this->total_reviews,
+            'is_active' => $this->is_active,
+            'verified_at' => $this->verified_at?->toIso8601String(),
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->is_active;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

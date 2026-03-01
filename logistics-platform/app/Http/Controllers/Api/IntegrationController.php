@@ -66,7 +66,7 @@ class IntegrationController extends Controller
 
         $orders = $query->with(['shipper:id,name,vat_number', 'carrier:id,name,vat_number'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($request->input('per_page', 50));
 
         return TransportOrderResource::collection($orders)->response();
     }

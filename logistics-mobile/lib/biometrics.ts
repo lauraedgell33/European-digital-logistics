@@ -1,4 +1,13 @@
-let LocalAuthentication: any;
+interface LocalAuthModule {
+  hasHardwareAsync: () => Promise<boolean>;
+  isEnrolledAsync: () => Promise<boolean>;
+  authenticateAsync: (options?: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>;
+  SecurityLevel: { NONE: number; SECRET: number; BIOMETRIC: number };
+  AuthenticationType: { FINGERPRINT: number; FACIAL_RECOGNITION: number; IRIS: number };
+  supportedAuthenticationTypesAsync: () => Promise<number[]>;
+}
+
+let LocalAuthentication: LocalAuthModule;
 try {
   LocalAuthentication = require('expo-local-authentication');
 } catch {

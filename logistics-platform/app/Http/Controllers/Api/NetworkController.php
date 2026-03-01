@@ -17,11 +17,11 @@ class NetworkController extends Controller
         $networks = $company->networks()
             ->withCount('activeMembers')
             ->with('owner:id,name')
-            ->get();
+            ->paginate($request->input('per_page', 20), ['*'], 'networks_page');
 
         $owned = $company->ownedNetworks()
             ->withCount('activeMembers')
-            ->get();
+            ->paginate($request->input('per_page', 20), ['*'], 'owned_page');
 
         return response()->json([
             'member_of' => $networks,

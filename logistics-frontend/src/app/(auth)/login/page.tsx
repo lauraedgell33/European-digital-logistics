@@ -9,6 +9,7 @@ import { loginSchema } from '@/lib/validations';
 import { useAuthStore } from '@/stores/authStore';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
 import { TruckIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type LoginForm = { email: string; password: string; remember?: boolean };
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const { login, isLoading } = useAuthStore();
   const { execute: executeRecaptcha } = useRecaptcha();
   const [serverError, setServerError] = useState('');
+  const { t } = useTranslation();
 
   const {
     register,
@@ -57,10 +59,10 @@ export default function LoginPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Welcome back
+            {t('auth.welcomeBack')}
           </h1>
           <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Sign in to LogiMarket
+            {t('auth.signInTo')}
           </p>
         </div>
 
@@ -92,7 +94,7 @@ export default function LoginPage() {
                 className="block text-[13px] font-medium"
                 style={{ color: 'var(--ds-gray-1000)' }}
               >
-                Email Address
+                {t('auth.emailAddress')}
               </label>
               <input
                 id="email"
@@ -114,14 +116,14 @@ export default function LoginPage() {
                   className="block text-[13px] font-medium"
                   style={{ color: 'var(--ds-gray-1000)' }}
                 >
-                  Password
+                  {t('auth.password')}
                 </label>
                 <Link
                   href="/forgot-password"
                   className="text-[12px] no-underline hover:underline"
                   style={{ color: 'var(--ds-blue-900)' }}
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
               <input
@@ -148,7 +150,7 @@ export default function LoginPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                'Sign In'
+                t('auth.signIn')
               )}
             </button>
           </form>
@@ -156,19 +158,19 @@ export default function LoginPage() {
           <div className="divider-geist my-6" />
 
           <p className="text-center text-[13px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Don&apos;t have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link
               href="/register"
               className="font-medium no-underline hover:underline"
               style={{ color: 'var(--ds-gray-1000)' }}
             >
-              Create account
+              {t('auth.createAccount')}
             </Link>
           </p>
         </div>
 
         <p className="text-center text-[11px] mt-6" style={{ color: 'var(--ds-gray-700)' }}>
-          By signing in, you agree to our Terms of Service and Privacy Policy.
+          {t('auth.termsAgree')} {t('auth.termsOfService')} {t('auth.and')} {t('auth.privacyPolicy')}.
         </p>
       </div>
     </div>

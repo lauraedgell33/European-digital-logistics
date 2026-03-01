@@ -8,12 +8,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPasswordSchema, ResetPasswordFormData } from '@/lib/validations';
 import { authApi } from '@/lib/api';
 import { TruckIcon, LockClosedIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { t } = useTranslation();
 
   const token = searchParams.get('token') ?? '';
   const emailParam = searchParams.get('email') ?? '';
@@ -56,10 +58,10 @@ export default function ResetPasswordPage() {
             <TruckIcon className="h-7 w-7 text-white" />
           </div>
           <h1 className="mt-4 text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
-            Set new password
+            {t('auth.setNewPassword')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-700)' }}>
-            Enter your new password below
+            {t('auth.setNewPasswordDesc')}
           </p>
         </div>
 
@@ -69,7 +71,7 @@ export default function ResetPasswordPage() {
             <div className="text-center py-4">
               <CheckCircleIcon className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--ds-green-700)' }} />
               <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-                Password reset successfully
+                {t('auth.passwordResetSuccess')}
               </h2>
               <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-gray-700)' }}>
                 Your password has been updated. You can now log in with your new password.
@@ -79,7 +81,7 @@ export default function ResetPasswordPage() {
                 className="mt-6 rounded-lg px-6 py-2.5 text-[14px] font-medium text-white"
                 style={{ background: 'var(--ds-blue-700)' }}
               >
-                Go to login
+                {t('auth.goToLogin')}
               </button>
             </div>
           ) : (
@@ -95,7 +97,7 @@ export default function ResetPasswordPage() {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-[13px] font-medium mb-1.5" style={{ color: 'var(--ds-gray-900)' }}>
-                  Email address
+                  {t('auth.emailAddress')}
                 </label>
                 <div className="relative">
                   <EnvelopeIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--ds-gray-600)' }} />
@@ -121,7 +123,7 @@ export default function ResetPasswordPage() {
               {/* New Password */}
               <div>
                 <label htmlFor="password" className="block text-[13px] font-medium mb-1.5" style={{ color: 'var(--ds-gray-900)' }}>
-                  New password
+                  {t('auth.newPassword')}
                 </label>
                 <div className="relative">
                   <LockClosedIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--ds-gray-600)' }} />
@@ -147,7 +149,7 @@ export default function ResetPasswordPage() {
               {/* Confirm Password */}
               <div>
                 <label htmlFor="password_confirmation" className="block text-[13px] font-medium mb-1.5" style={{ color: 'var(--ds-gray-900)' }}>
-                  Confirm new password
+                  {t('auth.confirmPassword')}
                 </label>
                 <div className="relative">
                   <LockClosedIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--ds-gray-600)' }} />
@@ -176,12 +178,12 @@ export default function ResetPasswordPage() {
                 className="w-full rounded-lg py-2.5 text-[14px] font-medium text-white transition-colors disabled:opacity-50"
                 style={{ background: 'var(--ds-blue-700)' }}
               >
-                {isSubmitting ? 'Resetting...' : 'Reset password'}
+                {isSubmitting ? t('auth.resetting') : t('auth.resetPassword')}
               </button>
 
               <div className="text-center">
                 <Link href="/login" className="text-[13px] font-medium" style={{ color: 'var(--ds-blue-700)' }}>
-                  Back to login
+                  {t('auth.backToLogin')}
                 </Link>
               </div>
             </form>

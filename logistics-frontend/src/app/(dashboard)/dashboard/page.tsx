@@ -19,6 +19,7 @@ import {
   PendingTasksWidget,
   CompanyPerformanceWidget,
 } from '@/components/dashboard/widgets';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const WIDGET_COMPONENTS: Record<WidgetType, React.ComponentType> = {
   stats_overview: StatsOverviewWidget,
@@ -37,6 +38,7 @@ const WIDGET_COMPONENTS: Record<WidgetType, React.ComponentType> = {
 
 export default function DashboardPage() {
   const { widgets, isEditMode } = useDashboardStore();
+  const { t } = useTranslation();
   const visibleWidgets = widgets
     .filter((w) => w.visible)
     .sort((a, b) => a.position - b.position);
@@ -57,7 +59,7 @@ export default function DashboardPage() {
             className="text-[14px] font-medium"
             style={{ color: 'var(--ds-gray-900)' }}
           >
-            No widgets visible. Click &quot;Add Widget&quot; to get started.
+            {t('dashboard.noData')}
           </p>
         </div>
       )}

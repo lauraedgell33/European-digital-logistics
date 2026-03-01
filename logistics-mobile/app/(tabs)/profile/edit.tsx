@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
@@ -6,9 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { authApi } from '@/lib/api';
+import { editProfileSchema, type EditProfileFormData } from '@/lib/schemas';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -18,20 +21,27 @@ export default function EditProfileScreen() {
   const { user, fetchProfile } = useAuthStore();
   const { addNotification } = useAppStore();
 
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<EditProfileFormData>({
+    resolver: zodResolver(editProfileSchema),
+    defaultValues: {
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+    },
+  });
 
   useEffect(() => {
     if (user) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      setPhone(user.phone || '');
+      reset({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      });
     }
-  }, [user]);
+  }, [user, reset]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: { name: string; email: string; phone: string }) =>
+    mutationFn: (data: EditProfileFormData) =>
       authApi.updateProfile(data),
     onSuccess: () => {
       fetchProfile();
@@ -43,16 +53,8 @@ export default function EditProfileScreen() {
     },
   });
 
-  const handleSave = () => {
-    if (!name.trim()) {
-      Alert.alert('Validation', 'Name is required');
-      return;
-    }
-    if (!email.trim()) {
-      Alert.alert('Validation', 'Email is required');
-      return;
-    }
-    updateMutation.mutate({ name: name.trim(), email: email.trim(), phone: phone.trim() });
+  const onSubmit = (data: EditProfileFormData) => {
+    updateMutation.mutate(data);
   };
 
   return (
@@ -84,41 +86,62 @@ export default function EditProfileScreen() {
 
             <View style={styles.field}>
               <Text style={styles.label}>Full Name</Text>
-              <Input
-                value={name}
-                onChangeText={setName}
-                placeholder="Enter your full name"
-                leftIcon="person-outline"
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your full name"
+                    leftIcon="person-outline"
+                    error={errors.name?.message}
+                  />
+                )}
               />
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Email Address</Text>
-              <Input
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                leftIcon="mail-outline"
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    leftIcon="mail-outline"
+                    error={errors.email?.message}
+                  />
+                )}
               />
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Phone Number</Text>
-              <Input
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="Enter your phone number"
-                keyboardType="phone-pad"
-                leftIcon="call-outline"
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your phone number"
+                    keyboardType="phone-pad"
+                    leftIcon="call-outline"
+                    error={errors.phone?.message}
+                  />
+                )}
               />
             </View>
           </Card>
 
           <Button
             title={updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-            onPress={handleSave}
+            onPress={handleSubmit(onSubmit)}
             disabled={updateMutation.isPending}
             style={styles.saveBtn}
           />

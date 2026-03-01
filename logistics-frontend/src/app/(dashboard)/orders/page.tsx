@@ -52,6 +52,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<TransportOrder | null>(null);
   const [newStatus, setNewStatus] = useState('');
+  const { t } = useTranslation();
 
   const { data, isLoading } = useOrders({ page, search: debouncedSearch, status: statusFilter });
   const updateStatus = useUpdateOrderStatus();
@@ -200,10 +201,10 @@ export default function OrdersPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Transport Orders
+            {t('orders.title')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Manage and track all transport orders
+            {t('orders.allOrders')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -217,7 +218,7 @@ export default function OrdersPage() {
           <Link href="/orders/new">
             <Button>
               <PlusIcon className="h-4 w-4 mr-2" />
-              New Order
+              {t('orders.newOrder')}
             </Button>
           </Link>
         </div>
@@ -226,22 +227,22 @@ export default function OrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Orders"
+          title={t('common.total')}
           value={meta?.total ?? '—'}
           icon={<ClipboardDocumentListIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="In Transit"
+          title={t('tracking.statusInTransit')}
           value="—"
           icon={<TruckIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Completed"
+          title={t('analytics.completed')}
           value="—"
           icon={<CheckCircleIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Issues"
+          title={t('common.warning')}
           value="—"
           icon={<ExclamationTriangleIcon className="h-5 w-5" />}
         />
@@ -313,7 +314,7 @@ export default function OrdersPage() {
       <Modal
         open={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
-        title="Update Order Status"
+        title={t('orders.updateStatus')}
       >
         <div className="space-y-4">
           <div>
@@ -336,10 +337,10 @@ export default function OrdersPage() {
           />
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" onClick={() => setSelectedOrder(null)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleStatusUpdate} loading={updateStatus.isPending}>
-              Update Status
+              {t('orders.updateStatus')}
             </Button>
           </div>
         </div>

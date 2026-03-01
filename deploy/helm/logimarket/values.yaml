@@ -1,0 +1,389 @@
+# ═══════════════════════════════════════════════════════════════
+# LogiMarket Helm Values — Production Defaults
+# ═══════════════════════════════════════════════════════════════
+
+global:
+  environment: production
+  domain: logimarket.eu
+  storageClass: gp3
+
+# ───────────────────────────────────────────────────────────────
+# Laravel API (PHP-FPM)
+# ───────────────────────────────────────────────────────────────
+api:
+  replicaCount: 3
+  image:
+    repository: ghcr.io/logimarket/api
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        policies:
+          - type: Pods
+            value: 3
+            periodSeconds: 60
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+  env:
+    APP_ENV: production
+    APP_DEBUG: "false"
+    LOG_LEVEL: warning
+    CACHE_DRIVER: redis
+    SESSION_DRIVER: redis
+    QUEUE_CONNECTION: redis
+    BROADCAST_DRIVER: reverb
+  livenessProbe:
+    httpGet:
+      path: /up
+      port: 9000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 9000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  podDisruptionBudget:
+    minAvailable: 2
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values: [api]
+            topologyKey: kubernetes.io/hostname
+
+# ───────────────────────────────────────────────────────────────
+# Nginx Reverse Proxy
+# ───────────────────────────────────────────────────────────────
+nginx:
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: 1.27-alpine
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 75
+
+# ───────────────────────────────────────────────────────────────
+# Next.js Frontend
+# ───────────────────────────────────────────────────────────────
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/logimarket/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+  env:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+  service:
+    port: 3000
+
+# ───────────────────────────────────────────────────────────────
+# Queue Worker (Laravel Horizon)
+# ───────────────────────────────────────────────────────────────
+queueWorker:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/logimarket/api
+    tag: latest
+  command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--max-time=3600", "--memory=256"]
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+# ───────────────────────────────────────────────────────────────
+# Scheduler (Laravel Cron)
+# ───────────────────────────────────────────────────────────────
+scheduler:
+  enabled: true
+  image:
+    repository: ghcr.io/logimarket/api
+    tag: latest
+  command: ["php", "artisan", "schedule:work"]
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+# ───────────────────────────────────────────────────────────────
+# Reverb WebSocket Server
+# ───────────────────────────────────────────────────────────────
+reverb:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/logimarket/api
+    tag: latest
+  command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  service:
+    port: 8080
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# ───────────────────────────────────────────────────────────────
+# Ingress (Nginx Ingress Controller)
+# ───────────────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://logimarket.eu,https://*.logimarket.eu"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+  hosts:
+    - host: logimarket.eu
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /
+          pathType: Prefix
+          service: frontend
+    - host: api.logimarket.eu
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+    - host: ws.logimarket.eu
+      paths:
+        - path: /
+          pathType: Prefix
+          service: reverb
+  tls:
+    - secretName: logimarket-tls
+      hosts:
+        - logimarket.eu
+        - "*.logimarket.eu"
+
+# ───────────────────────────────────────────────────────────────
+# MySQL (Bitnami subchart)
+# ───────────────────────────────────────────────────────────────
+mysql:
+  enabled: true
+  architecture: replication
+  auth:
+    existingSecret: logimarket-mysql-secret
+  primary:
+    resources:
+      requests:
+        cpu: "1"
+        memory: 2Gi
+      limits:
+        cpu: "4"
+        memory: 8Gi
+    persistence:
+      size: 100Gi
+      storageClass: gp3
+    configuration: |
+      [mysqld]
+      innodb_buffer_pool_size=4G
+      innodb_log_file_size=1G
+      innodb_flush_log_at_trx_commit=1
+      innodb_flush_method=O_DIRECT
+      max_connections=500
+      slow_query_log=1
+      long_query_time=2
+      log_queries_not_using_indexes=1
+      performance_schema=ON
+  secondary:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      size: 100Gi
+      storageClass: gp3
+
+# ───────────────────────────────────────────────────────────────
+# Redis (Bitnami subchart)
+# ───────────────────────────────────────────────────────────────
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    existingSecret: logimarket-redis-secret
+  master:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    persistence:
+      size: 10Gi
+  replica:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+# ───────────────────────────────────────────────────────────────
+# Elasticsearch (Bitnami subchart)
+# ───────────────────────────────────────────────────────────────
+elasticsearch:
+  enabled: true
+  master:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+    persistence:
+      size: 50Gi
+
+# ───────────────────────────────────────────────────────────────
+# CDN Configuration
+# ───────────────────────────────────────────────────────────────
+cdn:
+  enabled: true
+  provider: cloudfront
+  domain: cdn.logimarket.eu
+  distributionId: ""
+  originShield:
+    enabled: true
+    region: eu-central-1
+  cachePolicy:
+    defaultTTL: 86400
+    maxTTL: 31536000
+    compress: true
+    viewerProtocolPolicy: redirect-to-https
+
+# ───────────────────────────────────────────────────────────────
+# Secrets (use ExternalSecrets or SealedSecrets in production)
+# ───────────────────────────────────────────────────────────────
+secrets:
+  externalSecrets:
+    enabled: true
+    secretStoreRef:
+      name: aws-secrets-manager
+      kind: ClusterSecretStore
+
+# ───────────────────────────────────────────────────────────────
+# Monitoring (ServiceMonitor for Prometheus)
+# ───────────────────────────────────────────────────────────────
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    labels:
+      release: prometheus-stack
+  alerts:
+    enabled: true
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+      - alert: QueueBacklog
+        expr: queue_jobs_pending > 1000
+        for: 10m
+        labels:
+          severity: warning
+      - alert: ReplicaLag
+        expr: mysql_slave_seconds_behind_master > 10
+        for: 5m
+        labels:
+          severity: critical

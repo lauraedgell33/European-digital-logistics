@@ -72,15 +72,15 @@ function buildColors() {
 
   // Map Geist tokens to the mobile Colors shape
   return {
-    // Primary — use blue-800 / blue-700 / blue-1000 / blue-100
-    primary: hslToHex(light.blue.light['800']),
-    primaryLight: hslToHex(light.blue.light['700']),
-    primaryDark: hslToHex(light.blue.light['1000']),
+    // Primary — use blue-700 (matches frontend #0070f3 equivalent)
+    primary: hslToHex(light.blue.light['700']),
+    primaryLight: hslToHex(light.blue.light['500']),
+    primaryDark: hslToHex(light.blue.light['900']),
     primaryBg: hslToHex(light.blue.light['100']),
 
     // Secondary — use blue-600
     secondary: hslToHex(light.blue.light['600']),
-    secondaryLight: hslToHex(light.blue.light['500']),
+    secondaryLight: hslToHex(light.blue.light['400']),
 
     // Success — green
     success: hslToHex(light.green.light['700']),
@@ -134,6 +134,93 @@ function buildColors() {
     overlay: 'rgba(0, 0, 0, 0.5)',
     shadow: 'rgba(0, 0, 0, 0.08)',
   };
+}
+
+/* ── build Dark Colors ────────────────────────────────────────────── */
+
+function buildDarkColors() {
+  const dark = tokens.colors;
+  const sem = dark.semantic.dark;
+
+  return {
+    // Primary
+    primary: hslToHex(dark.blue.dark['700']),
+    primaryLight: hslToHex(dark.blue.dark['600']),
+    primaryDark: hslToHex(dark.blue.dark['900']),
+    primaryBg: hslToHex(dark.blue.dark['100']),
+
+    // Secondary
+    secondary: hslToHex(dark.blue.dark['600']),
+    secondaryLight: hslToHex(dark.blue.dark['500']),
+
+    // Success
+    success: hslToHex(dark.green.dark['700']),
+    successLight: hslToHex(dark.green.dark['200']),
+    successDark: hslToHex(dark.green.dark['900']),
+
+    // Warning
+    warning: hslToHex(dark.amber.dark['700']),
+    warningLight: hslToHex(dark.amber.dark['200']),
+    warningDark: hslToHex(dark.amber.dark['900']),
+
+    // Danger
+    danger: hslToHex(dark.red.dark['700']),
+    dangerLight: hslToHex(dark.red.dark['200']),
+    dangerDark: hslToHex(dark.red.dark['900']),
+
+    // Info
+    info: hslToHex(dark.blue.dark['600']),
+    infoLight: hslToHex(dark.blue.dark['200']),
+    infoDark: hslToHex(dark.blue.dark['900']),
+    infoBg: hslToHex(dark.blue.dark['100']),
+
+    // Neutrals
+    white: '#000000',
+    card: hslToHex(dark.gray.dark['100']),
+    neutralLight: hslToHex(dark.gray.dark['200']),
+    background: sem.background100,
+    surface: hslToHex(dark.gray.dark['100']),
+    surfaceSecondary: hslToHex(dark.gray.dark['200']),
+    border: hslToHex(dark.gray.dark['400']),
+    borderLight: hslToHex(dark.gray.dark['300']),
+    divider: hslToHex(dark.gray.dark['400']),
+
+    // Text
+    text: hslToHex(dark.gray.dark['1000']),
+    textSecondary: hslToHex(dark.gray.dark['900']),
+    textTertiary: hslToHex(dark.gray.dark['600']),
+    textInverse: '#000000',
+    textLink: hslToHex(dark.blue.dark['900']),
+
+    // Status
+    statusActive: hslToHex(dark.green.dark['700']),
+    statusPending: hslToHex(dark.amber.dark['700']),
+    statusInTransit: hslToHex(dark.blue.dark['700']),
+    statusCompleted: hslToHex(dark.green.dark['700']),
+    statusCancelled: hslToHex(dark.red.dark['700']),
+    statusDraft: hslToHex(dark.gray.dark['600']),
+    statusRejected: hslToHex(dark.red.dark['700']),
+
+    // Overlay
+    overlay: 'rgba(0, 0, 0, 0.7)',
+    shadow: 'rgba(0, 0, 0, 0.24)',
+  };
+}
+
+/* ── build GeistColors (full palette for both modes) ──────────────── */
+
+function buildGeistColors() {
+  const light = tokens.colors;
+  const colorNames = ['blue', 'gray', 'red', 'amber', 'green'];
+  const scales = {};
+
+  for (const name of colorNames) {
+    for (const step of ['100', '200', '300', '400', '500', '600', '700', '800', '900', '1000']) {
+      const lightVal = light[name]?.light?.[step];
+      if (lightVal) scales[`${name}${step}`] = hslToHex(lightVal);
+    }
+  }
+  return scales;
 }
 
 /* ── build other exports ──────────────────────────────────────────── */
@@ -283,14 +370,45 @@ lines.push(' * Auto-generated from design-tokens.json');
 lines.push(' * DO NOT EDIT MANUALLY — run `npm run generate:rn` instead');
 lines.push(' */');
 lines.push('');
+lines.push("import { ColorSchemeName } from 'react-native';");
+lines.push('');
 
-// Colors
-lines.push('export const Colors = {');
+// GeistColors (full palette)
+lines.push('export const GeistColors = {');
+const geist = buildGeistColors();
+for (const [k, v] of Object.entries(geist)) {
+  lines.push(`  ${k}: '${v}',`);
+}
+lines.push('};');
+lines.push('');
+
+// Light Colors
+lines.push('export const LightColors = {');
 const colorsObj = buildColors();
 for (const [k, v] of Object.entries(colorsObj)) {
   lines.push(`  ${k}: '${v}',`);
 }
 lines.push('};');
+lines.push('');
+
+// Dark Colors
+lines.push('export const DarkColors = {');
+const darkColorsObj = buildDarkColors();
+for (const [k, v] of Object.entries(darkColorsObj)) {
+  lines.push(`  ${k}: '${v}',`);
+}
+lines.push('};');
+lines.push('');
+
+// Colors alias (default to light for backward compat)
+lines.push('export const Colors = LightColors;');
+lines.push('');
+
+// getColors helper
+lines.push("/** Get colors based on color scheme. Returns dark colors if scheme is 'dark', light otherwise. */");
+lines.push("export function getColors(scheme: ColorSchemeName = 'light') {");
+lines.push("  return scheme === 'dark' ? DarkColors : LightColors;");
+lines.push('}');
 lines.push('');
 
 // Spacing
@@ -337,13 +455,32 @@ for (const [size, props] of Object.entries(shadow)) {
 lines.push('};');
 lines.push('');
 
-// StatusColors
+// StatusColors (light)
 lines.push("export const StatusColors: Record<string, { bg: string; text: string; dot: string }> = {");
 const sc = buildStatusColors();
 for (const [status, mapping] of Object.entries(sc)) {
   lines.push(`  ${status}: { bg: ${mapping.bg}, text: ${mapping.text}, dot: ${mapping.dot} },`);
 }
 lines.push('};');
+lines.push('');
+
+// DarkStatusColors
+lines.push("export const DarkStatusColors: Record<string, { bg: string; text: string; dot: string }> = {");
+for (const [status, mapping] of Object.entries(sc)) {
+  // Replace Colors. with DarkColors.
+  const bg = mapping.bg.replace('Colors.', 'DarkColors.');
+  const text = mapping.text.replace('Colors.', 'DarkColors.');
+  const dot = mapping.dot.replace('Colors.', 'DarkColors.');
+  lines.push(`  ${status}: { bg: ${bg}, text: ${text}, dot: ${dot} },`);
+}
+lines.push('};');
+lines.push('');
+
+// getStatusColors helper
+lines.push("/** Get status colors based on color scheme */");
+lines.push("export function getStatusColors(scheme: ColorSchemeName = 'light') {");
+lines.push("  return scheme === 'dark' ? DarkStatusColors : StatusColors;");
+lines.push('}');
 lines.push('');
 
 const ts = lines.join('\n');

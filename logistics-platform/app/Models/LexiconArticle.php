@@ -3,9 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class LexiconArticle extends Model
 {
+    use Searchable;
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'slug' => $this->slug,
+            'title' => $this->title,
+            'excerpt' => $this->excerpt,
+            'content' => $this->content,
+            'category' => $this->category,
+            'tags' => $this->tags,
+            'language' => $this->language,
+            'is_published' => $this->is_published,
+            'view_count' => $this->view_count,
+            'author_id' => $this->author_id,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->is_published;
+    }
+
     protected $fillable = [
         'slug', 'title', 'excerpt', 'content', 'category', 'tags',
         'language', 'translations', 'view_count', 'is_published', 'author_id',

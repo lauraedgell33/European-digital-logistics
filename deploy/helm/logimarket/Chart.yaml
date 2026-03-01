@@ -1,0 +1,28 @@
+apiVersion: v2
+name: logimarket
+description: LogiMarket European Digital Logistics Platform
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+keywords:
+  - logistics
+  - freight
+  - transport
+  - marketplace
+  - european
+maintainers:
+  - name: LogiMarket DevOps
+    email: devops@logimarket.eu
+dependencies:
+  - name: mysql
+    version: "~10.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
+  - name: redis
+    version: "~18.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: elasticsearch
+    version: "~20.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: elasticsearch.enabled

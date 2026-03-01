@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { StatusColors, Colors, BorderRadius, FontSize, FontWeight, Spacing } from '@/constants/theme';
+import { useColors } from '@/hooks/useColors';
+import { BorderRadius, FontSize, FontWeight, Spacing } from '@/constants/theme';
 
 interface BadgeProps {
   label: string;
@@ -11,17 +12,18 @@ interface BadgeProps {
 }
 
 export default function Badge({ label, status, variant, size = 'sm', showDot = true }: BadgeProps) {
+  const { colors, statusColors: themeStatusColors } = useColors();
   const statusKey = status || variant || 'default';
-  const colors = StatusColors[statusKey] || {
-    bg: Colors.surfaceSecondary,
-    text: Colors.textSecondary,
-    dot: Colors.textTertiary,
+  const badgeColors = themeStatusColors[statusKey] || {
+    bg: colors.surfaceSecondary,
+    text: colors.textSecondary,
+    dot: colors.textTertiary,
   };
 
   return (
-    <View style={[styles.badge, { backgroundColor: colors.bg }, size === 'md' && styles.badgeMd]} accessibilityRole="text" accessibilityLabel={`Status: ${label}`}>
-      {showDot && <View style={[styles.dot, { backgroundColor: colors.dot }]} />}
-      <Text style={[styles.text, { color: colors.text }, size === 'md' && styles.textMd]}>
+    <View style={[styles.badge, { backgroundColor: badgeColors.bg }, size === 'md' && styles.badgeMd]} accessibilityRole="text" accessibilityLabel={`Status: ${label}`}>
+      {showDot && <View style={[styles.dot, { backgroundColor: badgeColors.dot }]} />}
+      <Text style={[styles.text, { color: badgeColors.text }, size === 'md' && styles.textMd]}>
         {label}
       </Text>
     </View>

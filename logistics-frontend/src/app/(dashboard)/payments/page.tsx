@@ -19,9 +19,11 @@ import {
   PlusIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { PaymentTransaction, PaymentSummary } from '@/types';
 
 export default function PaymentsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'history' | 'vat' | 'rates'>('history');
   const [showCheckout, setShowCheckout] = useState(false);
@@ -69,9 +71,9 @@ export default function PaymentsPage() {
   };
 
   const tabs = [
-    { key: 'history' as const, label: 'Payment History', icon: CreditCardIcon },
-    { key: 'vat' as const, label: 'VAT Compliance', icon: ReceiptPercentIcon },
-    { key: 'rates' as const, label: 'Exchange Rates', icon: CurrencyEuroIcon },
+    { key: 'history' as const, label: t('payments.paymentHistory'), icon: CreditCardIcon },
+    { key: 'vat' as const, label: t('payments.vatCompliance'), icon: ReceiptPercentIcon },
+    { key: 'rates' as const, label: t('payments.exchangeRates'), icon: CurrencyEuroIcon },
   ];
 
   return (
@@ -79,9 +81,9 @@ export default function PaymentsPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <CreditCardIcon className="h-7 w-7" style={{ color: 'var(--ds-green-500)' }} />
-          Payments
+          {t('payments.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Stripe, SEPA, multi-currency payments with EU VAT compliance</p>
+        <p className="text-sm text-gray-500 mt-1">{t('payments.stripeSepaMultiCurrency')}</p>
       </div>
 
       {/* Summary */}
@@ -89,15 +91,15 @@ export default function PaymentsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{sumData.total_payments}</p>
-            <p className="text-xs text-gray-500">Transactions</p>
+            <p className="text-xs text-gray-500">{t('payments.transactions')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{formatCurrency(sumData.total_amount || 0, 'EUR')}</p>
-            <p className="text-xs text-gray-500">Total Volume</p>
+            <p className="text-xs text-gray-500">{t('payments.totalVolume')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-amber-600)' }}>{formatCurrency(sumData.total_fees || 0, 'EUR')}</p>
-            <p className="text-xs text-gray-500">Fees Paid</p>
+            <p className="text-xs text-gray-500">{t('payments.feesPaid')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-lg font-bold">
@@ -109,12 +111,12 @@ export default function PaymentsPage() {
 
       {/* Make Payment */}
       <Card>
-        <CardHeader title="Make a Payment" />
+        <CardHeader title={t('payments.makeAPayment')} />
         <div className="p-4">
           {!showCheckout ? (
             <div className="flex flex-col sm:flex-row items-end gap-3">
               <div className="flex-1 w-full">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('payments.amount')}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -126,7 +128,7 @@ export default function PaymentsPage() {
                 />
               </div>
               <div className="w-full sm:w-32">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('payments.currency')}</label>
                 <select
                   value={paymentCurrency}
                   onChange={e => setPaymentCurrency(e.target.value)}
@@ -144,13 +146,13 @@ export default function PaymentsPage() {
                 disabled={!paymentAmount || Number(paymentAmount) < 1}
               >
                 <PlusIcon className="h-4 w-4 mr-1" />
-                Pay with Card
+                {t('payments.payWithCard')}
               </Button>
             </div>
           ) : (
             <div className="max-w-md mx-auto">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Card Payment</h3>
+                <h3 className="text-lg font-semibold">{t('payments.cardPayment')}</h3>
                 <button
                   onClick={() => setShowCheckout(false)}
                   className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -172,7 +174,7 @@ export default function PaymentsPage() {
             </div>
           )}
         </div>
-      </Card>    <p className="text-xs text-gray-500">Providers</p>
+      </Card>    <p className="text-xs text-gray-500">{t('payments.providers')}</p>
           </Card>
         </div>
       )}
@@ -192,25 +194,25 @@ export default function PaymentsPage() {
       {/* Payment History */}
       {tab === 'history' && (
         <Card>
-          <CardHeader title="Payment History" />
+          <CardHeader title={t('payments.paymentHistory')} />
           {isLoading ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (payments || []).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <CreditCardIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No payment transactions yet.</p>
+              <p>{t('payments.noPaymentTransactions')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Reference</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Provider</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500">Amount</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500">Fee</th>
-                    <th className="px-4 py-3 text-center font-medium text-gray-500">Status</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500">Date</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500">{t('payments.reference')}</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500">{t('payments.provider')}</th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-500">{t('payments.amount')}</th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-500">{t('payments.fee')}</th>
+                    <th className="px-4 py-3 text-center font-medium text-gray-500">{t('common.status')}</th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-500">{t('common.date')}</th>
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
@@ -248,23 +250,23 @@ export default function PaymentsPage() {
         <div className="space-y-4">
           {vatReport && (
             <Card>
-              <CardHeader title="VAT Report" subtitle="Current period summary" />
+              <CardHeader title={t('payments.vatReport')} subtitle={t('payments.currentPeriodSummary')} />
               <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                 <div>
                   <p className="text-lg font-bold">{formatCurrency(Number((vatReport as Record<string, unknown>).total_vat_collected || 0), 'EUR')}</p>
-                  <p className="text-xs text-gray-500">VAT Collected</p>
+                  <p className="text-xs text-gray-500">{t('payments.vatCollected')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-bold">{formatCurrency(Number((vatReport as Record<string, unknown>).total_vat_paid || 0), 'EUR')}</p>
-                  <p className="text-xs text-gray-500">VAT Paid</p>
+                  <p className="text-xs text-gray-500">{t('payments.vatPaid')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-bold">{Number((vatReport as Record<string, unknown>).reverse_charge_count || 0)}</p>
-                  <p className="text-xs text-gray-500">Reverse Charge</p>
+                  <p className="text-xs text-gray-500">{t('payments.reverseCharge')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-bold">{Number((vatReport as Record<string, unknown>).intra_community_count || 0)}</p>
-                  <p className="text-xs text-gray-500">Intra-Community</p>
+                  <p className="text-xs text-gray-500">{t('payments.intraCommunity')}</p>
                 </div>
               </div>
             </Card>
@@ -272,13 +274,13 @@ export default function PaymentsPage() {
 
           {vatRates && (
             <Card>
-              <CardHeader title="EU VAT Rates" subtitle="Standard rates by country" />
+              <CardHeader title={t('payments.euVatRates')} subtitle={t('payments.standardRatesByCountry')} />
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="px-4 py-3 text-left font-medium text-gray-500">Country</th>
-                      <th className="px-4 py-3 text-right font-medium text-gray-500">Rate</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-500">{t('common.country')}</th>
+                      <th className="px-4 py-3 text-right font-medium text-gray-500">{t('payments.rate')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -299,7 +301,7 @@ export default function PaymentsPage() {
       {/* Exchange Rates */}
       {tab === 'rates' && (
         <Card>
-          <CardHeader title="Exchange Rates" subtitle="Current rates (base: EUR)" />
+          <CardHeader title={t('payments.exchangeRates')} subtitle={t('payments.currentRatesBaseEur')} />
           {!exchangeRates ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (
@@ -307,8 +309,8 @@ export default function PaymentsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Currency</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500">Rate</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500">{t('payments.currency')}</th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-500">{t('payments.rate')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">

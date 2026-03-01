@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, StyleProp } from 'react-native';
-import { Colors, BorderRadius, Spacing, Shadow, FontSize, FontWeight } from '@/constants/theme';
+import { useColors } from '@/hooks/useColors';
+import { BorderRadius, Spacing, Shadow, FontSize, FontWeight } from '@/constants/theme';
 
 interface CardProps {
   children: React.ReactNode;
@@ -21,12 +22,18 @@ export default function Card({
   headerRight,
   noPadding = false,
 }: CardProps) {
+  const { colors } = useColors();
   const Wrapper = onPress ? TouchableOpacity : View;
   const wrapperProps = onPress ? { onPress, activeOpacity: 0.7 } : {};
 
   return (
     <Wrapper
-      style={[styles.card, noPadding ? styles.noPadding : styles.withPadding, style]}
+      style={[
+        styles.card,
+        { backgroundColor: colors.surface, borderColor: colors.borderLight },
+        noPadding ? styles.noPadding : styles.withPadding,
+        style,
+      ]}
       {...wrapperProps}
       accessibilityRole={onPress ? 'button' : 'summary'}
       accessibilityLabel={title}
@@ -34,8 +41,8 @@ export default function Card({
       {(title || headerRight) && (
         <View style={[styles.header, noPadding && { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg }]}>
           <View style={styles.headerText}>
-            {title && <Text style={styles.title}>{title}</Text>}
-            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+            {title && <Text style={[styles.title, { color: colors.text }]}>{title}</Text>}
+            {subtitle && <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
           </View>
           {headerRight}
         </View>
@@ -47,10 +54,8 @@ export default function Card({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
     ...Shadow.sm,
   },
   withPadding: { padding: Spacing.lg },
@@ -65,11 +70,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
   },
   subtitle: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
     marginTop: 2,
   },
 });

@@ -139,6 +139,7 @@ class PaymentController extends Controller
     public function history(Request $request): JsonResponse
     {
         $transactions = PaymentTransaction::where('company_id', $request->user()->company_id)
+            ->with(['invoice:id,invoice_number', 'transportOrder:id,order_number'])
             ->when($request->input('status'), fn($q, $s) => $q->where('status', $s))
             ->when($request->input('provider'), fn($q, $p) => $q->where('payment_provider', $p))
             ->orderByDesc('created_at')
@@ -164,6 +165,7 @@ class PaymentController extends Controller
     public function vatReport(Request $request): JsonResponse
     {
         $records = VatRecord::where('company_id', $request->user()->company_id)
+            ->with('transportOrder:id,order_number')
             ->when($request->input('period'), fn($q, $p) => $q->where('tax_period', $p))
             ->orderByDesc('tax_period')
             ->paginate($request->input('per_page', 15));

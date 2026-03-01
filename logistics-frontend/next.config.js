@@ -8,11 +8,17 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // CDN asset prefix for static files (_next/static)
+  assetPrefix: process.env.NEXT_PUBLIC_CDN_URL || undefined,
   images: {
-    domains: ['localhost', 'api.logistics.eu'],
+    domains: ['localhost', 'api.logistics.eu', 'cdn.logimarket.eu'],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
+    loader: process.env.NEXT_PUBLIC_CDN_URL ? 'custom' : 'default',
+    loaderFile: process.env.NEXT_PUBLIC_CDN_URL ? './src/lib/cdn-image-loader.js' : undefined,
   },
+  // Output standalone for Docker/K8s
+  output: 'standalone',
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },

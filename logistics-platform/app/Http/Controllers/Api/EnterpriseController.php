@@ -132,6 +132,7 @@ class EnterpriseController extends Controller
     public function listIntegrations(Request $request): JsonResponse
     {
         $integrations = ErpIntegration::where('company_id', $request->user()->company_id)
+            ->withCount('ediMessages')
             ->orderByDesc('created_at')
             ->get();
 
@@ -179,6 +180,7 @@ class EnterpriseController extends Controller
     public function listEdiMessages(Request $request): JsonResponse
     {
         $messages = EdiMessage::where('company_id', $request->user()->company_id)
+            ->with(['erpIntegration:id,name,provider', 'transportOrder:id,order_number'])
             ->when($request->input('direction'), fn($q, $d) => $q->where('direction', $d))
             ->when($request->input('type'), fn($q, $t) => $q->where('message_type', $t))
             ->orderByDesc('created_at')

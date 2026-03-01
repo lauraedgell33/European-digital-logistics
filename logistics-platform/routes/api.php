@@ -43,6 +43,14 @@ use App\Http\Controllers\Api\EnterpriseController;
 use App\Http\Controllers\Api\TwoFactorController;
 use App\Http\Controllers\Api\AiCopilotController;
 use App\Http\Controllers\Api\CustomerPortalController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\MetricsController;
+use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\CurrencyController;
+use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\IntegrationHubController;
+use App\Http\Controllers\Api\Q3FeaturesController;
+use App\Http\Controllers\Api\Q4ScaleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,9 +61,14 @@ use App\Http\Controllers\Api\CustomerPortalController;
 // Health check routes (no auth, no prefix)
 Route::get('/health', [HealthController::class, 'index']);
 Route::get('/health/detailed', [HealthController::class, 'detailed']);
+Route::get('/health/cache', [HealthController::class, 'cacheStats']);
+
+// Prometheus metrics endpoint (API key protected)
+Route::get('/metrics', MetricsController::class);
 
 // Stripe webhook (no auth)
 Route::post('/stripe/webhook', [PaymentController::class, 'webhook']);
+Route::post('/docusign/webhook', [Q3FeaturesController::class, 'docusignWebhook']);
 
 // Public routes
 Route::prefix('v1')->group(function () {
@@ -80,27 +93,34 @@ Route::prefix('v1')->group(function () {
     // Public tracking share link (no auth)
     Route::get('/tracking/shared/{token}', [TrackingShareController::class, 'viewShared']);
 
-    // Public lexicon (no auth)
-    Route::get('/lexicon', [LexiconController::class, 'index']);
-    Route::get('/lexicon/categories', [LexiconController::class, 'categories']);
-    Route::get('/lexicon/popular', [LexiconController::class, 'popular']);
-    Route::get('/lexicon/{slug}', [LexiconController::class, 'show']);
+    // Public lexicon (no auth, cached 1h)
+    Route::middleware('cache.response:3600,public')->group(function () {
+        Route::get('/lexicon', [LexiconController::class, 'index']);
+        Route::get('/lexicon/categories', [LexiconController::class, 'categories']);
+        Route::get('/lexicon/popular', [LexiconController::class, 'popular']);
+        Route::get('/lexicon/{slug}', [LexiconController::class, 'show']);
+    });
 
-    // Public driving bans (no auth)
-    Route::get('/driving-bans', [DrivingBanController::class, 'index']);
-    Route::get('/driving-bans/active', [DrivingBanController::class, 'active']);
-    Route::get('/driving-bans/types', [DrivingBanController::class, 'types']);
-    Route::get('/driving-bans/countries', [DrivingBanController::class, 'countries']);
-    Route::get('/driving-bans/countries/{countryCode}', [DrivingBanController::class, 'country']);
+    // Public driving bans (no auth, cached 30min)
+    Route::middleware('cache.response:1800,public')->group(function () {
+        Route::get('/driving-bans', [DrivingBanController::class, 'index']);
+        Route::get('/driving-bans/active', [DrivingBanController::class, 'active']);
+        Route::get('/driving-bans/types', [DrivingBanController::class, 'types']);
+        Route::get('/driving-bans/countries', [DrivingBanController::class, 'countries']);
+        Route::get('/driving-bans/countries/{countryCode}', [DrivingBanController::class, 'country']);
+    });
     Route::post('/driving-bans/check-route', [DrivingBanController::class, 'checkRoute']);
 
     // Public carbon calculator (no auth)
     Route::post('/carbon/calculate', [CarbonController::class, 'calculate']);
-    Route::get('/carbon/emission-factors', [CarbonController::class, 'emissionFactors']);
+    Route::get('/carbon/emission-factors', [CarbonController::class, 'emissionFactors'])
+        ->middleware('cache.response:86400,public');
 
-    // Public price insights (limited, no auth)
-    Route::get('/price-insights/top-routes', [PriceInsightController::class, 'topRoutes']);
-    Route::get('/price-insights/heatmap', [PriceInsightController::class, 'heatmap']);
+    // Public price insights (limited, no auth, cached 15min)
+    Route::middleware('cache.response:900,public')->group(function () {
+        Route::get('/price-insights/top-routes', [PriceInsightController::class, 'topRoutes']);
+        Route::get('/price-insights/heatmap', [PriceInsightController::class, 'heatmap']);
+    });
 
     // Customer Portal (public, no auth required)
     Route::prefix('portal')->group(function () {
@@ -110,8 +130,18 @@ Route::prefix('v1')->group(function () {
         Route::post('/feedback', [CustomerPortalController::class, 'submitFeedback']);
     });
 
-    // Public insurance coverage types
-    Route::get('/insurance/coverage-types', [InsuranceController::class, 'coverageTypes']);
+    // Public insurance coverage types (cached 1h)
+    Route::get('/insurance/coverage-types', [InsuranceController::class, 'coverageTypes'])
+        ->middleware('cache.response:3600,public');
+
+    // ── Full-text Search (public, rate-limited) ─────────
+    Route::prefix('search')->middleware('throttle:60,1')->group(function () {
+        Route::get('/', [SearchController::class, 'search']);
+        Route::get('/suggest', [SearchController::class, 'suggest']);
+        Route::get('/freight', [SearchController::class, 'freight']);
+        Route::get('/vehicles', [SearchController::class, 'vehicles']);
+        Route::get('/companies', [SearchController::class, 'companies']);
+    });
 });
 
 // Protected routes
@@ -143,9 +173,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::get('/dashboard/analytics', [DashboardController::class, 'analytics']);
+    // Dashboard (cached per-user)
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('cache.response:120');
+    Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])
+        ->middleware('cache.response:600');
 
     // Freight Exchange
     Route::apiResource('/freight', FreightController::class)->parameters(['freight' => 'freight']);
@@ -222,13 +254,17 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::post('/messages/conversations/{conversation}/read', [MessageController::class, 'markRead']);
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
 
-    // Company Directory
-    Route::get('/companies', [CompanyController::class, 'index']);
-    Route::get('/companies/{company}', [CompanyController::class, 'show']);
+    // Company Directory (cached, shared)
+    Route::get('/companies', [CompanyController::class, 'index'])
+        ->middleware('cache.response:600,public');
+    Route::get('/companies/{company}', [CompanyController::class, 'show'])
+        ->middleware('cache.response:600,public');
 
-    // Matching
-    Route::get('/matching/freight/{freight}', [MatchingController::class, 'matchFreight']);
-    Route::get('/matching/vehicle/{vehicle}', [MatchingController::class, 'matchVehicle']);
+    // Matching (cached per-user, 5min)
+    Route::get('/matching/freight/{freight}', [MatchingController::class, 'matchFreight'])
+        ->middleware('cache.response:300');
+    Route::get('/matching/vehicle/{vehicle}', [MatchingController::class, 'matchVehicle'])
+        ->middleware('cache.response:300');
 
     // Route Planning
     Route::post('/routes/calculate', [RoutePlanningController::class, 'calculate']);
@@ -258,8 +294,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::put('/bookings/{booking}/status', [WarehouseController::class, 'updateBookingStatus']);
     });
 
-    // ─── Transport Barometer ──────────────────────────────────────
-    Route::prefix('barometer')->group(function () {
+    // ─── Transport Barometer (cached 5min, shared) ────────────────
+    Route::prefix('barometer')->middleware('cache.response:300,public')->group(function () {
         Route::get('/overview', [BarometerController::class, 'overview']);
         Route::get('/route', [BarometerController::class, 'route']);
         Route::get('/heatmap', [BarometerController::class, 'heatmap']);
@@ -336,10 +372,13 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::delete('/{article}', [LexiconController::class, 'destroy']);
     });
 
-    // ─── AI Smart Matching ────────────────────────────────────────
+    // ─── AI Smart Matching (v2 — learned weights, batch, analytics) ───
     Route::prefix('ai-matching')->group(function () {
         Route::post('/match', [AiMatchingController::class, 'smartMatch']);
+        Route::post('/batch', [AiMatchingController::class, 'batchMatch']);
         Route::get('/suggestions', [AiMatchingController::class, 'suggestions']);
+        Route::get('/analytics', [AiMatchingController::class, 'analytics']);
+        Route::post('/recalibrate', [AiMatchingController::class, 'recalibrate']);
         Route::post('/respond/{aiMatchResult}', [AiMatchingController::class, 'respond']);
         Route::get('/history', [AiMatchingController::class, 'history']);
     });
@@ -357,11 +396,29 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::post('/calculate', [DynamicPricingController::class, 'calculate']);
         Route::get('/history', [DynamicPricingController::class, 'history']);
         Route::get('/active', [DynamicPricingController::class, 'activePrices']);
+
+        // Automated Pricing Engine v2
+        Route::prefix('engine')->group(function () {
+            Route::post('/calculate', [DynamicPricingController::class, 'engineCalculate']);
+            Route::get('/analysis', [DynamicPricingController::class, 'engineAnalysis']);
+            Route::get('/alerts', [DynamicPricingController::class, 'engineAlerts']);
+            Route::post('/forecast', [DynamicPricingController::class, 'engineForecast']);
+            Route::get('/profitability', [DynamicPricingController::class, 'engineProfitability']);
+        });
+
+        // Pricing Rules CRUD
+        Route::prefix('rules')->group(function () {
+            Route::get('/', [DynamicPricingController::class, 'rulesList']);
+            Route::post('/', [DynamicPricingController::class, 'rulesCreate']);
+            Route::put('/{id}', [DynamicPricingController::class, 'rulesUpdate']);
+            Route::delete('/{id}', [DynamicPricingController::class, 'rulesDelete']);
+        });
     });
 
-    // ─── Route Optimization ───────────────────────────────────────
+    // ─── Route Optimization (v2 — external APIs, fleet CVRP, tolls) ──
     Route::prefix('route-optimization')->group(function () {
         Route::post('/optimize', [RouteOptimizationController::class, 'optimize']);
+        Route::post('/fleet', [RouteOptimizationController::class, 'optimizeFleet']);
         Route::get('/history', [RouteOptimizationController::class, 'history']);
         Route::get('/{routeOptimization}', [RouteOptimizationController::class, 'show']);
     });
@@ -416,13 +473,15 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
         Route::post('/{paymentTransaction}/refund', [PaymentController::class, 'refund']);
         Route::get('/history', [PaymentController::class, 'history']);
         Route::get('/summary', [PaymentController::class, 'summary']);
-        Route::get('/exchange-rates', [PaymentController::class, 'exchangeRates']);
+        Route::get('/exchange-rates', [PaymentController::class, 'exchangeRates'])
+            ->middleware('cache.response:300,public');
     });
 
     // ─── VAT ──────────────────────────────────────────────────────
     Route::prefix('vat')->group(function () {
         Route::get('/report', [PaymentController::class, 'vatReport']);
-        Route::get('/rates', [PaymentController::class, 'vatRates']);
+        Route::get('/rates', [PaymentController::class, 'vatRates'])
+            ->middleware('cache.response:3600,public');
         Route::post('/reverse-charge', [PaymentController::class, 'checkReverseCharge']);
     });
 
@@ -474,5 +533,138 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     Route::prefix('copilot')->group(function () {
         Route::post('/chat', [AiCopilotController::class, 'chat']);
         Route::get('/suggestions', [AiCopilotController::class, 'suggestions']);
+    });
+
+    // ─── Document Generation (PDF — invoice, CMR, waybill) ───────
+    Route::prefix('documents')->group(function () {
+        Route::get('/invoices/{invoice}/pdf', [DocumentController::class, 'invoicePdf']);
+        Route::get('/orders/{order}/cmr', [DocumentController::class, 'cmrPdf']);
+        Route::get('/orders/{order}/waybill', [DocumentController::class, 'waybillPdf']);
+        Route::get('/orders/{order}/delivery-note', [DocumentController::class, 'deliveryNotePdf']);
+        Route::get('/orders/{order}/available', [DocumentController::class, 'availableDocuments']);
+    });
+
+    // ─── Multi-Currency & Exchange Rates ──────────────────────────
+    Route::prefix('currency')->group(function () {
+        Route::get('/rates', [CurrencyController::class, 'rates']);
+        Route::post('/convert', [CurrencyController::class, 'convert']);
+        Route::get('/supported', [CurrencyController::class, 'supported']);
+        Route::get('/history', [CurrencyController::class, 'history']);
+    });
+
+    // ─── Advanced Reporting ───────────────────────────────────────
+    Route::prefix('reports')->group(function () {
+        Route::get('/revenue', [ReportController::class, 'revenue']);
+        Route::get('/orders', [ReportController::class, 'orders']);
+        Route::get('/routes', [ReportController::class, 'routes']);
+        Route::get('/carriers', [ReportController::class, 'carriers']);
+        Route::get('/carbon', [ReportController::class, 'carbon']);
+        Route::get('/summary', [ReportController::class, 'summary']);
+        Route::get('/export/{type}', [ReportController::class, 'export']);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q3 — INTEGRATION HUB (ERP, TMS, GPS Fleet Tracking)
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('integration-hub')->group(function () {
+
+        // ─── ERP Integration (SAP, Oracle, Dynamics) ──────────────
+        Route::prefix('erp')->group(function () {
+            Route::post('/sync/{integration}', [IntegrationHubController::class, 'erpSync']);
+            Route::post('/test-connection/{integration}', [IntegrationHubController::class, 'erpTestConnection']);
+            Route::post('/webhook/{integration}', [IntegrationHubController::class, 'erpWebhook']);
+            Route::post('/send-webhook/{integration}', [IntegrationHubController::class, 'erpSendWebhook']);
+            Route::get('/sap-idoc/{order}', [IntegrationHubController::class, 'erpSapIdoc']);
+            Route::get('/oracle-record/{order}', [IntegrationHubController::class, 'erpOracleRecord']);
+            Route::get('/sync-health/{integration}', [IntegrationHubController::class, 'erpSyncHealth']);
+        });
+
+        // ─── TMS Connectors (Transporeon, TIMOCOM, etc.) ─────────
+        Route::prefix('tms')->group(function () {
+            Route::get('/providers', [IntegrationHubController::class, 'tmsProviders']);
+            Route::post('/publish-freight', [IntegrationHubController::class, 'tmsPublishFreight']);
+            Route::post('/fetch-loads', [IntegrationHubController::class, 'tmsFetchLoads']);
+            Route::post('/import-orders', [IntegrationHubController::class, 'tmsImportOrders']);
+            Route::post('/push-tracking', [IntegrationHubController::class, 'tmsPushTracking']);
+        });
+
+        // ─── GPS Fleet Tracking (Samsara, Geotab) ────────────────
+        Route::prefix('gps')->group(function () {
+            Route::get('/providers', [IntegrationHubController::class, 'gpsProviders']);
+            Route::get('/fleet-positions', [IntegrationHubController::class, 'gpsFleetPositions']);
+            Route::get('/vehicle-history/{vehicleId}', [IntegrationHubController::class, 'gpsVehicleHistory']);
+            Route::get('/diagnostics/{vehicleId}', [IntegrationHubController::class, 'gpsVehicleDiagnostics']);
+            Route::get('/driver-hos/{driverId}', [IntegrationHubController::class, 'gpsDriverHos']);
+            Route::post('/link-shipment', [IntegrationHubController::class, 'gpsLinkShipment']);
+            Route::post('/sync-shipments', [IntegrationHubController::class, 'gpsSyncShipments']);
+            Route::get('/geofence-alerts', [IntegrationHubController::class, 'gpsGeofenceAlerts']);
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q3 — ELECTRONIC SIGNATURES
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('e-signature')->group(function () {
+        Route::post('/contract/{order}', [Q3FeaturesController::class, 'createContractSignature']);
+        Route::post('/cmr/{ecmr}', [Q3FeaturesController::class, 'signCmr']);
+        Route::get('/status/{envelopeId}', [Q3FeaturesController::class, 'signatureStatus']);
+        Route::get('/verify/{signatureId}', [Q3FeaturesController::class, 'verifySignature']);
+        Route::post('/sign/{signatureId}', [Q3FeaturesController::class, 'signInternal']);
+        Route::get('/download/{envelopeId}', [Q3FeaturesController::class, 'downloadSigned']);
+        Route::get('/list', [Q3FeaturesController::class, 'listSignatures']);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q3 — EU MOBILITY PACKAGE COMPLIANCE
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('compliance')->group(function () {
+        Route::get('/driver/{driverId}', [Q3FeaturesController::class, 'driverComplianceCheck']);
+        Route::post('/cabotage', [Q3FeaturesController::class, 'cabotageCheck']);
+        Route::post('/posted-workers', [Q3FeaturesController::class, 'postedWorkersCheck']);
+        Route::post('/tachograph', [Q3FeaturesController::class, 'validateTachograph']);
+        Route::get('/fleet-report', [Q3FeaturesController::class, 'fleetComplianceReport']);
+        Route::get('/minimum-wages', [Q3FeaturesController::class, 'minimumWages']);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q3 — ENHANCED CARBON CALCULATOR (GLEC v3 / ISO 14083)
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('carbon-v2')->group(function () {
+        Route::post('/calculate-glec', [Q3FeaturesController::class, 'calculateGlec']);
+        Route::post('/compare-multimodal', [Q3FeaturesController::class, 'compareMultimodal']);
+        Route::post('/multimodal-route', [Q3FeaturesController::class, 'multimodalRoute']);
+        Route::get('/fleet-benchmark', [Q3FeaturesController::class, 'fleetCarbonBenchmark']);
+        Route::get('/recommendations', [Q3FeaturesController::class, 'carbonRecommendations']);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q4 — MULTI-TENANT MANAGEMENT
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('tenants')->group(function () {
+        Route::get('/', [Q4ScaleController::class, 'listTenants']);
+        Route::post('/provision', [Q4ScaleController::class, 'provisionTenant']);
+        Route::delete('/{tenantId}', [Q4ScaleController::class, 'deprovisionTenant']);
+        Route::put('/{tenantId}/plan', [Q4ScaleController::class, 'changePlan']);
+        Route::get('/{tenantId}/usage', [Q4ScaleController::class, 'tenantUsage']);
+        Route::get('/{tenantId}/branding', [Q4ScaleController::class, 'tenantBranding']);
+        Route::put('/{tenantId}/branding', [Q4ScaleController::class, 'updateBranding']);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Q4 — DATABASE READ REPLICAS & ANALYTICS
+    // ═══════════════════════════════════════════════════════════════
+
+    Route::prefix('scale')->group(function () {
+        Route::get('/replica-status', [Q4ScaleController::class, 'replicaStatus']);
+        Route::post('/analytics-query', [Q4ScaleController::class, 'analyticsQuery']);
+        Route::get('/websocket-cluster', [Q4ScaleController::class, 'websocketClusterStatus']);
+        Route::post('/broadcast-test', [Q4ScaleController::class, 'broadcastTest']);
+        Route::get('/cdn-status', [Q4ScaleController::class, 'cdnStatus']);
+        Route::get('/infrastructure-health', [Q4ScaleController::class, 'infrastructureHealth']);
     });
 });

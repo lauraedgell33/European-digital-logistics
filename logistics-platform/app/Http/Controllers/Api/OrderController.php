@@ -10,6 +10,7 @@ use App\Http\Resources\TransportOrderResource;
 use App\Models\TransportOrder;
 use App\Models\Shipment;
 use App\Events\OrderStatusChanged;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,6 +35,8 @@ class OrderController extends Controller
             'created_by' => $request->user()->id,
             'status' => 'pending',
         ]));
+
+        CacheService::invalidateGroups(['orders', 'dashboard']);
 
         return (new TransportOrderResource($order->load(['shipper', 'carrier'])))
             ->additional(['message' => 'Transport order created.'])
@@ -68,6 +71,8 @@ class OrderController extends Controller
 
         OrderStatusChanged::dispatch($order->fresh(), $previousStatus, $order->status);
 
+        CacheService::invalidateGroups(['orders', 'dashboard']);
+
         return (new TransportOrderResource($order->fresh()->load('shipment')))
             ->additional(['message' => 'Order accepted.'])
             ->response();
@@ -84,6 +89,8 @@ class OrderController extends Controller
         }
 
         OrderStatusChanged::dispatch($order->fresh(), $previousStatus, 'rejected');
+
+        CacheService::invalidateGroups(['orders', 'dashboard']);
 
         return response()->json(['message' => 'Order rejected.']);
     }
@@ -117,6 +124,8 @@ class OrderController extends Controller
 
         OrderStatusChanged::dispatch($order->fresh(), $previousStatus, $request->status);
 
+        CacheService::invalidateGroups(['orders', 'dashboard']);
+
         return (new TransportOrderResource($order->fresh()->load('shipment')))
             ->additional(['message' => "Order status updated to {$request->status}."])
             ->response();
@@ -132,6 +141,8 @@ class OrderController extends Controller
 
         OrderStatusChanged::dispatch($order->fresh(), $previousStatus, 'cancelled');
 
+        CacheService::invalidateGroups(['orders', 'dashboard']);
+
         return response()->json(['message' => 'Order cancelled.']);
     }
 
@@ -142,16 +153,20 @@ class OrderController extends Controller
     {
         $companyId = $request->user()->company_id;
 
-        $stats = [
-            'total_orders' => TransportOrder::forCompany($companyId)->count(),
-            'pending' => TransportOrder::forCompany($companyId)->withStatus('pending')->count(),
-            'active' => TransportOrder::forCompany($companyId)->active()->count(),
-            'completed' => TransportOrder::forCompany($companyId)->withStatus('completed')->count(),
-            'cancelled' => TransportOrder::forCompany($companyId)->withStatus('cancelled')->count(),
-            'total_revenue' => TransportOrder::where('shipper_id', $companyId)
-                ->whereIn('status', ['completed', 'delivered'])
-                ->sum('total_price'),
-        ];
+        $cacheKey = CacheService::companyKey('orders:stats', $companyId);
+
+        $stats = CacheService::remember($cacheKey, 180, function () use ($companyId) {
+            return [
+                'total_orders' => TransportOrder::forCompany($companyId)->count(),
+                'pending' => TransportOrder::forCompany($companyId)->withStatus('pending')->count(),
+                'active' => TransportOrder::forCompany($companyId)->active()->count(),
+                'completed' => TransportOrder::forCompany($companyId)->withStatus('completed')->count(),
+                'cancelled' => TransportOrder::forCompany($companyId)->withStatus('cancelled')->count(),
+                'total_revenue' => TransportOrder::where('shipper_id', $companyId)
+                    ->whereIn('status', ['completed', 'delivered'])
+                    ->sum('total_price'),
+            ];
+        }, ['orders', 'dashboard']);
 
         return response()->json($stats);
     }

@@ -45,6 +45,7 @@ class DocumentOcrController extends Controller
     public function index(Request $request): JsonResponse
     {
         $scans = DocumentScan::where('company_id', $request->user()->company_id)
+            ->with(['transportOrder:id,order_number', 'user:id,name'])
             ->when($request->input('type'), fn($q, $type) => $q->where('document_type', $type))
             ->orderByDesc('created_at')
             ->paginate($request->input('per_page', 15));

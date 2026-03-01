@@ -7,6 +7,7 @@ use App\Http\Requests\Vehicle\StoreVehicleOfferRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleOfferRequest;
 use App\Http\Resources\VehicleOfferResource;
 use App\Models\VehicleOffer;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -47,6 +48,8 @@ class VehicleController extends Controller
             'user_id' => $request->user()->id,
         ]));
 
+        CacheService::invalidateGroups(['vehicles', 'dashboard', 'matching']);
+
         return (new VehicleOfferResource($vehicle->load('company')))
             ->additional(['message' => 'Vehicle offer created successfully.'])
             ->response()
@@ -62,6 +65,8 @@ class VehicleController extends Controller
     {
         $vehicle->update($request->validated());
 
+        CacheService::invalidateGroups(['vehicles', 'dashboard', 'matching']);
+
         return (new VehicleOfferResource($vehicle->fresh()->load('company')))
             ->additional(['message' => 'Vehicle offer updated.'])
             ->response();
@@ -74,11 +79,49 @@ class VehicleController extends Controller
         $vehicle->update(['status' => 'unavailable']);
         $vehicle->delete();
 
+        CacheService::invalidateGroups(['vehicles', 'dashboard', 'matching']);
+
         return response()->json(['message' => 'Vehicle offer removed.']);
     }
 
+    /**
+     * Search vehicle offers — uses Scout/Elasticsearch for text, SQL for exact-only.
+     */
     public function search(Request $request): JsonResponse
     {
+        $searchTerm = trim($request->input('current_city', ''));
+
+        // Use Scout (Elasticsearch) when we have a text query
+        if (strlen($searchTerm) >= 2) {
+            $builder = VehicleOffer::search($searchTerm)
+                ->query(fn ($q) => $q->with('company:id,name,country_code,rating'));
+
+            if ($request->current_country) {
+                $builder->where('current_country', $request->current_country);
+            }
+            if ($request->vehicle_type) {
+                $builder->where('vehicle_type', $request->vehicle_type);
+            }
+            if ($request->has_adr) {
+                $builder->where('has_adr', true);
+            }
+            if ($request->has_temperature_control) {
+                $builder->where('has_temperature_control', true);
+            }
+            if ($request->min_capacity) {
+                $builder->where('capacity_kg', '>=', (float) $request->min_capacity);
+            }
+            if ($request->available_date) {
+                $builder->where('available_from', '<=', $request->available_date);
+            }
+            $builder->where('status', 'available');
+
+            return VehicleOfferResource::collection(
+                $builder->paginate($request->input('per_page', 20))
+            )->response();
+        }
+
+        // Fallback to SQL for non-text queries
         $query = VehicleOffer::available()->with('company:id,name,country_code,rating');
 
         if ($request->current_country) {

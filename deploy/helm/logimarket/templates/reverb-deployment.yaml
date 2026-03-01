@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "logimarket.fullname" . }}-reverb
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reverb
+spec:
+  {{- if not .Values.reverb.autoscaling.enabled }}
+  replicas: {{ .Values.reverb.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "logimarket.reverb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "logimarket.reverb.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "logimarket.imagePullSecrets" . | nindent 6 }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: reverb
+          image: "{{ .Values.reverb.image.repository }}:{{ .Values.reverb.image.tag }}"
+          command:
+            {{- toYaml .Values.reverb.command | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.reverb.service.port }}
+              protocol: TCP
+              name: ws
+          envFrom:
+            - configMapRef:
+                name: {{ include "logimarket.fullname" . }}-config
+            - secretRef:
+                name: {{ include "logimarket.fullname" . }}-secrets
+          env:
+            - name: REVERB_SCALING_ENABLED
+              value: "true"
+            - name: REVERB_SCALING_CHANNEL
+              value: "reverb"
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.reverb.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.reverb.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.reverb.resources | nindent 12 }}
+---
+{{- if .Values.reverb.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "logimarket.fullname" . }}-reverb
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reverb
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "logimarket.fullname" . }}-reverb
+  minReplicas: {{ .Values.reverb.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.reverb.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.reverb.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

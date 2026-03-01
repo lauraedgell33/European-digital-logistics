@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ import type { MultimodalBooking, IntermodalPlan, MultimodalSearchResult, Multimo
 const modeIcons: Record<string, string> = { rail: '🚂', sea: '🚢', air: '✈️', barge: '⛴️', road: '🚛' };
 
 export default function MultimodalPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'search' | 'bookings' | 'plans'>('search');
   const [searchForm, setSearchForm] = useState({
@@ -75,9 +77,9 @@ export default function MultimodalPage() {
   const statsData = stats as MultimodalStats | undefined;
 
   const tabs = [
-    { key: 'search' as const, label: 'Search & Book', icon: MagnifyingGlassIcon },
-    { key: 'bookings' as const, label: 'Bookings', icon: TruckIcon },
-    { key: 'plans' as const, label: 'Intermodal Plans', icon: ArrowPathRoundedSquareIcon },
+    { key: 'search' as const, label: t('multimodal.searchBook'), icon: MagnifyingGlassIcon },
+    { key: 'bookings' as const, label: t('multimodal.bookings'), icon: TruckIcon },
+    { key: 'plans' as const, label: t('multimodal.intermodalPlans'), icon: ArrowPathRoundedSquareIcon },
   ];
 
   return (
@@ -85,9 +87,9 @@ export default function MultimodalPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <GlobeAltIcon className="h-7 w-7" style={{ color: 'var(--ds-teal-500)' }} />
-          Multimodal Transport
+          {t('multimodal.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Rail, sea, air & barge options with CO₂ comparison</p>
+        <p className="text-sm text-gray-500 mt-1">{t('multimodal.subtitle')}</p>
       </div>
 
       {/* Stats */}
@@ -95,15 +97,15 @@ export default function MultimodalPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{statsData.total_bookings}</p>
-            <p className="text-xs text-gray-500">Bookings</p>
+            <p className="text-xs text-gray-500">{t('multimodal.bookings')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-green-600)' }}>{(statsData.total_co2_saved_kg / 1000).toFixed(1)}t</p>
-            <p className="text-xs text-gray-500">CO₂ Saved</p>
+            <p className="text-xs text-gray-500">{t('multimodal.co2Saved')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{statsData.intermodal_plans}</p>
-            <p className="text-xs text-gray-500">Intermodal Plans</p>
+            <p className="text-xs text-gray-500">{t('multimodal.intermodalPlans')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{statsData.avg_cost_saving_pct?.toFixed(0)}%</p>
@@ -114,12 +116,12 @@ export default function MultimodalPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+        {tabs.map(tb => (
+          <button key={tb.key} onClick={() => setTab(tb.key)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === tb.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}>
-            <t.icon className="h-4 w-4" />{t.label}
+            <tb.icon className="h-4 w-4" />{tb.label}
           </button>
         ))}
       </div>
@@ -128,7 +130,7 @@ export default function MultimodalPage() {
       {tab === 'search' && (
         <>
           <Card>
-            <CardHeader title="Search Multimodal Options" />
+            <CardHeader title={t('multimodal.title')} />
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Origin</label>
@@ -204,13 +206,13 @@ export default function MultimodalPage() {
       {/* Bookings Tab */}
       {tab === 'bookings' && (
         <Card>
-          <CardHeader title="Multimodal Bookings" />
+          <CardHeader title={t('multimodal.bookings')} />
           {loadingBookings ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (bookings || []).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <GlobeAltIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No bookings yet. Search and book above.</p>
+              <p>{t('multimodal.noBookings')}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -239,13 +241,13 @@ export default function MultimodalPage() {
       {/* Plans Tab */}
       {tab === 'plans' && (
         <Card>
-          <CardHeader title="Intermodal Plans" subtitle="Combined multi-mode transport plans vs road-only" />
+          <CardHeader title={t('multimodal.intermodalPlans')} subtitle={t('multimodal.subtitle')} />
           {loadingPlans ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (plans || []).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <ArrowPathRoundedSquareIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No intermodal plans yet.</p>
+              <p>{t('multimodal.noBookings')}</p>
             </div>
           ) : (
             <div className="space-y-4 p-4">

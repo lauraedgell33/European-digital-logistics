@@ -9,7 +9,6 @@ import { useAuthStore } from '@/stores/authStore';
 import Toast from '@/components/ui/Toast';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import OfflineBanner from '@/components/OfflineBanner';
-import { Colors } from '@/constants/theme';
 import {
   registerForPushNotifications,
   setupAndroidChannel,
@@ -17,7 +16,7 @@ import {
 } from '@/lib/notifications';
 import { useWebSocket } from '@/lib/websocket';
 import { initSentry } from '@/lib/sentry';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider, useThemeContext } from '@/contexts/ThemeContext';
 
 // Initialize Sentry as early as possible
 initSentry();
@@ -32,8 +31,9 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+function AppContent() {
   const hydrate = useAuthStore((s) => s.hydrate);
+  const { colors, isDark } = useThemeContext();
 
   // Initialize WebSocket connection
   useWebSocket();
@@ -49,28 +49,36 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <OfflineBanner />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background },
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="tracking/[shipmentId]" options={{ headerShown: false, presentation: 'modal' }} />
+      </Stack>
+      <Toast />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <GestureHandlerRootView style={styles.root}>
       <ThemeProvider>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            <StatusBar style="dark" />
-            <OfflineBanner />
-            <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: Colors.background },
-              animation: 'slide_from_right',
-            }}
-          >
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="tracking/[shipmentId]" options={{ headerShown: false, presentation: 'modal' }} />
-          </Stack>
-            <Toast />
-          </ErrorBoundary>
-        </QueryClientProvider>
-      </SafeAreaProvider>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <ErrorBoundary>
+              <AppContent />
+            </ErrorBoundary>
+          </QueryClientProvider>
+        </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

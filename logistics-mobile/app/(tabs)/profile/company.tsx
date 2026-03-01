@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
@@ -6,9 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { companyApi } from '@/lib/api';
+import { companyProfileSchema, type CompanyProfileFormData } from '@/lib/schemas';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -28,38 +31,45 @@ export default function CompanyProfileScreen() {
   const { addNotification } = useAppStore();
   const company = user?.company;
 
-  const [name, setName] = useState('');
-  const [type, setType] = useState('carrier');
-  const [taxId, setTaxId] = useState('');
-  const [registrationNumber, setRegistrationNumber] = useState('');
-  const [country, setCountry] = useState('');
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [website, setWebsite] = useState('');
-  const [description, setDescription] = useState('');
+  const { control, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<CompanyProfileFormData>({
+    resolver: zodResolver(companyProfileSchema),
+    defaultValues: {
+      name: '',
+      type: 'carrier',
+      vat_number: '',
+      country_code: '',
+      city: '',
+      address: '',
+      phone: '',
+      email: '',
+      website: '',
+      description: '',
+    },
+  });
+
+  const selectedType = watch('type');
 
   useEffect(() => {
     if (company) {
-      setName(company.name || '');
-      setType(company.type || 'carrier');
-      setTaxId(company.tax_id || '');
-      setRegistrationNumber(company.registration_number || '');
-      setCountry(company.country || '');
-      setCity(company.city || '');
-      setAddress(company.address || '');
-      setPhone(company.phone || '');
-      setEmail(company.email || '');
-      setWebsite(company.website || '');
-      setDescription(company.description || '');
+      reset({
+        name: company.name || '',
+        type: company.type || 'carrier',
+        vat_number: company.tax_id || company.vat_number || '',
+        country_code: company.country || company.country_code || '',
+        city: company.city || '',
+        address: company.address || '',
+        phone: company.phone || '',
+        email: company.email || '',
+        website: company.website || '',
+        description: company.description || '',
+      });
     }
-  }, [company]);
+  }, [company, reset]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: Record<string, string>) => {
+    mutationFn: (data: CompanyProfileFormData) => {
       if (!company?.id) throw new Error('No company');
-      return companyApi.update(company.id, data);
+      return companyApi.update(company.id, data as Record<string, string>);
     },
     onSuccess: () => {
       fetchProfile();
@@ -71,28 +81,8 @@ export default function CompanyProfileScreen() {
     },
   });
 
-  const handleSave = () => {
-    if (!name.trim()) {
-      Alert.alert('Validation', 'Company name is required');
-      return;
-    }
-    if (!country.trim()) {
-      Alert.alert('Validation', 'Country is required');
-      return;
-    }
-    updateMutation.mutate({
-      name: name.trim(),
-      type,
-      tax_id: taxId.trim(),
-      registration_number: registrationNumber.trim(),
-      country: country.trim(),
-      city: city.trim(),
-      address: address.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
-      website: website.trim(),
-      description: description.trim(),
-    });
+  const onSubmit = (data: CompanyProfileFormData) => {
+    updateMutation.mutate(data);
   };
 
   if (!company) {
@@ -143,11 +133,18 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.field}>
               <Text style={styles.label}>Company Name *</Text>
-              <Input
-                value={name}
-                onChangeText={setName}
-                placeholder="Company name"
-                leftIcon="business-outline"
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Company name"
+                    leftIcon="business-outline"
+                    error={errors.name?.message}
+                  />
+                )}
               />
             </View>
 
@@ -157,10 +154,10 @@ export default function CompanyProfileScreen() {
                 {COMPANY_TYPES.map((ct) => (
                   <TouchableOpacity
                     key={ct.value}
-                    style={[styles.chip, type === ct.value && styles.chipActive]}
-                    onPress={() => setType(ct.value)}
+                    style={[styles.chip, selectedType === ct.value && styles.chipActive]}
+                    onPress={() => setValue('type', ct.value)}
                   >
-                    <Text style={[styles.chipText, type === ct.value && styles.chipTextActive]}>
+                    <Text style={[styles.chipText, selectedType === ct.value && styles.chipTextActive]}>
                       {ct.label}
                     </Text>
                   </TouchableOpacity>
@@ -170,13 +167,19 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.field}>
               <Text style={styles.label}>Description</Text>
-              <Input
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Describe your company"
-                multiline
-                numberOfLines={4}
-                style={{ minHeight: 100 }}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Describe your company"
+                    multiline
+                    numberOfLines={4}
+                    style={{ minHeight: 100 }}
+                  />
+                )}
               />
             </View>
           </Card>
@@ -187,21 +190,18 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.field}>
               <Text style={styles.label}>Tax ID / VAT Number</Text>
-              <Input
-                value={taxId}
-                onChangeText={setTaxId}
-                placeholder="e.g., RO12345678"
-                leftIcon="document-outline"
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Registration Number</Text>
-              <Input
-                value={registrationNumber}
-                onChangeText={setRegistrationNumber}
-                placeholder="e.g., J40/1234/2020"
-                leftIcon="receipt-outline"
+              <Controller
+                control={control}
+                name="vat_number"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="e.g., RO12345678"
+                    leftIcon="document-outline"
+                    error={errors.vat_number?.message}
+                  />
+                )}
               />
             </View>
           </Card>
@@ -213,21 +213,44 @@ export default function CompanyProfileScreen() {
             <View style={styles.row}>
               <View style={[styles.field, { flex: 1 }]}>
                 <Text style={styles.label}>Country *</Text>
-                <Input value={country} onChangeText={setCountry} placeholder="Country" />
+                <Controller
+                  control={control}
+                  name="country_code"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Country"
+                      error={errors.country_code?.message}
+                    />
+                  )}
+                />
               </View>
               <View style={[styles.field, { flex: 1 }]}>
                 <Text style={styles.label}>City</Text>
-                <Input value={city} onChangeText={setCity} placeholder="City" />
+                <Controller
+                  control={control}
+                  name="city"
+                  render={({ field: { onChange, value } }) => (
+                    <Input value={value} onChangeText={onChange} placeholder="City" />
+                  )}
+                />
               </View>
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Address</Text>
-              <Input
-                value={address}
-                onChangeText={setAddress}
-                placeholder="Full address"
-                leftIcon="location-outline"
+              <Controller
+                control={control}
+                name="address"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Full address"
+                    leftIcon="location-outline"
+                  />
+                )}
               />
             </View>
           </Card>
@@ -238,42 +261,62 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.field}>
               <Text style={styles.label}>Phone</Text>
-              <Input
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="Company phone"
-                keyboardType="phone-pad"
-                leftIcon="call-outline"
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Company phone"
+                    keyboardType="phone-pad"
+                    leftIcon="call-outline"
+                  />
+                )}
               />
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Email</Text>
-              <Input
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Company email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                leftIcon="mail-outline"
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Company email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    leftIcon="mail-outline"
+                    error={errors.email?.message}
+                  />
+                )}
               />
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Website</Text>
-              <Input
-                value={website}
-                onChangeText={setWebsite}
-                placeholder="https://example.com"
-                autoCapitalize="none"
-                leftIcon="globe-outline"
+              <Controller
+                control={control}
+                name="website"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="https://example.com"
+                    autoCapitalize="none"
+                    leftIcon="globe-outline"
+                    error={errors.website?.message}
+                  />
+                )}
               />
             </View>
           </Card>
 
           <Button
             title={updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-            onPress={handleSave}
+            onPress={handleSubmit(onSubmit)}
             disabled={updateMutation.isPending}
             style={styles.saveBtn}
           />

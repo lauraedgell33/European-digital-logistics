@@ -6,10 +6,69 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Scout\Searchable;
 
 class FreightOffer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, Searchable, SoftDeletes;
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'company_id' => $this->company_id,
+            'user_id' => $this->user_id,
+            'network_id' => $this->network_id,
+            'origin_country' => $this->origin_country,
+            'origin_city' => $this->origin_city,
+            'origin_postal_code' => $this->origin_postal_code,
+            'origin_location' => ($this->origin_lat && $this->origin_lng)
+                ? ['lat' => (float) $this->origin_lat, 'lon' => (float) $this->origin_lng]
+                : null,
+            'origin_address' => $this->origin_address,
+            'destination_country' => $this->destination_country,
+            'destination_city' => $this->destination_city,
+            'destination_postal_code' => $this->destination_postal_code,
+            'destination_location' => ($this->destination_lat && $this->destination_lng)
+                ? ['lat' => (float) $this->destination_lat, 'lon' => (float) $this->destination_lng]
+                : null,
+            'destination_address' => $this->destination_address,
+            'cargo_type' => $this->cargo_type,
+            'cargo_description' => $this->cargo_description,
+            'weight' => (float) $this->weight,
+            'volume' => (float) $this->volume,
+            'loading_meters' => (float) $this->loading_meters,
+            'pallet_count' => $this->pallet_count,
+            'is_hazardous' => $this->is_hazardous,
+            'adr_class' => $this->adr_class,
+            'requires_temperature_control' => $this->requires_temperature_control,
+            'vehicle_type' => $this->vehicle_type,
+            'required_equipment' => $this->required_equipment,
+            'loading_date' => $this->loading_date?->format('Y-m-d'),
+            'unloading_date' => $this->unloading_date?->format('Y-m-d'),
+            'expires_at' => $this->expires_at?->toIso8601String(),
+            'price' => (float) $this->price,
+            'currency' => $this->currency,
+            'price_type' => $this->price_type,
+            'status' => $this->status,
+            'is_public' => $this->is_public,
+            'distance_km' => (float) $this->distance_km,
+            'estimated_duration_hours' => (float) $this->estimated_duration_hours,
+            'notes' => $this->notes,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->status === 'active' && !$this->isExpired();
+    }
 
     protected $fillable = [
         'company_id', 'user_id',

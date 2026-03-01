@@ -22,10 +22,50 @@ class AiMatchingController extends Controller
         return response()->json([
             'data' => $matches,
             'meta' => [
-                'freight_id' => $freight->id,
+                'freight_id'    => $freight->id,
                 'total_matches' => $matches->count(),
-                'model_version' => 'v1.0',
+                'model_version' => 'v2.0',
+                'tiers'         => $matches->groupBy('match_tier')->map->count(),
             ],
+        ]);
+    }
+
+    /**
+     * Batch-match recent freight offers (admin/cron).
+     */
+    public function batchMatch(Request $request): JsonResponse
+    {
+        $results = $this->aiMatchingService->batchMatch(
+            $request->input('hours_back', 6),
+            $request->input('limit_per_freight', 5)
+        );
+
+        return response()->json([
+            'message' => count($results) . ' freight offers matched.',
+            'data'    => $results,
+        ]);
+    }
+
+    /**
+     * AI model analytics — acceptance rates, weight tuning, tier breakdown.
+     */
+    public function analytics(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->aiMatchingService->getAnalytics(),
+        ]);
+    }
+
+    /**
+     * Re-calibrate learned weights from feedback data.
+     */
+    public function recalibrate(): JsonResponse
+    {
+        $weights = $this->aiMatchingService->recalibrateWeights();
+
+        return response()->json([
+            'message' => 'Weights recalibrated from feedback data.',
+            'data'    => $weights,
         ]);
     }
 

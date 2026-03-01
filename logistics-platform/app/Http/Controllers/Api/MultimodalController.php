@@ -57,6 +57,7 @@ class MultimodalController extends Controller
     public function bookings(Request $request): JsonResponse
     {
         $bookings = MultimodalBooking::where('company_id', $request->user()->company_id)
+            ->with('transportOrder:id,order_number')
             ->when($request->input('mode'), fn($q, $m) => $q->where('transport_mode', $m))
             ->when($request->input('status'), fn($q, $s) => $q->where('status', $s))
             ->orderByDesc('created_at')
@@ -96,6 +97,7 @@ class MultimodalController extends Controller
     public function plans(Request $request): JsonResponse
     {
         $plans = IntermodalPlan::where('company_id', $request->user()->company_id)
+            ->with('transportOrder:id,order_number')
             ->orderByDesc('created_at')
             ->paginate($request->input('per_page', 15));
 

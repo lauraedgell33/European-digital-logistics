@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { messageApi } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card } from '@/components/ui/Card';
@@ -40,6 +41,7 @@ interface Message {
 }
 
 export default function MessagesPage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConv, setActiveConv] = useState<Conversation | null>(null);
@@ -180,7 +182,7 @@ export default function MessagesPage() {
         {/* Header */}
         <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--ds-gray-300)' }}>
           <h2 className="text-[15px] font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-            Messages
+            {t('messages.title')}
           </h2>
           <Button variant="ghost" size="sm" onClick={() => setNewConvModal(true)}>
             <PlusIcon className="h-4 w-4" />
@@ -195,7 +197,7 @@ export default function MessagesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search conversations..."
+              placeholder={t('messages.conversations') + '...'}
               className="w-full pl-9 pr-3 py-2 rounded-lg text-[13px] outline-none"
               style={{
                 background: 'var(--ds-gray-100)',
@@ -214,10 +216,10 @@ export default function MessagesPage() {
             <div className="text-center py-12 px-4">
               <ChatBubbleLeftRightIcon className="h-10 w-10 mx-auto mb-3" style={{ color: 'var(--ds-gray-500)' }} />
               <p className="text-[13px]" style={{ color: 'var(--ds-gray-700)' }}>
-                {search ? 'No conversations found' : 'No messages yet'}
+                {search ? t('common.noResults') : t('messages.noMessages')}
               </p>
               <Button variant="secondary" size="sm" className="mt-3" onClick={() => setNewConvModal(true)}>
-                Start a conversation
+                {t('messages.startConversation')}
               </Button>
             </div>
           ) : (
@@ -348,7 +350,7 @@ export default function MessagesPage() {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type a message..."
+                placeholder={t('messages.typeMessage')}
                 rows={1}
                 className="flex-1 resize-none rounded-xl px-4 py-2.5 text-[13px] outline-none"
                 style={{
@@ -374,13 +376,13 @@ export default function MessagesPage() {
             <div className="text-center">
               <ChatBubbleLeftRightIcon className="h-16 w-16 mx-auto mb-4" style={{ color: 'var(--ds-gray-400)' }} />
               <h3 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-800)' }}>
-                Select a conversation
+                {t('messages.noConversation')}
               </h3>
               <p className="text-[13px] mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-                Choose from your existing conversations or start a new one
+                {t('messages.noConversationDesc')}
               </p>
               <Button variant="secondary" className="mt-4" onClick={() => setNewConvModal(true)}>
-                <PlusIcon className="h-4 w-4 mr-2" /> New Message
+                <PlusIcon className="h-4 w-4 mr-2" /> {t('messages.newMessage')}
               </Button>
             </div>
           </div>
@@ -388,7 +390,7 @@ export default function MessagesPage() {
       </div>
 
       {/* New Conversation Modal */}
-      <Modal open={newConvModal} onClose={() => setNewConvModal(false)} title="New Message" size="md">
+      <Modal open={newConvModal} onClose={() => setNewConvModal(false)} title={t('messages.newMessage')} size="md">
         <div className="space-y-4">
           <Input
             label="Recipient User ID"
@@ -412,9 +414,9 @@ export default function MessagesPage() {
             rows={4}
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" onClick={() => setNewConvModal(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setNewConvModal(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleNewConversation} disabled={!newConvForm.recipient_id || !newConvForm.message}>
-              Send Message
+              {t('messages.send')}
             </Button>
           </div>
         </div>

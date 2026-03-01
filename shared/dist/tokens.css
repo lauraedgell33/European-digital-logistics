@@ -1,0 +1,315 @@
+/* ═════════════════════════════════════════════════════════════════
+   LogiMarket Design Tokens — Auto-generated from design-tokens.json
+   DO NOT EDIT MANUALLY — run `npm run generate:css` instead
+   ═════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Spacing */
+  --geist-space: 4px;
+  --geist-gap: 24px;
+  --geist-gap-half: 12px;
+  --geist-gap-quarter: 6px;
+  --geist-page-margin: 24px;
+
+  /* Radii */
+  --geist-radius-sm: 4px;
+  --geist-radius-md: 6px;
+  --geist-radius-lg: 8px;
+  --geist-radius-xl: 12px;
+  --geist-radius-full: 9999px;
+  --geist-radius: 6px;
+  --geist-marketing-radius: 8px;
+
+  /* Layout */
+  --ds-header-height: 64px;
+  --ds-sidebar-width: 260px;
+  --ds-page-width: 1400px;
+  --ds-grid-cell-padding: 48px;
+
+  /* Typography */
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Fira Code', monospace;
+
+  --text-display-size: 36px;
+  --text-display-weight: 700;
+  --text-display-lh: 1.1;
+  --text-display-ls: -0.02em;
+  --text-h1-size: 30px;
+  --text-h1-weight: 700;
+  --text-h1-lh: 1.2;
+  --text-h1-ls: -0.02em;
+  --text-h2-size: 24px;
+  --text-h2-weight: 600;
+  --text-h2-lh: 1.3;
+  --text-h2-ls: -0.01em;
+  --text-h3-size: 20px;
+  --text-h3-weight: 600;
+  --text-h3-lh: 1.4;
+  --text-h3-ls: -0.01em;
+  --text-body-size: 15px;
+  --text-body-weight: 400;
+  --text-body-lh: 1.6;
+  --text-body-ls: 0em;
+  --text-body-small-size: 13px;
+  --text-body-small-weight: 400;
+  --text-body-small-lh: 1.5;
+  --text-body-small-ls: 0em;
+  --text-caption-size: 11px;
+  --text-caption-weight: 500;
+  --text-caption-lh: 1.4;
+  --text-caption-ls: 0.01em;
+  --text-mono-size: 13px;
+  --text-mono-weight: 400;
+  --text-mono-lh: 1.5;
+  --text-mono-ls: 0em;
+
+  /* Animation */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* Geist Gray — Light */
+  --ds-gray-100: hsl(0, 0%, 95%);
+  --ds-gray-200: hsl(0, 0%, 93%);
+  --ds-gray-300: hsl(0, 0%, 90%);
+  --ds-gray-400: hsl(0, 0%, 88%);
+  --ds-gray-500: hsl(0, 0%, 79%);
+  --ds-gray-600: hsl(0, 0%, 66%);
+  --ds-gray-700: hsl(0, 0%, 56%);
+  --ds-gray-800: hsl(0, 0%, 49%);
+  --ds-gray-900: hsl(0, 0%, 40%);
+  --ds-gray-1000: hsl(0, 0%, 9%);
+
+  /* Geist Blue — Light */
+  --ds-blue-100: hsl(212, 100%, 97%);
+  --ds-blue-200: hsl(210, 100%, 96%);
+  --ds-blue-300: hsl(210, 100%, 94%);
+  --ds-blue-400: hsl(209, 100%, 90%);
+  --ds-blue-500: hsl(209, 100%, 80%);
+  --ds-blue-600: hsl(208, 100%, 66%);
+  --ds-blue-700: hsl(212, 100%, 48%);
+  --ds-blue-800: hsl(212, 100%, 41%);
+  --ds-blue-900: hsl(211, 100%, 42%);
+  --ds-blue-1000: hsl(211, 100%, 15%);
+
+  /* Geist Red — Light */
+  --ds-red-100: hsl(0, 100%, 97%);
+  --ds-red-200: hsl(0, 100%, 96%);
+  --ds-red-300: hsl(0, 100%, 95%);
+  --ds-red-400: hsl(0, 90%, 92%);
+  --ds-red-500: hsl(0, 82%, 85%);
+  --ds-red-600: hsl(359, 90%, 71%);
+  --ds-red-700: hsl(358, 75%, 59%);
+  --ds-red-800: hsl(358, 70%, 52%);
+  --ds-red-900: hsl(358, 66%, 48%);
+  --ds-red-1000: hsl(355, 49%, 15%);
+
+  /* Geist Amber — Light */
+  --ds-amber-100: hsl(39, 100%, 95%);
+  --ds-amber-200: hsl(44, 100%, 92%);
+  --ds-amber-300: hsl(43, 96%, 90%);
+  --ds-amber-400: hsl(42, 100%, 78%);
+  --ds-amber-500: hsl(38, 100%, 71%);
+  --ds-amber-600: hsl(36, 90%, 62%);
+  --ds-amber-700: hsl(39, 100%, 57%);
+  --ds-amber-800: hsl(35, 100%, 52%);
+  --ds-amber-900: hsl(30, 100%, 32%);
+  --ds-amber-1000: hsl(20, 79%, 17%);
+
+  /* Geist Green — Light */
+  --ds-green-100: hsl(120, 60%, 96%);
+  --ds-green-200: hsl(120, 60%, 95%);
+  --ds-green-300: hsl(120, 60%, 91%);
+  --ds-green-400: hsl(122, 60%, 86%);
+  --ds-green-500: hsl(124, 60%, 75%);
+  --ds-green-600: hsl(125, 60%, 64%);
+  --ds-green-700: hsl(131, 41%, 46%);
+  --ds-green-800: hsl(132, 43%, 39%);
+  --ds-green-900: hsl(133, 50%, 32%);
+  --ds-green-1000: hsl(128, 29%, 15%);
+
+  /* Semantic — Light */
+  --ds-background-100: #fff;
+  --ds-background-200: #fafafa;
+  --geist-foreground: #000;
+  --geist-background: #fff;
+  --geist-link-color: hsl(212, 100%, 48%);
+  --geist-selection: hsl(0, 0%, 9%);
+  --geist-selection-text-color: hsl(0, 0%, 95%);
+
+  /* Shadows — Light */
+  --ds-shadow-border-base: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  --ds-shadow-border: var(--ds-shadow-border-base);
+  --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.04);
+  --ds-shadow-border-small: var(--ds-shadow-border-base), var(--ds-shadow-small);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
+
+}
+
+.dark,
+[data-theme="dark"] {
+  /* Geist Gray — Dark */
+  --ds-gray-100: hsl(0, 0%, 10%);
+  --ds-gray-200: hsl(0, 0%, 12%);
+  --ds-gray-300: hsl(0, 0%, 16%);
+  --ds-gray-400: hsl(0, 0%, 18%);
+  --ds-gray-500: hsl(0, 0%, 27%);
+  --ds-gray-600: hsl(0, 0%, 53%);
+  --ds-gray-700: hsl(0, 0%, 56%);
+  --ds-gray-800: hsl(0, 0%, 49%);
+  --ds-gray-900: hsl(0, 0%, 63%);
+  --ds-gray-1000: hsl(0, 0%, 93%);
+
+  /* Geist Blue — Dark */
+  --ds-blue-100: hsl(216, 50%, 12%);
+  --ds-blue-200: hsl(214, 59%, 15%);
+  --ds-blue-300: hsl(213, 71%, 20%);
+  --ds-blue-400: hsl(212, 78%, 23%);
+  --ds-blue-500: hsl(211, 86%, 27%);
+  --ds-blue-600: hsl(206, 100%, 50%);
+  --ds-blue-700: hsl(212, 100%, 48%);
+  --ds-blue-800: hsl(212, 100%, 41%);
+  --ds-blue-900: hsl(210, 100%, 66%);
+  --ds-blue-1000: hsl(206, 100%, 96%);
+
+  /* Geist Red — Dark */
+  --ds-red-100: hsl(357, 37%, 12%);
+  --ds-red-200: hsl(357, 46%, 16%);
+  --ds-red-300: hsl(356, 54%, 22%);
+  --ds-red-400: hsl(357, 55%, 26%);
+  --ds-red-500: hsl(357, 60%, 32%);
+  --ds-red-600: hsl(358, 75%, 59%);
+  --ds-red-700: hsl(358, 75%, 59%);
+  --ds-red-800: hsl(358, 69%, 52%);
+  --ds-red-900: hsl(358, 100%, 69%);
+  --ds-red-1000: hsl(353, 90%, 96%);
+
+  /* Geist Amber — Dark */
+  --ds-amber-100: hsl(35, 100%, 8%);
+  --ds-amber-200: hsl(32, 100%, 10%);
+  --ds-amber-300: hsl(33, 100%, 15%);
+  --ds-amber-400: hsl(35, 100%, 17%);
+  --ds-amber-500: hsl(35, 91%, 22%);
+  --ds-amber-600: hsl(39, 85%, 49%);
+  --ds-amber-700: hsl(39, 100%, 57%);
+  --ds-amber-800: hsl(35, 100%, 52%);
+  --ds-amber-900: hsl(39, 90%, 50%);
+  --ds-amber-1000: hsl(40, 94%, 93%);
+
+  /* Geist Green — Dark */
+  --ds-green-100: hsl(136, 50%, 9%);
+  --ds-green-200: hsl(137, 50%, 12%);
+  --ds-green-300: hsl(136, 50%, 14%);
+  --ds-green-400: hsl(135, 70%, 16%);
+  --ds-green-500: hsl(135, 70%, 23%);
+  --ds-green-600: hsl(135, 70%, 34%);
+  --ds-green-700: hsl(131, 41%, 46%);
+  --ds-green-800: hsl(132, 43%, 39%);
+  --ds-green-900: hsl(131, 43%, 57%);
+  --ds-green-1000: hsl(136, 73%, 94%);
+
+  /* Semantic — Dark */
+  --ds-background-100: #0a0a0a;
+  --ds-background-200: #0a0a0a;
+  --geist-foreground: #fff;
+  --geist-background: #000;
+  --geist-link-color: hsl(210, 100%, 66%);
+  --geist-selection: hsl(0, 0%, 93%);
+  --geist-selection-text-color: hsl(0, 0%, 10%);
+
+  /* Shadows — Dark */
+  --ds-shadow-border-base: 0 0 0 1px rgba(255, 255, 255, 0.145);
+  --ds-shadow-border: var(--ds-shadow-border-base);
+  --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.16);
+  --ds-shadow-border-small: var(--ds-shadow-border-base), var(--ds-shadow-small);
+  --shadow-medium: 0 0 0 1px rgba(255, 255, 255, 0.145);
+  --shadow-large: 0 0 0 1px rgba(255, 255, 255, 0.2);
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Geist Gray — Dark */
+    --ds-gray-100: hsl(0, 0%, 10%);
+    --ds-gray-200: hsl(0, 0%, 12%);
+    --ds-gray-300: hsl(0, 0%, 16%);
+    --ds-gray-400: hsl(0, 0%, 18%);
+    --ds-gray-500: hsl(0, 0%, 27%);
+    --ds-gray-600: hsl(0, 0%, 53%);
+    --ds-gray-700: hsl(0, 0%, 56%);
+    --ds-gray-800: hsl(0, 0%, 49%);
+    --ds-gray-900: hsl(0, 0%, 63%);
+    --ds-gray-1000: hsl(0, 0%, 93%);
+  
+    /* Geist Blue — Dark */
+    --ds-blue-100: hsl(216, 50%, 12%);
+    --ds-blue-200: hsl(214, 59%, 15%);
+    --ds-blue-300: hsl(213, 71%, 20%);
+    --ds-blue-400: hsl(212, 78%, 23%);
+    --ds-blue-500: hsl(211, 86%, 27%);
+    --ds-blue-600: hsl(206, 100%, 50%);
+    --ds-blue-700: hsl(212, 100%, 48%);
+    --ds-blue-800: hsl(212, 100%, 41%);
+    --ds-blue-900: hsl(210, 100%, 66%);
+    --ds-blue-1000: hsl(206, 100%, 96%);
+  
+    /* Geist Red — Dark */
+    --ds-red-100: hsl(357, 37%, 12%);
+    --ds-red-200: hsl(357, 46%, 16%);
+    --ds-red-300: hsl(356, 54%, 22%);
+    --ds-red-400: hsl(357, 55%, 26%);
+    --ds-red-500: hsl(357, 60%, 32%);
+    --ds-red-600: hsl(358, 75%, 59%);
+    --ds-red-700: hsl(358, 75%, 59%);
+    --ds-red-800: hsl(358, 69%, 52%);
+    --ds-red-900: hsl(358, 100%, 69%);
+    --ds-red-1000: hsl(353, 90%, 96%);
+  
+    /* Geist Amber — Dark */
+    --ds-amber-100: hsl(35, 100%, 8%);
+    --ds-amber-200: hsl(32, 100%, 10%);
+    --ds-amber-300: hsl(33, 100%, 15%);
+    --ds-amber-400: hsl(35, 100%, 17%);
+    --ds-amber-500: hsl(35, 91%, 22%);
+    --ds-amber-600: hsl(39, 85%, 49%);
+    --ds-amber-700: hsl(39, 100%, 57%);
+    --ds-amber-800: hsl(35, 100%, 52%);
+    --ds-amber-900: hsl(39, 90%, 50%);
+    --ds-amber-1000: hsl(40, 94%, 93%);
+  
+    /* Geist Green — Dark */
+    --ds-green-100: hsl(136, 50%, 9%);
+    --ds-green-200: hsl(137, 50%, 12%);
+    --ds-green-300: hsl(136, 50%, 14%);
+    --ds-green-400: hsl(135, 70%, 16%);
+    --ds-green-500: hsl(135, 70%, 23%);
+    --ds-green-600: hsl(135, 70%, 34%);
+    --ds-green-700: hsl(131, 41%, 46%);
+    --ds-green-800: hsl(132, 43%, 39%);
+    --ds-green-900: hsl(131, 43%, 57%);
+    --ds-green-1000: hsl(136, 73%, 94%);
+  
+    /* Semantic — Dark */
+    --ds-background-100: #0a0a0a;
+    --ds-background-200: #0a0a0a;
+    --geist-foreground: #fff;
+    --geist-background: #000;
+    --geist-link-color: hsl(210, 100%, 66%);
+    --geist-selection: hsl(0, 0%, 93%);
+    --geist-selection-text-color: hsl(0, 0%, 10%);
+  
+    /* Shadows — Dark */
+    --ds-shadow-border-base: 0 0 0 1px rgba(255, 255, 255, 0.145);
+    --ds-shadow-border: var(--ds-shadow-border-base);
+    --ds-shadow-small: 0px 1px 2px rgba(0, 0, 0, 0.16);
+    --ds-shadow-border-small: var(--ds-shadow-border-base), var(--ds-shadow-small);
+    --shadow-medium: 0 0 0 1px rgba(255, 255, 255, 0.145);
+    --shadow-large: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  
+  }
+}

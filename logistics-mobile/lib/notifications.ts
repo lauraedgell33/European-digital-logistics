@@ -103,13 +103,13 @@ export function setupNotificationListeners() {
     const data = response.notification.request.content.data;
 
     if (data?.type === 'order' && data?.orderId) {
-      router.push(`/(tabs)/orders/${data.orderId}` as any);
+      router.push(`/(tabs)/orders/${data.orderId}` as `/${string}`);
     } else if (data?.type === 'message' && data?.conversationId) {
-      router.push(`/(tabs)/messages/${data.conversationId}` as any);
+      router.push(`/(tabs)/messages/${data.conversationId}` as `/${string}`);
     } else if (data?.type === 'tracking' && data?.shipmentId) {
-      router.push(`/tracking/${data.shipmentId}` as any);
+      router.push(`/tracking/${data.shipmentId}` as `/${string}`);
     } else if (data?.type === 'freight' && data?.freightId) {
-      router.push(`/(tabs)/marketplace/freight/${data.freightId}` as any);
+      router.push(`/(tabs)/marketplace/freight/${data.freightId}` as `/${string}`);
     }
   });
 

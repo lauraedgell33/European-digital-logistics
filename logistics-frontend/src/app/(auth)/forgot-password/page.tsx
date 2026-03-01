@@ -8,11 +8,13 @@ import { forgotPasswordSchema, ForgotPasswordFormData } from '@/lib/validations'
 import { authApi } from '@/lib/api';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
 import { TruckIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ForgotPasswordPage() {
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
   const { execute: executeRecaptcha } = useRecaptcha();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -47,10 +49,10 @@ export default function ForgotPasswordPage() {
             <TruckIcon className="h-7 w-7 text-white" />
           </div>
           <h1 className="mt-4 text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
-            Reset your password
+            {t('auth.resetPassword')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-700)' }}>
-            Enter your email to receive a password reset link
+            {t('auth.resetDescription')}
           </p>
         </div>
 
@@ -60,17 +62,17 @@ export default function ForgotPasswordPage() {
             <div className="text-center py-4">
               <CheckCircleIcon className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--ds-green-700)' }} />
               <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-                Check your email
+                {t('auth.checkEmail')}
               </h2>
               <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-gray-700)' }}>
-                We sent a password reset link to your email address. Please check your inbox and follow the instructions.
+                {t('auth.resetLinkSent')}
               </p>
               <Link
                 href="/login"
                 className="mt-6 inline-block text-[14px] font-medium"
                 style={{ color: 'var(--ds-blue-700)' }}
               >
-                Back to login
+                {t('auth.backToLogin')}
               </Link>
             </div>
           ) : (
@@ -83,7 +85,7 @@ export default function ForgotPasswordPage() {
 
               <div>
                 <label htmlFor="email" className="block text-[13px] font-medium mb-1.5" style={{ color: 'var(--ds-gray-900)' }}>
-                  Email address
+                  {t('auth.emailAddress')}
                 </label>
                 <div className="relative">
                   <EnvelopeIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--ds-gray-600)' }} />
@@ -112,12 +114,12 @@ export default function ForgotPasswordPage() {
                 className="w-full rounded-lg py-2.5 text-[14px] font-medium text-white transition-colors disabled:opacity-50"
                 style={{ background: 'var(--ds-blue-700)' }}
               >
-                {isSubmitting ? 'Sending...' : 'Send reset link'}
+                {isSubmitting ? t('auth.sending') : t('auth.sendResetLink')}
               </button>
 
               <div className="text-center">
                 <Link href="/login" className="text-[13px] font-medium" style={{ color: 'var(--ds-blue-700)' }}>
-                  Back to login
+                  {t('auth.backToLogin')}
                 </Link>
               </div>
             </form>

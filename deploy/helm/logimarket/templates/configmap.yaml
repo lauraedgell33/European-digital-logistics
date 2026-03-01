@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "logimarket.fullname" . }}-config
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+data:
+  APP_NAME: "LogiMarket"
+  APP_ENV: {{ .Values.global.environment | quote }}
+  APP_DEBUG: "false"
+  APP_URL: "https://{{ .Values.global.domain }}"
+  FRONTEND_URL: "https://{{ .Values.global.domain }}"
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: warning
+  CACHE_DRIVER: redis
+  SESSION_DRIVER: redis
+  QUEUE_CONNECTION: redis
+  BROADCAST_DRIVER: reverb
+  FILESYSTEM_DISK: s3
+  DB_CONNECTION: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: logimarket
+  REDIS_PORT: "6379"
+  REDIS_CLIENT: phpredis
+  MAIL_MAILER: ses
+  K8S_NAMESPACE: {{ .Release.Namespace | quote }}
+  K8S_NODE_NAME: ""
+  CDN_ENABLED: {{ .Values.cdn.enabled | quote }}
+  CDN_DOMAIN: {{ .Values.cdn.domain | quote }}
+  REVERB_HOST: {{ include "logimarket.fullname" . }}-reverb
+  REVERB_PORT: {{ .Values.reverb.service.port | quote }}
+  REVERB_SCHEME: https
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "logimarket.fullname" . }}-php-config
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+data:
+  php.ini: |
+    ; OPcache — JIT for production
+    opcache.enable=1
+    opcache.memory_consumption=256
+    opcache.interned_strings_buffer=32
+    opcache.max_accelerated_files=20000
+    opcache.validate_timestamps=0
+    opcache.jit_buffer_size=128M
+    opcache.jit=1255
+
+    ; Performance
+    realpath_cache_size=4096K
+    realpath_cache_ttl=600
+    memory_limit=256M
+    max_execution_time=60
+    upload_max_filesize=50M
+    post_max_size=50M
+
+    ; Security
+    expose_php=Off
+    display_errors=Off
+    log_errors=On
+    error_log=/dev/stderr

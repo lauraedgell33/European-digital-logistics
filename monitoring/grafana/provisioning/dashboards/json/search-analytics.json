@@ -1,0 +1,284 @@
+{
+  "annotations": { "list": [] },
+  "description": "Elasticsearch & Search Analytics — Index health, query performance, search patterns",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Elasticsearch Cluster Health",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "green", "value": 2 }
+            ]
+          },
+          "mappings": [
+            { "options": { "0": { "text": "RED" }, "1": { "text": "YELLOW" }, "2": { "text": "GREEN" } }, "type": "value" }
+          ]
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "id": 2,
+      "title": "Cluster Status",
+      "type": "stat",
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "auto" },
+      "targets": [
+        { "expr": "elasticsearch_cluster_health_status{color=\"green\"} * 2 + elasticsearch_cluster_health_status{color=\"yellow\"}", "legendFormat": "Status" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "id": 3,
+      "title": "Total Documents",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "elasticsearch_indices_docs_total", "legendFormat": "Documents" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "id": 4,
+      "title": "Index Size",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "elasticsearch_indices_store_size_bytes_total", "legendFormat": "Store Size" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "id": 5,
+      "title": "JVM Heap Used",
+      "type": "stat",
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "targets": [
+        { "expr": "elasticsearch_jvm_memory_used_bytes{area=\"heap\"}", "legendFormat": "Heap Used" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 10,
+      "title": "Search Performance",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ops" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 11,
+      "title": "Search Queries/sec",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(elasticsearch_indices_search_query_total[5m])",
+          "legendFormat": "Queries/s"
+        },
+        {
+          "expr": "rate(elasticsearch_indices_search_fetch_total[5m])",
+          "legendFormat": "Fetches/s"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 12,
+      "title": "Search Latency (ms)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(elasticsearch_indices_search_query_time_seconds_total[5m]) * 1000 / rate(elasticsearch_indices_search_query_total[5m])",
+          "legendFormat": "Avg Query Time"
+        },
+        {
+          "expr": "rate(elasticsearch_indices_search_fetch_time_seconds_total[5m]) * 1000 / rate(elasticsearch_indices_search_fetch_total[5m])",
+          "legendFormat": "Avg Fetch Time"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 20,
+      "title": "Indexing Performance",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ops" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 21,
+      "title": "Indexing Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(elasticsearch_indices_indexing_index_total[5m])",
+          "legendFormat": "Index Ops/s"
+        },
+        {
+          "expr": "rate(elasticsearch_indices_indexing_delete_total[5m])",
+          "legendFormat": "Delete Ops/s"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 22,
+      "title": "Indexing Latency",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(elasticsearch_indices_indexing_index_time_seconds_total[5m]) * 1000 / rate(elasticsearch_indices_indexing_index_total[5m])",
+          "legendFormat": "Avg Indexing Time"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 30,
+      "title": "Per-Index Breakdown",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 31,
+      "title": "Documents per Index",
+      "type": "barchart",
+      "targets": [
+        {
+          "expr": "elasticsearch_indices_docs{index=~\"logistics_.*\"}",
+          "legendFormat": "{{ index }}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 32,
+      "title": "Index Size Breakdown",
+      "type": "barchart",
+      "targets": [
+        {
+          "expr": "elasticsearch_indices_store_size_bytes{index=~\"logistics_.*\"}",
+          "legendFormat": "{{ index }}"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 40,
+      "title": "JVM & Thread Pools",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "id": 41,
+      "title": "JVM Memory",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "elasticsearch_jvm_memory_used_bytes{area=\"heap\"}",
+          "legendFormat": "Heap Used"
+        },
+        {
+          "expr": "elasticsearch_jvm_memory_max_bytes{area=\"heap\"}",
+          "legendFormat": "Heap Max"
+        },
+        {
+          "expr": "elasticsearch_jvm_memory_used_bytes{area=\"nonheap\"}",
+          "legendFormat": "Non-Heap Used"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short" }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "id": 42,
+      "title": "Thread Pool Queued / Rejected",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "elasticsearch_thread_pool_queue_count{type=\"search\"}",
+          "legendFormat": "Search Queue"
+        },
+        {
+          "expr": "elasticsearch_thread_pool_rejected_count{type=\"search\"}",
+          "legendFormat": "Search Rejected"
+        },
+        {
+          "expr": "elasticsearch_thread_pool_queue_count{type=\"write\"}",
+          "legendFormat": "Write Queue"
+        },
+        {
+          "expr": "elasticsearch_thread_pool_rejected_count{type=\"write\"}",
+          "legendFormat": "Write Rejected"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["logistics", "elasticsearch", "search"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Search & Elasticsearch Analytics",
+  "uid": "logistics-search-analytics",
+  "version": 1
+}

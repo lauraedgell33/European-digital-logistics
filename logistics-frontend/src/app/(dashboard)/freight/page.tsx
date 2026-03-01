@@ -28,6 +28,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ExportMenu, ExportIcons } from '@/components/ui/ExportMenu';
 import { exportApi } from '@/lib/export';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { FreightOffer } from '@/types';
 
 export default function FreightPage() {
@@ -42,6 +43,7 @@ export default function FreightPage() {
     status: '',
   });
   const [showFilters, setShowFilters] = useState(false);
+  const { t } = useTranslation();
 
   const { data, isLoading } = useFreightOffers({
     page,
@@ -126,10 +128,10 @@ export default function FreightPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--ds-gray-1000)' }}>
-            Freight Exchange
+            {t('freight.title')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Browse and post freight offers across Europe
+            {t('freight.allOffers')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -141,7 +143,7 @@ export default function FreightPage() {
           />
           <Link href="/freight/new" className="no-underline">
             <Button icon={<PlusIcon className="h-4 w-4" />}>
-              Post Freight
+              {t('freight.postNew')}
             </Button>
           </Link>
         </div>
@@ -221,7 +223,7 @@ export default function FreightPage() {
         columns={columns}
         data={data?.data || []}
         loading={isLoading}
-        emptyMessage="No freight offers found. Try adjusting your filters."
+        emptyMessage={t('freight.noOffers')}
         onRowClick={(item) => router.push(`/freight/${item.id}`)}
       />
 

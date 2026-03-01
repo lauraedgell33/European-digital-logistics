@@ -51,6 +51,7 @@ class BlockchainController extends Controller
                 ->orWhere('carrier_company_id', $request->user()->company_id)
                 ->orWhere('consignee_company_id', $request->user()->company_id);
         })
+            ->with(['senderCompany:id,name', 'carrierCompany:id,name', 'consigneeCompany:id,name'])
             ->when($request->input('status'), fn($q, $s) => $q->where('status', $s))
             ->orderByDesc('created_at')
             ->paginate($request->input('per_page', 15));
@@ -120,6 +121,7 @@ class BlockchainController extends Controller
             $q->where('party_a_company_id', $request->user()->company_id)
                 ->orWhere('party_b_company_id', $request->user()->company_id);
         })
+            ->with(['partyA:id,name', 'partyB:id,name', 'transportOrder:id,order_number'])
             ->when($request->input('status'), fn($q, $s) => $q->where('status', $s))
             ->orderByDesc('created_at')
             ->paginate($request->input('per_page', 15));

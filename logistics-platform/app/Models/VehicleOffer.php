@@ -6,10 +6,59 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Scout\Searchable;
 
 class VehicleOffer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, Searchable, SoftDeletes;
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'company_id' => $this->company_id,
+            'user_id' => $this->user_id,
+            'network_id' => $this->network_id,
+            'vehicle_type' => $this->vehicle_type,
+            'vehicle_registration' => $this->vehicle_registration,
+            'capacity_kg' => (float) $this->capacity_kg,
+            'capacity_m3' => (float) $this->capacity_m3,
+            'loading_meters' => (float) $this->loading_meters,
+            'pallet_spaces' => $this->pallet_spaces,
+            'equipment' => $this->equipment,
+            'has_adr' => $this->has_adr,
+            'has_temperature_control' => $this->has_temperature_control,
+            'current_country' => $this->current_country,
+            'current_city' => $this->current_city,
+            'current_postal_code' => $this->current_postal_code,
+            'current_location' => ($this->current_lat && $this->current_lng)
+                ? ['lat' => (float) $this->current_lat, 'lon' => (float) $this->current_lng]
+                : null,
+            'destination_country' => $this->destination_country,
+            'destination_city' => $this->destination_city,
+            'available_from' => $this->available_from?->format('Y-m-d'),
+            'available_to' => $this->available_to?->format('Y-m-d'),
+            'price_per_km' => (float) $this->price_per_km,
+            'flat_price' => (float) $this->flat_price,
+            'currency' => $this->currency,
+            'status' => $this->status,
+            'is_public' => $this->is_public,
+            'driver_name' => $this->driver_name,
+            'notes' => $this->notes,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return in_array($this->status, ['available', 'in_transit']);
+    }
 
     protected $fillable = [
         'company_id', 'user_id',

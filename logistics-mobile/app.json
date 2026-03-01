@@ -55,6 +55,13 @@
       "expo-image-picker",
       "expo-document-picker",
       [
+        "@sentry/react-native/expo",
+        {
+          "organization": "logimarket",
+          "project": "logistics-mobile"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#1e40af",

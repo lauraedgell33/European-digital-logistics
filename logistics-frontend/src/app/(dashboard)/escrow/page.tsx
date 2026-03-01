@@ -15,6 +15,7 @@ import {
   ClockIcon,
   LockClosedIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { EscrowPayment } from '@/types';
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> = {
@@ -27,6 +28,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> 
 };
 
 export default function EscrowPage() {
+  const { t } = useTranslation();
   const [payments, setPayments] = useState<EscrowPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -118,51 +120,51 @@ export default function EscrowPage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
             <BanknotesIcon className="inline h-7 w-7 mr-2" />
-            Escrow Payments
+            {t('escrow.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-            Secure payment protection for freight transactions
+            {t('escrow.securePaymentProtection')}
           </p>
         </div>
         <Button onClick={() => setShowCreate(!showCreate)}>
-          <PlusIcon className="h-4 w-4 mr-1" /> New Escrow
+          <PlusIcon className="h-4 w-4 mr-1" /> {t('escrow.newEscrow')}
         </Button>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard label="In Escrow" value={formatCurrency(totalFunded, 'EUR')} icon={<LockClosedIcon className="h-5 w-5" />} color="var(--ds-blue-700)" />
-        <SummaryCard label="Released" value={formatCurrency(totalReleased, 'EUR')} icon={<CheckCircleIcon className="h-5 w-5" />} color="var(--ds-green-700)" />
-        <SummaryCard label="Disputed" value={formatCurrency(totalDisputed, 'EUR')} icon={<ExclamationTriangleIcon className="h-5 w-5" />} color="var(--ds-red-700)" />
-        <SummaryCard label="Total" value={`${payments.length}`} icon={<ArrowPathIcon className="h-5 w-5" />} color="var(--ds-gray-900)" />
+        <SummaryCard label={t('escrow.inEscrow')} value={formatCurrency(totalFunded, 'EUR')} icon={<LockClosedIcon className="h-5 w-5" />} color="var(--ds-blue-700)" />
+        <SummaryCard label={t('escrow.released')} value={formatCurrency(totalReleased, 'EUR')} icon={<CheckCircleIcon className="h-5 w-5" />} color="var(--ds-green-700)" />
+        <SummaryCard label={t('escrow.disputed')} value={formatCurrency(totalDisputed, 'EUR')} icon={<ExclamationTriangleIcon className="h-5 w-5" />} color="var(--ds-red-700)" />
+        <SummaryCard label={t('common.total')} value={`${payments.length}`} icon={<ArrowPathIcon className="h-5 w-5" />} color="var(--ds-gray-900)" />
       </div>
 
       {/* Create Form */}
       {showCreate && (
         <Card>
           <CardHeader>
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Create Escrow Payment</h2>
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('escrow.createEscrow')}</h2>
           </CardHeader>
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Order ID</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('escrow.orderId')}</label>
                 <Input type="number" value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder="Transport order #" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Amount (EUR)</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('escrow.amountEur')}</label>
                 <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 2500" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Description</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('common.description')}</label>
                 <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Payment for transport..." />
               </div>
             </div>
             <div className="flex gap-2">
               <Button onClick={handleCreate} disabled={creating || !orderId || !amount}>
-                {creating ? 'Creating...' : 'Create Escrow'}
+                {creating ? t('escrow.creating') : t('escrow.createEscrow')}
               </Button>
-              <Button variant="secondary" onClick={() => setShowCreate(false)}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setShowCreate(false)}>{t('common.cancel')}</Button>
             </div>
           </div>
         </Card>
@@ -171,13 +173,13 @@ export default function EscrowPage() {
       {/* How It Works */}
       <Card>
         <div className="p-4">
-          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>How Escrow Works</h3>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--ds-gray-1000)' }}>{t('escrow.howItWorks')}</h3>
           <div className="flex items-center justify-between text-center">
             {[
-              { step: '1', label: 'Create', desc: 'Buyer creates escrow' },
-              { step: '2', label: 'Fund', desc: 'Buyer deposits funds' },
-              { step: '3', label: 'Deliver', desc: 'Carrier delivers cargo' },
-              { step: '4', label: 'Release', desc: 'Funds released to carrier' },
+              { step: '1', label: t('escrow.step1Label'), desc: t('escrow.step1Desc') },
+              { step: '2', label: t('escrow.step2Label'), desc: t('escrow.step2Desc') },
+              { step: '3', label: t('escrow.step3Label'), desc: t('escrow.step3Desc') },
+              { step: '4', label: t('escrow.step4Label'), desc: t('escrow.step4Desc') },
             ].map((s, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div>
@@ -247,7 +249,7 @@ export default function EscrowPage() {
                         {isLoading ? '...' : '💰 Fund'}
                       </Button>
                       <Button size="sm" variant="secondary" onClick={() => handleAction(payment.id, 'cancel')} disabled={isLoading}>
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                     </>
                   )}
@@ -275,7 +277,7 @@ export default function EscrowPage() {
         {payments.length === 0 && (
           <div className="text-center py-12" style={{ color: 'var(--ds-gray-700)' }}>
             <BanknotesIcon className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p>No escrow payments yet. Create one to secure a transaction.</p>
+            <p>{t('escrow.noEscrowYet')}</p>
           </div>
         )}
       </div>

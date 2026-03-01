@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -22,6 +23,7 @@ import {
 import type { WhiteLabel, ApiKeyItem, ApiUsageStats, ErpIntegration, EdiMessage, EdiStats } from '@/types';
 
 export default function EnterprisePage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'whitelabel' | 'apikeys' | 'erp' | 'edi'>('whitelabel');
 
@@ -91,10 +93,10 @@ export default function EnterprisePage() {
   });
 
   const tabs = [
-    { key: 'whitelabel' as const, label: 'White Label', icon: BuildingOffice2Icon },
-    { key: 'apikeys' as const, label: 'API Keys', icon: KeyIcon },
-    { key: 'erp' as const, label: 'ERP Integration', icon: ServerStackIcon },
-    { key: 'edi' as const, label: 'EDI', icon: DocumentTextIcon },
+    { key: 'whitelabel' as const, label: t('enterprise.whiteLabel'), icon: BuildingOffice2Icon },
+    { key: 'apikeys' as const, label: t('enterprise.apiKeys'), icon: KeyIcon },
+    { key: 'erp' as const, label: t('enterprise.erpIntegration'), icon: ServerStackIcon },
+    { key: 'edi' as const, label: t('enterprise.edi'), icon: DocumentTextIcon },
   ];
 
   const usageData = apiUsage as ApiUsageStats | undefined;
@@ -105,19 +107,19 @@ export default function EnterprisePage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BuildingOffice2Icon className="h-7 w-7" style={{ color: 'var(--ds-indigo-500)' }} />
-          Enterprise
+          {t('enterprise.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">White-label, API marketplace, ERP integrations, and EDI</p>
+        <p className="text-sm text-gray-500 mt-1">{t('enterprise.subtitle')}</p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-fit">
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
+        {tabs.map(tb => (
+          <button key={tb.key} onClick={() => setTab(tb.key)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === tb.key ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}>
-            <t.icon className="h-4 w-4" />{t.label}
+            <tb.icon className="h-4 w-4" />{tb.label}
           </button>
         ))}
       </div>
@@ -125,7 +127,7 @@ export default function EnterprisePage() {
       {/* White Label */}
       {tab === 'whitelabel' && (
         <Card>
-          <CardHeader title="White Label Configuration" subtitle="Customize the platform with your brand" />
+          <CardHeader title={t('enterprise.whiteLabelConfig')} subtitle={t('enterprise.subtitle')} />
           <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Subdomain</label>
@@ -134,7 +136,7 @@ export default function EnterprisePage() {
                 onChange={e => setWlForm({ ...wlForm, subdomain: e.target.value })} placeholder="your-brand" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Brand Name</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('enterprise.brandName')}</label>
               <input className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                 value={wlForm.brand_name || (whiteLabel as WhiteLabel | undefined)?.brand_name || ''}
                 onChange={e => setWlForm({ ...wlForm, brand_name: e.target.value })} />
@@ -153,7 +155,7 @@ export default function EnterprisePage() {
             </div>
             <div className="sm:col-span-2">
               <Button onClick={() => saveWlMutation.mutate(wlForm)} disabled={saveWlMutation.isPending}>
-                {saveWlMutation.isPending ? <Spinner size="sm" /> : 'Save Configuration'}
+                {saveWlMutation.isPending ? <Spinner size="sm" /> : t('enterprise.saveConfig')}
               </Button>
               {(whiteLabel as WhiteLabel | undefined)?.is_active && (
                 <Badge variant="green" className="ml-3">Active</Badge>
@@ -186,12 +188,12 @@ export default function EnterprisePage() {
 
           {/* Create Key */}
           <Card>
-            <CardHeader title="Create API Key" />
+            <CardHeader title={t('enterprise.createApiKey')} />
             <div className="p-4 flex gap-4">
               <input className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                 placeholder="Key name..." value={newKeyName} onChange={e => setNewKeyName(e.target.value)} />
               <Button onClick={() => newKeyName && createKeyMutation.mutate(newKeyName)} disabled={!newKeyName || createKeyMutation.isPending}>
-                <PlusIcon className="h-4 w-4 mr-2" />Generate Key
+                <PlusIcon className="h-4 w-4 mr-2" />{t('enterprise.generateKey')}
               </Button>
             </div>
             {createdKey && (
@@ -204,7 +206,7 @@ export default function EnterprisePage() {
 
           {/* Keys List */}
           <Card>
-            <CardHeader title="API Keys" />
+            <CardHeader title={t('enterprise.apiKeys')} />
             {loadingKeys ? (
               <div className="flex justify-center p-8"><Spinner /></div>
             ) : (
@@ -235,13 +237,13 @@ export default function EnterprisePage() {
       {/* ERP Integration */}
       {tab === 'erp' && (
         <Card>
-          <CardHeader title="ERP Integrations" subtitle="Connect SAP, Oracle, Dynamics and more" />
+          <CardHeader title={t('enterprise.erpIntegration')} subtitle={t('enterprise.subtitle')} />
           {loadingErp ? (
             <div className="flex justify-center p-8"><Spinner /></div>
           ) : (integrations || []).length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <ServerStackIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p>No ERP integrations configured.</p>
+              <p>{t('enterprise.noErp')}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -297,13 +299,13 @@ export default function EnterprisePage() {
           )}
 
           <Card>
-            <CardHeader title="EDI Messages" subtitle="EDIFACT/XML/JSON message exchange" />
+            <CardHeader title={t('enterprise.edi')} subtitle={t('enterprise.ediStats')} />
             {loadingEdi ? (
               <div className="flex justify-center p-8"><Spinner /></div>
             ) : (ediMessages || []).length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <DocumentTextIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-                <p>No EDI messages.</p>
+                <p>{t('enterprise.noApiKeys')}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">

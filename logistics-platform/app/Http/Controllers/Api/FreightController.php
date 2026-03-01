@@ -8,6 +8,7 @@ use App\Http\Requests\Freight\UpdateFreightOfferRequest;
 use App\Http\Requests\Freight\SearchFreightOfferRequest;
 use App\Http\Resources\FreightOfferResource;
 use App\Models\FreightOffer;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -60,6 +61,8 @@ class FreightController extends Controller
             'user_id' => $request->user()->id,
         ]));
 
+        CacheService::invalidateGroups(['freight', 'dashboard', 'matching']);
+
         return (new FreightOfferResource($freight->load('company')))
             ->additional(['message' => 'Freight offer created successfully.'])
             ->response()
@@ -81,6 +84,8 @@ class FreightController extends Controller
     {
         $freight->update($request->validated());
 
+        CacheService::invalidateGroups(['freight', 'dashboard', 'matching']);
+
         return (new FreightOfferResource($freight->fresh()->load('company')))
             ->additional(['message' => 'Freight offer updated.'])
             ->response();
@@ -96,15 +101,58 @@ class FreightController extends Controller
         $freight->update(['status' => 'cancelled']);
         $freight->delete();
 
+        CacheService::invalidateGroups(['freight', 'dashboard', 'matching']);
+
         return response()->json(['message' => 'Freight offer cancelled.']);
     }
 
     /**
      * Search freight offers with advanced filters.
+     * Uses Elasticsearch via Scout for full-text search with SQL geo fallback.
      */
     public function search(SearchFreightOfferRequest $request): JsonResponse
     {
+        // Build a text query from city/description fields for Scout
+        $searchTerm = trim(implode(' ', array_filter([
+            $request->origin_city,
+            $request->destination_city,
+        ])));
 
+        // If we have a meaningful text query, use Scout (Elasticsearch)
+        if (strlen($searchTerm) >= 2) {
+            $builder = FreightOffer::search($searchTerm)
+                ->query(fn ($q) => $q->with('company:id,name,country_code,rating'));
+
+            // Apply exact filters via Scout
+            if ($request->origin_country) {
+                $builder->where('origin_country', $request->origin_country);
+            }
+            if ($request->destination_country) {
+                $builder->where('destination_country', $request->destination_country);
+            }
+            if ($request->vehicle_type) {
+                $builder->where('vehicle_type', $request->vehicle_type);
+            }
+            if ($request->loading_date_from) {
+                $builder->where('loading_date', '>=', $request->loading_date_from);
+            }
+            if ($request->loading_date_to) {
+                $builder->where('loading_date', '<=', $request->loading_date_to);
+            }
+            if ($request->max_weight) {
+                $builder->where('weight', '<=', (float) $request->max_weight);
+            }
+            if ($request->max_price) {
+                $builder->where('price', '<=', (float) $request->max_price);
+            }
+            $builder->where('status', 'active');
+
+            $results = $builder->paginate($request->input('per_page', 20));
+
+            return FreightOfferResource::collection($results)->response();
+        }
+
+        // Fallback to SQL for non-text / geo-only queries
         $query = FreightOffer::active()->with('company:id,name,country_code,rating');
 
         if ($request->origin_country) {
@@ -138,7 +186,7 @@ class FreightController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
-        // Radius search using Haversine formula
+        // Radius search using Haversine formula (remains SQL-only)
         if ($request->origin_lat && $request->origin_lng && $request->radius_km) {
             $lat = $request->origin_lat;
             $lng = $request->origin_lng;

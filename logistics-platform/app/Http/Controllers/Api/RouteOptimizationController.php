@@ -21,7 +21,12 @@ class RouteOptimizationController extends Controller
             'waypoints.*.lat' => 'required|numeric',
             'waypoints.*.lng' => 'required|numeric',
             'waypoints.*.name' => 'nullable|string',
+            'waypoints.*.country' => 'nullable|string|size:2',
             'constraints' => 'nullable|array',
+            'constraints.max_driving_hours' => 'nullable|numeric|min:1',
+            'constraints.avg_speed_kmh' => 'nullable|numeric|min:20|max:130',
+            'constraints.weight_tons' => 'nullable|numeric|min:1',
+            'constraints.avoid' => 'nullable|array',
         ]);
 
         $result = $this->routeService->optimize(
@@ -37,9 +42,42 @@ class RouteOptimizationController extends Controller
         ]);
     }
 
+    /**
+     * Fleet optimization — assign multiple stops among multiple vehicles (CVRP).
+     */
+    public function optimizeFleet(Request $request): JsonResponse
+    {
+        $request->validate([
+            'vehicles' => 'required|array|min:1',
+            'vehicles.*.id' => 'nullable|integer',
+            'vehicles.*.lat' => 'required|numeric',
+            'vehicles.*.lng' => 'required|numeric',
+            'vehicles.*.capacity_kg' => 'nullable|numeric',
+            'vehicles.*.max_stops' => 'nullable|integer|min:1',
+            'stops' => 'required|array|min:1',
+            'stops.*.id' => 'nullable|integer',
+            'stops.*.lat' => 'required|numeric',
+            'stops.*.lng' => 'required|numeric',
+            'stops.*.weight_kg' => 'nullable|numeric',
+            'constraints' => 'nullable|array',
+        ]);
+
+        $result = $this->routeService->optimizeFleet(
+            $request->input('vehicles'),
+            $request->input('stops'),
+            $request->input('constraints', [])
+        );
+
+        return response()->json([
+            'message' => count($result['routes']) . ' vehicle routes optimized.',
+            'data' => $result,
+        ]);
+    }
+
     public function history(Request $request): JsonResponse
     {
         $optimizations = RouteOptimization::where('company_id', $request->user()->company_id)
+            ->with('user:id,name')
             ->orderByDesc('created_at')
             ->paginate($request->input('per_page', 15));
 

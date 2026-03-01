@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -25,6 +26,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 function ProfileSettings() {
+  const { t } = useTranslation();
   const { user, setUser } = useAuthStore();
   const { addNotification, setLocale } = useAppStore();
   const [saving, setSaving] = useState(false);
@@ -42,33 +44,33 @@ function ProfileSettings() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Personal Information" description="Update your profile details" />
+        <CardHeader title={t('settings.personalInfo')} description={t('settings.personalInfoDesc')} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <Input
-            label="Full Name"
+            label={t('settings.fullName')}
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
           />
           <Input
-            label="Email"
+            label={t('settings.email')}
             type="email"
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
           />
           <Input
-            label="Phone"
+            label={t('settings.phone')}
             value={form.phone}
             onChange={(e) => update('phone', e.target.value)}
             placeholder="+49 xxx xxx xxxx"
           />
           <Input
-            label="Position"
+            label={t('settings.position')}
             value={form.position}
             onChange={(e) => update('position', e.target.value)}
             placeholder="e.g. Logistics Manager"
           />
           <Select
-            label="Language"
+            label={t('settings.language')}
             options={[
               { value: 'en', label: 'English' },
               { value: 'de', label: 'Deutsch' },
@@ -101,7 +103,7 @@ function ProfileSettings() {
               }
             }}
           >
-            Save Changes
+            {t('settings.saveChanges')}
           </Button>
         </div>
       </Card>
@@ -110,6 +112,7 @@ function ProfileSettings() {
 }
 
 function CompanySettings() {
+  const { t } = useTranslation();
   const { user, fetchProfile } = useAuthStore();
   const { addNotification } = useAppStore();
   const [saving, setSaving] = useState(false);
@@ -132,42 +135,42 @@ function CompanySettings() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Company Information" description="Manage your company profile" />
+        <CardHeader title={t('settings.companyInfo')} description={t('settings.companyInfoDesc')} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <Input
-            label="Company Name"
+            label={t('settings.companyName')}
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
           />
           <Input
-            label="VAT Number"
+            label={t('settings.vatNumber')}
             value={form.vat_number}
             onChange={(e) => update('vat_number', e.target.value)}
             placeholder="e.g. DE123456789"
           />
           <Select
-            label="Country"
+            label={t('settings.country')}
             options={COUNTRIES.map((c) => ({ value: c.code, label: c.name }))}
             value={form.country}
             onChange={(e) => update('country', e.target.value)}
           />
           <Input
-            label="City"
+            label={t('settings.city')}
             value={form.city}
             onChange={(e) => update('city', e.target.value)}
           />
           <Input
-            label="Address"
+            label={t('settings.address')}
             value={form.address}
             onChange={(e) => update('address', e.target.value)}
           />
           <Input
-            label="Postal Code"
+            label={t('settings.postalCode')}
             value={form.postal_code}
             onChange={(e) => update('postal_code', e.target.value)}
           />
           <Input
-            label="Website"
+            label={t('settings.website')}
             value={form.website}
             onChange={(e) => update('website', e.target.value)}
             placeholder="https://"
@@ -175,7 +178,7 @@ function CompanySettings() {
         </div>
         <div className="mt-4">
           <Textarea
-            label="Company Description"
+            label={t('settings.companyDescription')}
             value={form.description}
             onChange={(e) => update('description', e.target.value)}
             placeholder="Tell others about your company..."
@@ -197,20 +200,20 @@ function CompanySettings() {
               }
             }}
           >
-            Save Changes
+            {t('settings.saveChanges')}
           </Button>
         </div>
       </Card>
 
       {/* Verification Status */}
       <Card>
-        <CardHeader title="Verification" description="Your company verification status" />
+        <CardHeader title={t('settings.verification')} description={t('settings.verificationDesc')} />
         <div className="mt-4 space-y-3">
           {[
-            { label: 'Business Registration', verified: true },
-            { label: 'VAT Verification', verified: true },
-            { label: 'Insurance Certificate', verified: false },
-            { label: 'Operating License', verified: false },
+            { label: t('settings.businessRegistration'), verified: true },
+            { label: t('settings.vatVerification'), verified: true },
+            { label: t('settings.insuranceCertificate'), verified: false },
+            { label: t('settings.operatingLicense'), verified: false },
           ].map((item, i) => (
             <div
               key={i}
@@ -224,9 +227,9 @@ function CompanySettings() {
                 {item.label}
               </span>
               {item.verified ? (
-                <Badge variant="green">Verified</Badge>
+                <Badge variant="green">{t('settings.verified')}</Badge>
               ) : (
-                <Button variant="secondary" size="sm">Upload</Button>
+                <Button variant="secondary" size="sm">{t('settings.upload')}</Button>
               )}
             </div>
           ))}
@@ -237,6 +240,7 @@ function CompanySettings() {
 }
 
 function SecuritySettings() {
+  const { t } = useTranslation();
   const { addNotification } = useAppStore();
   const [saving, setSaving] = useState(false);
   const [passwords, setPasswords] = useState({
@@ -273,50 +277,50 @@ function SecuritySettings() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Change Password" description="Update your account password" />
+        <CardHeader title={t('settings.changePassword')} description={t('settings.changePasswordDesc')} />
         <div className="space-y-4 mt-4 max-w-md">
           <Input
-            label="Current Password"
+            label={t('settings.currentPassword')}
             type="password"
             value={passwords.current}
             onChange={(e) => setPasswords((p) => ({ ...p, current: e.target.value }))}
           />
           <Input
-            label="New Password"
+            label={t('settings.newPassword')}
             type="password"
             value={passwords.new}
             onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
             hint="Minimum 8 characters with uppercase, lowercase, and number"
           />
           <Input
-            label="Confirm Password"
+            label={t('settings.confirmPassword')}
             type="password"
             value={passwords.confirm}
             onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
           />
         </div>
         <div className="flex justify-end mt-6">
-          <Button loading={saving} onClick={handleChangePassword}>Update Password</Button>
+          <Button loading={saving} onClick={handleChangePassword}>{t('settings.updatePassword')}</Button>
         </div>
       </Card>
 
       <Card>
-        <CardHeader title="Two-Factor Authentication" description="Add an extra security layer" />
+        <CardHeader title={t('settings.twoFactor')} description={t('settings.twoFactorDesc')} />
         <div className="mt-4 flex items-center justify-between">
           <div>
             <p className="text-[13px]" style={{ color: 'var(--ds-gray-1000)' }}>
-              Two-factor authentication is not enabled
+              {t('settings.twoFactorNotEnabled')}
             </p>
             <p className="text-[12px] mt-1" style={{ color: 'var(--ds-gray-800)' }}>
-              Protect your account with an authenticator app
+              {t('settings.twoFactorProtect')}
             </p>
           </div>
-          <Button variant="secondary">Enable 2FA</Button>
+          <Button variant="secondary">{t('settings.enable2fa')}</Button>
         </div>
       </Card>
 
       <Card>
-        <CardHeader title="Active Sessions" description="Manage your logged in devices" />
+        <CardHeader title={t('settings.activeSessions')} description={t('settings.activeSessionsDesc')} />
         <div className="mt-4 space-y-3">
           {[
             { device: 'Chrome on Windows', ip: '192.168.1.1', last: 'Now', current: true },
@@ -336,7 +340,7 @@ function SecuritySettings() {
                   <p className="text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
                     {session.device}
                   </p>
-                  {session.current && <Badge variant="green">Current</Badge>}
+                  {session.current && <Badge variant="green">{t('settings.current')}</Badge>}
                 </div>
                 <p className="text-[12px] mt-0.5" style={{ color: 'var(--ds-gray-800)' }}>
                   {session.ip} · {session.last}
@@ -344,7 +348,7 @@ function SecuritySettings() {
               </div>
               {!session.current && (
                 <Button variant="ghost" size="sm">
-                  Revoke
+                  {t('settings.revoke')}
                 </Button>
               )}
             </div>
@@ -356,6 +360,7 @@ function SecuritySettings() {
 }
 
 function NotificationSettings() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState({
     email_orders: true,
     email_tracking: true,
@@ -369,13 +374,13 @@ function NotificationSettings() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Email Notifications" description="Configure email alert preferences" />
+        <CardHeader title={t('settings.emailNotifications')} description={t('settings.emailNotificationsDesc')} />
         <div className="mt-4 space-y-4">
           {[
-            { key: 'email_orders', label: 'Order Updates', desc: 'Status changes on your transport orders' },
-            { key: 'email_tracking', label: 'Tracking Alerts', desc: 'Shipment location and ETA updates' },
-            { key: 'email_tenders', label: 'Tender Notifications', desc: 'New tenders matching your profile' },
-            { key: 'email_marketing', label: 'Marketing', desc: 'Product updates and newsletters' },
+            { key: 'email_orders', label: t('settings.orderUpdates'), desc: t('settings.orderUpdatesDesc') },
+            { key: 'email_tracking', label: t('settings.trackingAlerts'), desc: t('settings.trackingAlertsDesc') },
+            { key: 'email_tenders', label: t('settings.tenderNotifications'), desc: t('settings.tenderNotificationsDesc') },
+            { key: 'email_marketing', label: t('settings.marketing'), desc: t('settings.marketingDesc') },
           ].map((item) => (
             <div
               key={item.key}
@@ -394,12 +399,12 @@ function NotificationSettings() {
       </Card>
 
       <Card>
-        <CardHeader title="Push Notifications" description="Configure browser push alerts" />
+        <CardHeader title={t('settings.pushNotifications')} description={t('settings.pushNotificationsDesc')} />
         <div className="mt-4 space-y-4">
           {[
-            { key: 'push_orders', label: 'Order Alerts', desc: 'Instant push for order changes' },
-            { key: 'push_tracking', label: 'Tracking Updates', desc: 'Real-time shipment alerts' },
-            { key: 'push_messages', label: 'Messages', desc: 'New messages from partners' },
+            { key: 'push_orders', label: t('settings.orderAlerts'), desc: t('settings.orderAlertsDesc') },
+            { key: 'push_tracking', label: t('settings.trackingUpdates'), desc: t('settings.trackingUpdatesDesc') },
+            { key: 'push_messages', label: t('settings.messagesNotif'), desc: t('settings.messagesNotifDesc') },
           ].map((item) => (
             <div
               key={item.key}
@@ -421,42 +426,43 @@ function NotificationSettings() {
 }
 
 function AppearanceSettings() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
 
   return (
     <Card>
-      <CardHeader title="Theme" description="Choose your interface theme" />
+      <CardHeader title={t('settings.theme')} description={t('settings.themeDesc')} />
       <div className="mt-4 grid grid-cols-3 gap-4">
         {[
-          { value: 'light' as const, label: 'Light', bg: '#ffffff', fg: '#000000' },
-          { value: 'dark' as const, label: 'Dark', bg: '#0a0a0a', fg: '#ededed' },
-          { value: 'system' as const, label: 'System', bg: 'linear-gradient(135deg, #fff 50%, #0a0a0a 50%)', fg: '#888' },
-        ].map((t) => (
+          { value: 'light' as const, label: t('settings.light'), bg: '#ffffff', fg: '#000000' },
+          { value: 'dark' as const, label: t('settings.dark'), bg: '#0a0a0a', fg: '#ededed' },
+          { value: 'system' as const, label: t('settings.system'), bg: 'linear-gradient(135deg, #fff 50%, #0a0a0a 50%)', fg: '#888' },
+        ].map((thm) => (
           <button
-            key={t.value}
-            onClick={() => setTheme(t.value)}
+            key={thm.value}
+            onClick={() => setTheme(thm.value)}
             className="p-4 rounded-lg text-center transition-all focus-ring"
             style={{
-              border: `2px solid ${theme === t.value ? 'var(--ds-blue-700)' : 'var(--ds-gray-400)'}`,
+              border: `2px solid ${theme === thm.value ? 'var(--ds-blue-700)' : 'var(--ds-gray-400)'}`,
               background: 'var(--ds-gray-200)',
             }}
-            aria-pressed={theme === t.value}
-            aria-label={`${t.label} theme`}
+            aria-pressed={theme === thm.value}
+            aria-label={`${thm.label} theme`}
           >
             <div
               className="h-16 w-full rounded-md mb-3 mx-auto"
               style={{
-                background: t.bg,
+                background: thm.bg,
                 border: '1px solid var(--ds-gray-400)',
               }}
             />
             <span
               className="text-[13px] font-medium"
               style={{
-                color: theme === t.value ? 'var(--ds-blue-900)' : 'var(--ds-gray-1000)',
+                color: theme === thm.value ? 'var(--ds-blue-900)' : 'var(--ds-gray-1000)',
               }}
             >
-              {t.label}
+              {thm.label}
             </span>
           </button>
         ))}
@@ -466,29 +472,30 @@ function AppearanceSettings() {
 }
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const tabs = [
     {
-      label: 'Profile',
+      label: t('settings.profile'),
       icon: <UserIcon className="h-4 w-4" />,
       content: <ProfileSettings />,
     },
     {
-      label: 'Company',
+      label: t('settings.company'),
       icon: <BuildingOfficeIcon className="h-4 w-4" />,
       content: <CompanySettings />,
     },
     {
-      label: 'Security',
+      label: t('settings.security'),
       icon: <ShieldCheckIcon className="h-4 w-4" />,
       content: <SecuritySettings />,
     },
     {
-      label: 'Notifications',
+      label: t('settings.notifications'),
       icon: <BellIcon className="h-4 w-4" />,
       content: <NotificationSettings />,
     },
     {
-      label: 'Appearance',
+      label: t('settings.appearance'),
       icon: <PaintBrushIcon className="h-4 w-4" />,
       content: <AppearanceSettings />,
     },
@@ -501,17 +508,17 @@ export default function SettingsPage() {
           className="text-2xl font-bold tracking-tight"
           style={{ color: 'var(--ds-gray-1000)' }}
         >
-          Settings
+          {t('settings.title')}
         </h1>
         <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-          Manage your account, company, and preferences
+          {t('settings.subtitle')}
         </p>
       </div>
 
       <GeistTabs
-        items={tabs.map((t) => ({
-          label: t.label,
-          content: t.content,
+        items={tabs.map((tb) => ({
+          label: tb.label,
+          content: tb.content,
         }))}
       />
     </div>

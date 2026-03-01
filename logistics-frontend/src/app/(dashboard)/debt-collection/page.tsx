@@ -17,6 +17,7 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { DebtCollection, DebtCollectionStats } from '@/types';
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
@@ -32,6 +33,7 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }>
 };
 
 export default function DebtCollectionPage() {
+  const { t } = useTranslation();
   const [cases, setCases] = useState<DebtCollection[]>([]);
   const [stats, setStats] = useState<DebtCollectionStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,14 +129,14 @@ export default function DebtCollectionPage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
             <ScaleIcon className="inline h-7 w-7 mr-2" />
-            Debt Collection
+            {t('debtCollection.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-            Manage overdue payments with automated reminders and escalation
+            {t('debtCollection.managementDesc')}
           </p>
         </div>
         <Button onClick={() => setShowCreate(!showCreate)}>
-          <PlusIcon className="h-4 w-4 mr-1" /> New Case
+          <PlusIcon className="h-4 w-4 mr-1" /> {t('debtCollection.newCase')}
         </Button>
       </div>
 
@@ -143,25 +145,25 @@ export default function DebtCollectionPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <div className="p-4">
-              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Total Outstanding</p>
+              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.totalOutstanding')}</p>
               <p className="text-xl font-bold" style={{ color: 'var(--ds-red-700)' }}>
                 {formatCurrency(stats.total_outstanding || 0, 'EUR')}
               </p>
-              <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>{stats.active_cases} active cases</p>
+              <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>{stats.active_cases} {t('debtCollection.activeCases')}</p>
             </div>
           </Card>
           <Card>
             <div className="p-4">
-              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Collected (YTD)</p>
+              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.collectedYTD')}</p>
               <p className="text-xl font-bold" style={{ color: 'var(--ds-green-700)' }}>
                 {formatCurrency(stats.total_collected || 0, 'EUR')}
               </p>
-              <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>{stats.paid_cases} resolved</p>
+              <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>{stats.paid_cases} {t('debtCollection.resolved2')}</p>
             </div>
           </Card>
           <Card>
             <div className="p-4">
-              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Recovery Rate</p>
+              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.recoveryRate')}</p>
               <p className="text-xl font-bold" style={{ color: 'var(--ds-blue-700)' }}>
                 {stats.recovery_rate?.toFixed(1)}%
               </p>
@@ -169,7 +171,7 @@ export default function DebtCollectionPage() {
           </Card>
           <Card>
             <div className="p-4">
-              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>Avg Days Overdue</p>
+              <p className="text-[10px] uppercase font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.avgDaysOverdue')}</p>
               <p className="text-xl font-bold" style={{ color: 'var(--ds-amber-700)' }}>
                 {stats.avg_days_overdue?.toFixed(0)} days
               </p>
@@ -182,36 +184,36 @@ export default function DebtCollectionPage() {
       {showCreate && (
         <Card>
           <CardHeader>
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Create Collection Case</h2>
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('debtCollection.createCase')}</h2>
           </CardHeader>
           <div className="p-4 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Order ID</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.orderId')}</label>
                 <Input type="number" value={formOrderId} onChange={(e) => setFormOrderId(e.target.value)} placeholder="#" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Amount (EUR)</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.amountEur')}</label>
                 <Input type="number" value={formAmount} onChange={(e) => setFormAmount(e.target.value)} placeholder="e.g. 3500" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Debtor Name</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.debtorName')}</label>
                 <Input value={formDebtorName} onChange={(e) => setFormDebtorName(e.target.value)} placeholder="Company name" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Due Date</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.dueDate')}</label>
                 <Input type="date" value={formDueDate} onChange={(e) => setFormDueDate(e.target.value)} />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Invoice Number</label>
+                <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('debtCollection.invoiceNumber')}</label>
                 <Input value={formInvoice} onChange={(e) => setFormInvoice(e.target.value)} placeholder="INV-2026-..." />
               </div>
             </div>
             <div className="flex gap-2">
               <Button onClick={handleCreate} disabled={creating || !formOrderId || !formAmount || !formDebtorName}>
-                {creating ? 'Creating...' : 'Create Case'}
+                {creating ? t('common.loading') : t('debtCollection.createCase')}
               </Button>
-              <Button variant="secondary" onClick={() => setShowCreate(false)}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setShowCreate(false)}>{t('common.cancel')}</Button>
             </div>
           </div>
         </Card>
@@ -220,13 +222,13 @@ export default function DebtCollectionPage() {
       {/* Filter */}
       <div className="flex gap-3 items-center">
         <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="">All Statuses</option>
+          <option value="">{t('debtCollection.allStatuses')}</option>
           {Object.entries(STATUS_CONFIG).map(([key, { label }]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </Select>
         <span className="text-xs" style={{ color: 'var(--ds-gray-700)' }}>
-          {filteredCases.length} case{filteredCases.length !== 1 ? 's' : ''}
+          {filteredCases.length} {filteredCases.length !== 1 ? t('debtCollection.cases') : t('debtCollection.case')}
         </span>
       </div>
 
@@ -280,7 +282,7 @@ export default function DebtCollectionPage() {
                     </p>
                     {dc.total_with_fees && dc.total_with_fees > (dc.original_amount || 0) && (
                       <p className="text-xs" style={{ color: 'var(--ds-red-700)' }}>
-                        + {formatCurrency(dc.total_with_fees - (dc.original_amount || 0), dc.currency || 'EUR')} fees
+                        + {formatCurrency(dc.total_with_fees - (dc.original_amount || 0), dc.currency || 'EUR')} {t('debtCollection.fees')}
                       </p>
                     )}
                   </div>
@@ -290,16 +292,16 @@ export default function DebtCollectionPage() {
                 {!['paid', 'written_off', 'cancelled'].includes(dc.status) && (
                   <div className="flex gap-2 mt-3 pt-3 flex-wrap" style={{ borderTop: '1px solid var(--ds-gray-200)' }}>
                     <Button size="sm" variant="secondary" onClick={() => handleAction(dc.id, 'remind')} disabled={isLoading}>
-                      <BellAlertIcon className="h-3 w-3 mr-1" /> Send Reminder
+                      <BellAlertIcon className="h-3 w-3 mr-1" /> {t('debtCollection.sendReminder')}
                     </Button>
                     <Button size="sm" variant="secondary" onClick={() => handleAction(dc.id, 'escalate')} disabled={isLoading}>
-                      <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> Escalate
+                      <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> {t('debtCollection.escalate')}
                     </Button>
                     <Button size="sm" onClick={() => handleAction(dc.id, 'paid')} disabled={isLoading}>
-                      <CheckCircleIcon className="h-3 w-3 mr-1" /> Mark Paid
+                      <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('debtCollection.markPaid')}
                     </Button>
                     <Button size="sm" variant="secondary" onClick={() => handleAction(dc.id, 'cancel')} disabled={isLoading}>
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                   </div>
                 )}
@@ -311,7 +313,7 @@ export default function DebtCollectionPage() {
         {filteredCases.length === 0 && (
           <div className="text-center py-12" style={{ color: 'var(--ds-gray-700)' }}>
             <ScaleIcon className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p>No collection cases found.</p>
+            <p>{t('debtCollection.noCollectionCases')}</p>
           </div>
         )}
       </div>

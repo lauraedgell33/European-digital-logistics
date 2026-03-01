@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\FreightOffer;
 use App\Models\VehicleOffer;
+use App\Services\CacheService;
 use App\Services\MatchingService;
 use Illuminate\Http\JsonResponse;
 
@@ -21,7 +22,11 @@ class MatchingController extends Controller
     {
         $this->authorize('view', $freight);
 
-        $matches = $this->matchingService->findMatchingVehicles($freight);
+        $cacheKey = CacheService::publicKey('matching:freight', ['id' => $freight->id, 'updated' => $freight->updated_at->timestamp]);
+
+        $matches = CacheService::remember($cacheKey, 300, function () use ($freight) {
+            return $this->matchingService->findMatchingVehicles($freight);
+        }, ['matching']);
 
         return response()->json([
             'data' => $matches,
@@ -39,7 +44,11 @@ class MatchingController extends Controller
     {
         $this->authorize('view', $vehicle);
 
-        $matches = $this->matchingService->findMatchingFreight($vehicle);
+        $cacheKey = CacheService::publicKey('matching:vehicle', ['id' => $vehicle->id, 'updated' => $vehicle->updated_at->timestamp]);
+
+        $matches = CacheService::remember($cacheKey, 300, function () use ($vehicle) {
+            return $this->matchingService->findMatchingFreight($vehicle);
+        }, ['matching']);
 
         return response()->json([
             'data' => $matches,

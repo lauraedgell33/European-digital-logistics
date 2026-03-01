@@ -2,23 +2,25 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform, View, Text, StyleSheet } from 'react-native';
-import { Colors, FontSize, FontWeight, Spacing, BorderRadius } from '@/constants/theme';
+import { FontSize, FontWeight, Spacing, BorderRadius } from '@/constants/theme';
+import { useColors } from '@/hooks/useColors';
 import { useAppStore } from '@/stores/appStore';
 import { t } from '@/lib/i18n';
 
 export default function TabLayout() {
   const locale = useAppStore((s) => s.locale);
   const unreadCount = useAppStore((s) => s.unreadCount);
+  const { colors } = useColors();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textTertiary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.borderLight,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.borderLight,
           borderTopWidth: 1,
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           paddingTop: 8,
@@ -69,8 +71,8 @@ export default function TabLayout() {
             <View>
               <Ionicons name="chatbubbles" size={size} color={color} />
               {unreadCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                <View style={[styles.badge, { backgroundColor: colors.danger, borderColor: colors.surface }]}>
+                  <Text style={[styles.badgeText, { color: '#fff' }]}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
                 </View>
               )}
             </View>
@@ -118,7 +120,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -6,
     top: -3,
-    backgroundColor: Colors.danger,
     borderRadius: BorderRadius.full,
     minWidth: 16,
     height: 16,
@@ -126,11 +127,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: Colors.surface,
   },
   badgeText: {
     fontSize: 9,
     fontWeight: FontWeight.bold,
-    color: Colors.white,
   },
 });

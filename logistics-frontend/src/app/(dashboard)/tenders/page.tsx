@@ -27,6 +27,7 @@ import {
   CurrencyEuroIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Tender } from '@/types';
 
 const TENDER_STATUS_COLOR: Record<string, string> = {
@@ -58,6 +59,7 @@ export default function TendersPage() {
     status: statusFilter,
   });
   const submitBid = useSubmitBid();
+  const { t } = useTranslation();
 
   const tenders = data?.data ?? [];
   const meta = data?.meta;
@@ -189,7 +191,7 @@ export default function TendersPage() {
               setBidModal(row);
             }}
           >
-            Submit Bid
+            {t('tenders.submitBid')}
           </Button>
         ) : null,
     },
@@ -204,16 +206,16 @@ export default function TendersPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Tenders
+            {t('tenders.title')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Browse and bid on open logistics tenders
+            {t('tenders.allTenders')}
           </p>
         </div>
         <Link href="/tenders/new">
           <Button>
             <PlusIcon className="h-4 w-4 mr-2" />
-            Create Tender
+            {t('tenders.createNew')}
           </Button>
         </Link>
       </div>
@@ -221,22 +223,22 @@ export default function TendersPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Tenders"
+          title={t('common.total')}
           value={meta?.total ?? '—'}
           icon={<DocumentTextIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Open for Bidding"
+          title={t('common.active')}
           value="—"
           icon={<ClockIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Awarded"
+          title={t('analytics.completed')}
           value="—"
           icon={<CheckCircleIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Avg. Budget"
+          title={t('tenders.budget')}
           value="—"
           icon={<CurrencyEuroIcon className="h-5 w-5" />}
         />
@@ -312,7 +314,7 @@ export default function TendersPage() {
       <Modal
         open={!!bidModal}
         onClose={() => setBidModal(null)}
-        title="Submit Bid"
+        title={t('tenders.submitBid')}
         size="md"
       >
         <div className="space-y-4">
@@ -333,7 +335,7 @@ export default function TendersPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Your Price"
+              label={t('freight.price')}
               type="number"
               value={bidForm.price}
               onChange={(e) =>
@@ -378,10 +380,10 @@ export default function TendersPage() {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="secondary" onClick={() => setBidModal(null)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleBidSubmit} loading={submitBid.isPending}>
-              Submit Bid
+              {t('tenders.submitBid')}
             </Button>
           </div>
         </div>

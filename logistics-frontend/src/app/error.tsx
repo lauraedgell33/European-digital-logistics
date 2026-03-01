@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import * as Sentry from '@sentry/nextjs';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Error({
   error,
@@ -14,6 +15,7 @@ export default function Error({
   const sentryIdRef = useRef<string | undefined>();
   const [showDetails, setShowDetails] = useState(false);
   const isDev = process.env.NODE_ENV === 'development';
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.error('Application error:', error);
@@ -52,13 +54,13 @@ export default function Error({
           className="text-2xl font-semibold mb-2"
           style={{ color: 'var(--ds-gray-1000)' }}
         >
-          Something went wrong
+          {t('errors.somethingWrong')}
         </h1>
         <p
           className="text-[14px] mb-4 max-w-sm mx-auto"
           style={{ color: 'var(--ds-gray-800)' }}
         >
-          An unexpected error occurred. Our team has been notified and is looking into it.
+          {t('errors.unexpectedError')}
         </p>
 
         {/* Sentry Error ID */}
@@ -80,7 +82,7 @@ export default function Error({
             <svg className="w-4 h-4 mr-1.5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Try again
+            {t('errors.tryAgain')}
           </button>
           <Link
             href="/dashboard"
@@ -89,7 +91,7 @@ export default function Error({
             <svg className="w-4 h-4 mr-1.5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4" />
             </svg>
-            Go home
+            {t('errors.goHome')}
           </Link>
         </div>
 

@@ -46,6 +46,22 @@ services:
     networks:
       - monitoring
 
+  # ─── Elasticsearch Exporter ────────────────────────────
+  elasticsearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.7.0
+    container_name: logistics-elasticsearch-exporter
+    restart: unless-stopped
+    command:
+      - "--es.uri=http://elasticsearch:9200"
+      - "--es.all"
+      - "--es.indices"
+      - "--es.shards"
+    ports:
+      - "9114:9114"
+    networks:
+      - monitoring
+      - logistics
+
 volumes:
   prometheus_data:
     driver: local

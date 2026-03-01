@@ -12,13 +12,17 @@ global:
 scrape_configs:
   # ── Laravel Backend Metrics ────────────────────────────
   - job_name: "laravel-backend"
-    metrics_path: /api/health
+    metrics_path: /api/metrics
     scheme: http
+    scrape_interval: 10s
     static_configs:
       - targets: ["backend:9000"]
         labels:
           service: "logistics-platform"
           component: "backend"
+    # Optional: add API key header for auth
+    # authorization:
+    #   credentials: "${HEALTH_CHECK_API_KEY}"
 
   # ── Next.js Frontend Metrics ───────────────────────────
   - job_name: "nextjs-frontend"
@@ -55,6 +59,14 @@ scrape_configs:
         labels:
           service: "redis"
           component: "cache"
+
+  # ── Elasticsearch Exporter ─────────────────────────────
+  - job_name: "elasticsearch"
+    static_configs:
+      - targets: ["elasticsearch-exporter:9114"]
+        labels:
+          service: "elasticsearch"
+          component: "search"
 
   # ── Node Exporter (Host Metrics) ───────────────────────
   - job_name: "node"

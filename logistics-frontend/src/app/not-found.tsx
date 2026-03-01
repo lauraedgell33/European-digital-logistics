@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function NotFound() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--geist-background)' }}>
       <div className="text-center max-w-md animate-fade-in-up">
@@ -26,24 +28,24 @@ export default function NotFound() {
           className="text-xl font-semibold mb-2"
           style={{ color: 'var(--ds-gray-1000)' }}
         >
-          Page not found
+          {t('errors.pageNotFound')}
         </h1>
         <p 
           className="text-[14px] mb-8"
           style={{ color: 'var(--ds-gray-800)' }}
         >
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          {t('errors.pageNotFoundDesc')}
         </p>
 
         <div className="flex items-center justify-center gap-3">
           <Link href="/dashboard" className="btn-geist btn-geist-primary">
-            Go to Dashboard
+            {t('errors.backToDashboard')}
           </Link>
           <button 
             onClick={() => window.history.back()} 
             className="btn-geist btn-geist-secondary"
           >
-            Go back
+            {t('common.back')}
           </button>
         </div>
       </div>

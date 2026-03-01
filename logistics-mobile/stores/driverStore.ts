@@ -28,10 +28,25 @@ export interface DeliveryTask {
   completed_at?: string;
 }
 
+export interface OfflineActionPayload {
+  status?: string;
+  notes?: string;
+  location?: string;
+  lat?: number;
+  lng?: number;
+  photo_uri?: string;
+  signature?: string;
+  signed_at?: string;
+  role?: string;
+  task_id?: number;
+  order_id?: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
 export interface OfflineAction {
   id: string;
   type: 'update_status' | 'upload_pod' | 'sign_ecmr' | 'update_location';
-  payload: any;
+  payload: OfflineActionPayload;
   created_at: string;
   synced: boolean;
 }

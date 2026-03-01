@@ -14,9 +14,11 @@ import {
   ExclamationCircleIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { DocumentScan } from '@/types';
 
 export default function DocumentOcrPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [docType, setDocType] = useState('cmr');
@@ -67,9 +69,9 @@ export default function DocumentOcrPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <DocumentTextIcon className="h-7 w-7" style={{ color: 'var(--ds-indigo-500)' }} />
-          Document OCR
+          {t('documentOcr.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">AI-powered document scanning, extraction, and validation</p>
+        <p className="text-sm text-gray-500 mt-1">{t('documentOcr.aiPoweredDesc')}</p>
       </div>
 
       {/* Stats */}
@@ -77,60 +79,60 @@ export default function DocumentOcrPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{stats.total || 0}</p>
-            <p className="text-xs text-gray-500">Total Scans</p>
+            <p className="text-xs text-gray-500">{t('documentOcr.totalScans')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-green-600)' }}>{stats.validated || 0}</p>
-            <p className="text-xs text-gray-500">Validated</p>
+            <p className="text-xs text-gray-500">{t('documentOcr.validated')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold" style={{ color: 'var(--ds-amber-600)' }}>{stats.pending || 0}</p>
-            <p className="text-xs text-gray-500">Pending</p>
+            <p className="text-xs text-gray-500">{t('documentOcr.pending')}</p>
           </Card>
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold">{stats.avg_confidence ? `${(Number(stats.avg_confidence) * 100).toFixed(0)}%` : 'N/A'}</p>
-            <p className="text-xs text-gray-500">Avg Confidence</p>
+            <p className="text-xs text-gray-500">{t('documentOcr.avgConfidence')}</p>
           </Card>
         </div>
       )}
 
       {/* Upload */}
       <Card>
-        <CardHeader title="Upload Document" subtitle="Supported: CMR, Invoice, POD, Customs declarations (PDF/JPG/PNG, max 10MB)" />
+        <CardHeader title={t('documentOcr.uploadDocument')} subtitle={t('documentOcr.supportedFormats')} />
         <div className="p-4 flex flex-col sm:flex-row gap-4">
           <select
             className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
             value={docType} onChange={e => setDocType(e.target.value)}
           >
-            <option value="cmr">CMR Consignment Note</option>
-            <option value="invoice">Invoice</option>
-            <option value="pod">Proof of Delivery</option>
-            <option value="customs">Customs Document</option>
-            <option value="other">Other</option>
+            <option value="cmr">{t('documentOcr.cmrNote')}</option>
+            <option value="invoice">{t('documentOcr.invoice')}</option>
+            <option value="pod">{t('documentOcr.proofOfDelivery')}</option>
+            <option value="customs">{t('documentOcr.customsDocument')}</option>
+            <option value="other">{t('documentOcr.other')}</option>
           </select>
           <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="flex-1 text-sm" />
           <Button onClick={handleUpload} disabled={uploadMutation.isPending}>
             {uploadMutation.isPending ? <Spinner size="sm" /> : <CloudArrowUpIcon className="h-4 w-4 mr-2" />}
-            Upload & Scan
+            {t('documentOcr.uploadScan')}
           </Button>
         </div>
         {uploadMutation.isSuccess && (
           <div className="mx-4 mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm flex items-center gap-2">
             <CheckCircleIcon className="h-5 w-5" />
-            Document uploaded and processed successfully!
+            {t('documentOcr.uploadSuccess')}
           </div>
         )}
       </Card>
 
       {/* Documents List */}
       <Card>
-        <CardHeader title="Scanned Documents" subtitle={`${(documents || []).length} documents`} />
+        <CardHeader title={t('documentOcr.scannedDocuments')} subtitle={`${(documents || []).length} ${t('documentOcr.documentsCount')}`} />
         {loadingDocs ? (
           <div className="flex justify-center p-8"><Spinner /></div>
         ) : (documents || []).length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <DocumentTextIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-            <p>No documents scanned yet. Upload your first document above.</p>
+            <p>{t('documentOcr.noDocuments')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -178,7 +180,7 @@ export default function DocumentOcrPage() {
                         onClick={() => validateMutation.mutate(doc.id)}
                         disabled={validateMutation.isPending}
                       >
-                        Validate
+                        {t('documentOcr.validate')}
                       </Button>
                     )}
                   </div>

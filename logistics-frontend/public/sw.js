@@ -210,14 +210,120 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || fetchPromise;
 }
 
+// --- SKIP_WAITING message handler ---
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data?.type === 'MANUAL_SYNC') {
+    replayOfflineQueue();
+  }
+});
+
 // --- Background sync helpers ---
 
+const DB_NAME = 'logimarket_offline';
+const QUEUE_STORE = 'request_queue';
+const DB_VERSION = 1;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(QUEUE_STORE)) {
+        db.createObjectStore(QUEUE_STORE, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('offline_data')) {
+        const store = db.createObjectStore('offline_data', { keyPath: 'key' });
+        store.createIndex('expiresAt', 'expiresAt', { unique: false });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function getQueuedRequests() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(QUEUE_STORE, 'readonly');
+    const store = tx.objectStore(QUEUE_STORE);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+    tx.oncomplete = () => db.close();
+  });
+}
+
+async function removeQueuedRequest(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(QUEUE_STORE, 'readwrite');
+    const store = tx.objectStore(QUEUE_STORE);
+    store.delete(id);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  });
+}
+
+async function replayOfflineQueue() {
+  const MAX_RETRIES = 5;
+
+  // Notify clients sync has started
+  const clients = await self.clients.matchAll();
+  clients.forEach((client) => client.postMessage({ type: 'SYNC_START' }));
+
+  try {
+    const requests = await getQueuedRequests();
+
+    for (const item of requests) {
+      if ((item.retryCount || 0) >= MAX_RETRIES) {
+        await removeQueuedRequest(item.id);
+        continue;
+      }
+
+      try {
+        const response = await fetch(item.url, {
+          method: item.method || 'POST',
+          headers: item.headers || { 'Content-Type': 'application/json' },
+          body: item.body || undefined,
+        });
+
+        if (response.ok || (response.status >= 400 && response.status < 500)) {
+          // Success or client error (don't retry 4xx)
+          await removeQueuedRequest(item.id);
+        } else {
+          // Server error — increment retry
+          const db = await openDB();
+          const tx = db.transaction(QUEUE_STORE, 'readwrite');
+          const store = tx.objectStore(QUEUE_STORE);
+          item.retryCount = (item.retryCount || 0) + 1;
+          store.put(item);
+          await new Promise((resolve) => { tx.oncomplete = resolve; });
+          db.close();
+        }
+      } catch {
+        // Network still down — stop replaying
+        break;
+      }
+    }
+  } catch (err) {
+    console.error('[SW] Replay queue error:', err);
+  }
+
+  // Notify clients sync is done
+  const clientsAfter = await self.clients.matchAll();
+  clientsAfter.forEach((client) => client.postMessage({ type: 'SYNC_COMPLETE' }));
+}
+
 async function syncFreightOffers() {
-  // Sync offline freight offers when back online
   console.log('[SW] Syncing freight offers');
+  await replayOfflineQueue();
 }
 
 async function syncTrackingUpdates() {
-  // Sync offline tracking updates
   console.log('[SW] Syncing tracking updates');
+  await replayOfflineQueue();
 }

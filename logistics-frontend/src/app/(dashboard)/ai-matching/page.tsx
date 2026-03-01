@@ -16,6 +16,7 @@ import {
   ArrowPathIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { AiMatchResult, FreightOffer } from '@/types';
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
@@ -33,6 +34,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 }
 
 export default function AiMatchingPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedFreight, setSelectedFreight] = useState<number | null>(null);
 
@@ -71,22 +73,22 @@ export default function AiMatchingPage() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <SparklesIcon className="h-7 w-7" style={{ color: 'var(--ds-purple-500)' }} />
-            AI Smart Matching
+            {t('aiMatching.title')}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">ML-powered freight ↔ vehicle matching with multi-factor scoring</p>
+          <p className="text-sm text-gray-500 mt-1">{t('aiMatching.mlPoweredDesc')}</p>
         </div>
       </div>
 
       {/* Match Controls */}
       <Card>
-        <CardHeader title="Run Smart Match" subtitle="Select a freight offer to find the best vehicle matches" />
+        <CardHeader title={t('aiMatching.runSmartMatch')} subtitle={t('aiMatching.selectFreightToMatch')} />
         <div className="p-4 flex flex-col sm:flex-row gap-4">
           <select
             className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
             value={selectedFreight || ''}
             onChange={(e) => setSelectedFreight(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">Select freight offer...</option>
+            <option value="">{t('aiMatching.selectFreight')}</option>
             {(freightOffers || []).map((f: FreightOffer) => (
               <option key={f.id} value={f.id}>
                 {getCountryFlag(f.origin_country)} {f.origin_city} → {getCountryFlag(f.destination_country)} {f.destination_city} ({f.weight}kg)
@@ -95,7 +97,7 @@ export default function AiMatchingPage() {
           </select>
           <Button onClick={handleMatch} disabled={!selectedFreight || matchMutation.isPending}>
             {matchMutation.isPending ? <Spinner size="sm" /> : <SparklesIcon className="h-4 w-4 mr-2" />}
-            Find Matches
+            {t('aiMatching.findMatches')}
           </Button>
         </div>
       </Card>
@@ -103,7 +105,7 @@ export default function AiMatchingPage() {
       {/* Match Results */}
       {matchResults.length > 0 && (
         <Card>
-          <CardHeader title="Match Results" subtitle={`Found ${matchResults.length} matches`} />
+          <CardHeader title={t('aiMatching.matchResults')} subtitle={t('aiMatching.foundMatches', { count: matchResults.length })} />
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {matchResults.map((match: AiMatchResult) => (
               <div key={match.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50">
@@ -116,12 +118,12 @@ export default function AiMatchingPage() {
                       <span className="text-sm font-medium">Vehicle #{match.vehicle_offer_id}</span>
                     </div>
                     <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      <ScoreBar label="Distance" score={match.distance_score} />
-                      <ScoreBar label="Capacity" score={match.capacity_score} />
-                      <ScoreBar label="Timing" score={match.timing_score} />
-                      <ScoreBar label="Reliability" score={match.reliability_score} />
-                      <ScoreBar label="Price" score={match.price_score} />
-                      <ScoreBar label="Carbon" score={match.carbon_score} />
+                      <ScoreBar label={t('aiMatching.distance')} score={match.distance_score} />
+                      <ScoreBar label={t('aiMatching.capacity')} score={match.capacity_score} />
+                      <ScoreBar label={t('aiMatching.timing')} score={match.timing_score} />
+                      <ScoreBar label={t('aiMatching.reliability')} score={match.reliability_score} />
+                      <ScoreBar label={t('aiMatching.price')} score={match.price_score} />
+                      <ScoreBar label={t('aiMatching.carbon')} score={match.carbon_score} />
                     </div>
                   </div>
                   <div className="flex gap-2 ml-4">
@@ -152,8 +154,8 @@ export default function AiMatchingPage() {
       {/* Active Suggestions */}
       <Card>
         <CardHeader
-          title="Pending Suggestions"
-          subtitle="AI-recommended matches awaiting your response"
+          title={t('aiMatching.pendingSuggestions')}
+          subtitle={t('aiMatching.aiRecommendedDesc')}
           action={
             <Button size="sm" variant="secondary" onClick={() => queryClient.invalidateQueries({ queryKey: ['ai-suggestions'] })}>
               <ArrowPathIcon className="h-4 w-4" />
@@ -165,7 +167,7 @@ export default function AiMatchingPage() {
         ) : activeSuggestions.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <SparklesIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-            <p>No pending suggestions. Run a smart match to get started.</p>
+            <p>{t('aiMatching.noPendingSuggestions')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -178,14 +180,14 @@ export default function AiMatchingPage() {
                     </Badge>
                     <span className="text-sm">Freight #{s.freight_offer_id} ↔ Vehicle #{s.vehicle_offer_id}</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Model: {s.model_version} • {new Date(s.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('aiMatching.model')}: {s.model_version} • {new Date(s.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="primary" onClick={() => respondMutation.mutate({ id: s.id, action: 'accept' })}>
-                    Accept
+                    {t('aiMatching.accept')}
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => respondMutation.mutate({ id: s.id, action: 'reject' })}>
-                    Reject
+                    {t('aiMatching.reject')}
                   </Button>
                 </div>
               </div>

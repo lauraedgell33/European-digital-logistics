@@ -20,6 +20,7 @@ import {
   ClockIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { VehicleOffer } from '@/types';
 
 export default function VehiclesPage() {
@@ -32,6 +33,7 @@ export default function VehiclesPage() {
     vehicle_type: '',
     status: '',
   });
+  const { t } = useTranslation();
 
   const { data, isLoading } = useVehicleOffers({
     page,
@@ -144,16 +146,16 @@ export default function VehiclesPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Vehicle Exchange
+            {t('vehicles.title')}
           </h1>
           <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Available vehicles and capacity across Europe
+            {t('vehicles.allOffers')}
           </p>
         </div>
         <Link href="/vehicles/new">
           <Button>
             <PlusIcon className="h-4 w-4 mr-2" />
-            Post Vehicle
+            {t('vehicles.postNew')}
           </Button>
         </Link>
       </div>
@@ -161,22 +163,22 @@ export default function VehiclesPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Available"
+          title={t('common.total')}
           value={meta?.total ?? '—'}
           icon={<TruckIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="GPS Tracked"
+          title={t('vehicles.gps')}
           value="—"
           icon={<MapPinIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="ADR Certified"
+          title={t('vehicles.adrCertified')}
           value="—"
           icon={<CheckBadgeIcon className="h-5 w-5" />}
         />
         <StatCard
-          title="Available Today"
+          title={t('vehicles.availableFrom')}
           value="—"
           icon={<ClockIcon className="h-5 w-5" />}
         />

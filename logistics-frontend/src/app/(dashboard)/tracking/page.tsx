@@ -16,6 +16,7 @@ import {
   SignalIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TrackingPage() {
   const [trackingCode, setTrackingCode] = useState('');
@@ -23,6 +24,7 @@ export default function TrackingPage() {
   const { activeShipments, selectedShipment, selectShipment } = useTrackingStore();
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMap = useRef<any>(null);
+  const { t } = useTranslation();
 
   const { data: shipmentsData, isLoading: loadingShipments } = useActiveShipments();
   const { data: trackingData, isLoading: loadingTracking } = useShipmentTracking(
@@ -134,10 +136,10 @@ export default function TrackingPage() {
           className="text-2xl font-bold tracking-tight"
           style={{ color: 'var(--ds-gray-1000)' }}
         >
-          Live Tracking
+          {t('tracking.title')}
         </h1>
         <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-          Real-time shipment tracking across Europe
+          {t('tracking.liveTracking')}
         </p>
       </div>
 
@@ -164,7 +166,7 @@ export default function TrackingPage() {
             className="text-[13px] font-semibold uppercase tracking-wide"
             style={{ color: 'var(--ds-gray-800)' }}
           >
-            Active Shipments
+            {t('tracking.activeShipments')}
             {shipments.length > 0 && (
               <span className="ml-2 font-mono">({shipments.length})</span>
             )}
@@ -182,7 +184,7 @@ export default function TrackingPage() {
                   style={{ color: 'var(--ds-gray-600)' }}
                 />
                 <p className="text-[13px]" style={{ color: 'var(--ds-gray-800)' }}>
-                  No active shipments
+                  {t('tracking.noActiveShipments')}
                 </p>
               </div>
             </Card>
@@ -286,7 +288,7 @@ export default function TrackingPage() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[11px]" style={{ color: 'var(--ds-gray-700)' }}>ETA</p>
+                      <p className="text-[11px]" style={{ color: 'var(--ds-gray-700)' }}>{t('tracking.eta')}</p>
                       <p className="text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
                         {tracking.shipment?.eta
                           ? formatDate(tracking.shipment.eta)
@@ -294,7 +296,7 @@ export default function TrackingPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-[11px]" style={{ color: 'var(--ds-gray-700)' }}>Speed</p>
+                      <p className="text-[11px]" style={{ color: 'var(--ds-gray-700)' }}>{t('tracking.speed')}</p>
                       <p className="text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
                         {tracking.positions?.[tracking.positions.length - 1]?.speed_kmh
                           ? `${tracking.positions[tracking.positions.length - 1].speed_kmh} km/h`
@@ -334,7 +336,7 @@ export default function TrackingPage() {
                   style={{ color: 'var(--ds-gray-600)' }}
                 />
                 <p className="text-[14px]" style={{ color: 'var(--ds-gray-800)' }}>
-                  Select a shipment or enter a tracking code
+                  {t('tracking.noActiveShipmentsDesc')}
                 </p>
               </div>
             )}

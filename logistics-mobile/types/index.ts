@@ -169,7 +169,7 @@ export interface TransportOrder {
   payment_terms: string;
   payment_status: 'pending' | 'invoiced' | 'paid' | 'overdue';
   status: OrderStatus;
-  documents?: any;
+  documents?: Array<{ id: number; name: string; collection: string; url: string; mime_type: string; size: number; created_at: string }>;
   special_instructions?: string;
   accepted_at?: string;
   picked_up_at?: string;

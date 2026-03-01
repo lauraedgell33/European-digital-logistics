@@ -6,8 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '@/lib/api';
 import { useAppStore } from '@/stores/appStore';
+import { changePasswordSchema, type ChangePasswordFormData } from '@/lib/schemas';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -15,15 +18,21 @@ import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 
 export default function ChangePasswordScreen() {
   const { addNotification } = useAppStore();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const { control, handleSubmit, formState: { errors } } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      current_password: '',
+      new_password: '',
+      new_password_confirmation: '',
+    },
+  });
+
   const changeMutation = useMutation({
-    mutationFn: (data: { current_password: string; new_password: string; new_password_confirmation: string }) =>
+    mutationFn: (data: ChangePasswordFormData) =>
       authApi.changePassword(data),
     onSuccess: () => {
       addNotification({ type: 'success', title: 'Password changed successfully' });
@@ -34,24 +43,8 @@ export default function ChangePasswordScreen() {
     },
   });
 
-  const handleSubmit = () => {
-    if (!currentPassword) {
-      Alert.alert('Validation', 'Current password is required');
-      return;
-    }
-    if (newPassword.length < 8) {
-      Alert.alert('Validation', 'New password must be at least 8 characters');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Validation', 'Passwords do not match');
-      return;
-    }
-    changeMutation.mutate({
-      current_password: currentPassword,
-      new_password: newPassword,
-      new_password_confirmation: confirmPassword,
-    });
+  const onSubmit = (data: ChangePasswordFormData) => {
+    changeMutation.mutate(data);
   };
 
   return (
@@ -78,13 +71,20 @@ export default function ChangePasswordScreen() {
             <View style={styles.field}>
               <Text style={styles.label}>Current Password</Text>
               <View style={styles.passwordRow}>
-                <Input
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  placeholder="Enter current password"
-                  secureTextEntry={!showCurrent}
-                  leftIcon="lock-closed-outline"
-                  style={{ flex: 1 }}
+                <Controller
+                  control={control}
+                  name="current_password"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter current password"
+                      secureTextEntry={!showCurrent}
+                      leftIcon="lock-closed-outline"
+                      error={errors.current_password?.message}
+                      style={{ flex: 1 }}
+                    />
+                  )}
                 />
                 <TouchableOpacity onPress={() => setShowCurrent(!showCurrent)} style={styles.eyeBtn}>
                   <Ionicons name={showCurrent ? 'eye-off-outline' : 'eye-outline'} size={20} color={Colors.textTertiary} />
@@ -95,47 +95,55 @@ export default function ChangePasswordScreen() {
             <View style={styles.field}>
               <Text style={styles.label}>New Password</Text>
               <View style={styles.passwordRow}>
-                <Input
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  placeholder="Enter new password"
-                  secureTextEntry={!showNew}
-                  leftIcon="key-outline"
-                  style={{ flex: 1 }}
+                <Controller
+                  control={control}
+                  name="new_password"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Enter new password"
+                      secureTextEntry={!showNew}
+                      leftIcon="key-outline"
+                      error={errors.new_password?.message}
+                      style={{ flex: 1 }}
+                    />
+                  )}
                 />
                 <TouchableOpacity onPress={() => setShowNew(!showNew)} style={styles.eyeBtn}>
                   <Ionicons name={showNew ? 'eye-off-outline' : 'eye-outline'} size={20} color={Colors.textTertiary} />
                 </TouchableOpacity>
               </View>
-              {newPassword.length > 0 && newPassword.length < 8 && (
-                <Text style={styles.errorText}>Must be at least 8 characters</Text>
-              )}
             </View>
 
             <View style={styles.field}>
               <Text style={styles.label}>Confirm New Password</Text>
               <View style={styles.passwordRow}>
-                <Input
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Re-enter new password"
-                  secureTextEntry={!showConfirm}
-                  leftIcon="key-outline"
-                  style={{ flex: 1 }}
+                <Controller
+                  control={control}
+                  name="new_password_confirmation"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Re-enter new password"
+                      secureTextEntry={!showConfirm}
+                      leftIcon="key-outline"
+                      error={errors.new_password_confirmation?.message}
+                      style={{ flex: 1 }}
+                    />
+                  )}
                 />
                 <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
                   <Ionicons name={showConfirm ? 'eye-off-outline' : 'eye-outline'} size={20} color={Colors.textTertiary} />
                 </TouchableOpacity>
               </View>
-              {confirmPassword.length > 0 && newPassword !== confirmPassword && (
-                <Text style={styles.errorText}>Passwords do not match</Text>
-              )}
             </View>
           </Card>
 
           <Button
             title={changeMutation.isPending ? 'Changing...' : 'Change Password'}
-            onPress={handleSubmit}
+            onPress={handleSubmit(onSubmit)}
             disabled={changeMutation.isPending}
             style={styles.submitBtn}
           />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useRouter } from 'next/navigation';
 import { companyApi } from '@/lib/api';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -66,6 +67,7 @@ interface Company {
 }
 
 export default function CompanyDirectoryPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [meta, setMeta] = useState<{ current_page: number; last_page: number; total: number } | null>(null);
@@ -121,10 +123,10 @@ export default function CompanyDirectoryPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--ds-gray-1000)' }}>
-          Company Directory
+          {t('companies.directory')}
         </h1>
         <p className="text-[13px] mt-1" style={{ color: 'var(--ds-gray-900)' }}>
-          Find verified logistics partners across Europe
+          {t('companies.directoryDesc')}
         </p>
       </div>
 
@@ -138,7 +140,7 @@ export default function CompanyDirectoryPage() {
                 type="text"
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                placeholder="Search companies..."
+                placeholder={t('nav.search')}
                 className="w-full pl-9 pr-3 py-2.5 rounded-lg text-[13px] outline-none"
                 style={{
                   background: 'var(--ds-gray-100)',
@@ -173,10 +175,10 @@ export default function CompanyDirectoryPage() {
           <div className="text-center py-16">
             <BuildingOfficeIcon className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--ds-gray-500)' }} />
             <h3 className="text-[15px] font-semibold" style={{ color: 'var(--ds-gray-900)' }}>
-              No companies found
+              {t('companies.noCompanies')}
             </h3>
             <p className="text-[13px] mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-              Try adjusting your search filters
+              {t('companies.noCompaniesDesc')}
             </p>
           </div>
         </Card>
@@ -281,6 +283,7 @@ export default function CompanyDirectoryPage() {
 }
 
 function CompanyDetailModal({ company, onClose }: { company: Company; onClose: () => void }) {
+  const { t } = useTranslation();
   const typeStyle = (() => {
     switch (company.type) {
       case 'carrier': return { bg: 'var(--ds-blue-200)', color: 'var(--ds-blue-900)' };
@@ -353,8 +356,8 @@ function CompanyDetailModal({ company, onClose }: { company: Company; onClose: (
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button variant="secondary" className="flex-1" onClick={onClose}>Close</Button>
-            <Button className="flex-1">Contact Company</Button>
+            <Button variant="secondary" className="flex-1" onClick={onClose}>{t('common.close')}</Button>
+            <Button className="flex-1">{t('companies.contactCompany')}</Button>
           </div>
         </div>
       </div>

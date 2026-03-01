@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "logimarket.fullname" . }}-api
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: php-fpm
+      protocol: TCP
+      name: php-fpm
+  selector:
+    {{- include "logimarket.api.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "logimarket.fullname" . }}-frontend
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "logimarket.frontend.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "logimarket.fullname" . }}-reverb
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reverb
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.reverb.service.port }}
+      targetPort: {{ .Values.reverb.service.port }}
+      protocol: TCP
+      name: ws
+  selector:
+    {{- include "logimarket.reverb.selectorLabels" . | nindent 4 }}

@@ -42,7 +42,7 @@ class AuditController extends Controller
             $query->where('created_at', '<=', $request->to);
         }
 
-        $activities = $query->paginate(50);
+        $activities = $query->with('causer:id,name,email')->paginate(50);
 
         return response()->json($activities);
     }

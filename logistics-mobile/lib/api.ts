@@ -121,7 +121,7 @@ export const orderApi = {
       uri,
       name,
       type: 'application/octet-stream',
-    } as any);
+    } as unknown as Blob);
     form.append('collection', collection);
     return api.post(`/orders/${id}/documents`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -235,7 +235,7 @@ export const documentOcrApi = {
       uri,
       name: `scan_${Date.now()}.jpg`,
       type: 'image/jpeg',
-    } as any);
+    } as unknown as Blob);
     form.append('document_type', documentType);
     return api.post('/documents/ocr/scan', form, {
       headers: { 'Content-Type': 'multipart/form-data' },

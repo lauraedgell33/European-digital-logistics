@@ -14,9 +14,11 @@ import {
   MapIcon,
   CalculatorIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { PriceInsight, PriceEstimate } from '@/types';
 
 export default function PriceInsightsPage() {
+  const { t } = useTranslation();
   const [topRoutes, setTopRoutes] = useState<PriceInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'top' | 'estimate' | 'compare'>('top');
@@ -115,18 +117,18 @@ export default function PriceInsightsPage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
             <CurrencyEuroIcon className="inline h-7 w-7 mr-2" />
-            Price Insights
+            {t('priceInsights.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-            Freight price analytics, route comparison & estimation
+            {t('priceInsights.freightPriceAnalytics')}
           </p>
         </div>
         <div className="flex gap-2">
-          {(['top', 'estimate', 'compare'] as const).map(t => (
-            <Button key={t} variant={tab === t ? 'primary' : 'secondary'} size="sm" onClick={() => setTab(t)}>
-              {t === 'top' && <><ArrowTrendingUpIcon className="h-4 w-4 mr-1" /> Top Routes</>}
-              {t === 'estimate' && <><CalculatorIcon className="h-4 w-4 mr-1" /> Estimate</>}
-              {t === 'compare' && <><MapIcon className="h-4 w-4 mr-1" /> Compare</>}
+          {(['top', 'estimate', 'compare'] as const).map(tabKey => (
+            <Button key={tabKey} variant={tab === tabKey ? 'primary' : 'secondary'} size="sm" onClick={() => setTab(tabKey)}>
+              {tabKey === 'top' && <><ArrowTrendingUpIcon className="h-4 w-4 mr-1" /> {t('priceInsights.topRoutes')}</>}
+              {tabKey === 'estimate' && <><CalculatorIcon className="h-4 w-4 mr-1" /> {t('priceInsights.estimate')}</>}
+              {tabKey === 'compare' && <><MapIcon className="h-4 w-4 mr-1" /> {t('priceInsights.compare')}</>}
             </Button>
           ))}
         </div>
@@ -138,7 +140,7 @@ export default function PriceInsightsPage() {
           {selectedRoute ? (
             <div className="space-y-4">
               <Button variant="secondary" size="sm" onClick={() => { setSelectedRoute(null); setRouteHistory([]); }}>
-                ← Back
+                {t('priceInsights.back')}
               </Button>
               <Card>
                 <CardHeader>
@@ -150,17 +152,17 @@ export default function PriceInsightsPage() {
                   </h2>
                 </CardHeader>
                 <div className="p-4 grid grid-cols-4 gap-4">
-                  <StatBox label="Avg Price/km" value={formatCurrency(selectedRoute.avg_price_per_km || 0, 'EUR')} />
-                  <StatBox label="Min" value={formatCurrency(selectedRoute.min_price_per_km || 0, 'EUR')} />
-                  <StatBox label="Max" value={formatCurrency(selectedRoute.max_price_per_km || 0, 'EUR')} />
-                  <StatBox label="Median" value={formatCurrency(selectedRoute.median_price_per_km || 0, 'EUR')} />
+                  <StatBox label={t('priceInsights.avgPricePerKm')} value={formatCurrency(selectedRoute.avg_price_per_km || 0, 'EUR')} />
+                  <StatBox label={t('priceInsights.min')} value={formatCurrency(selectedRoute.min_price_per_km || 0, 'EUR')} />
+                  <StatBox label={t('priceInsights.max')} value={formatCurrency(selectedRoute.max_price_per_km || 0, 'EUR')} />
+                  <StatBox label={t('priceInsights.median')} value={formatCurrency(selectedRoute.median_price_per_km || 0, 'EUR')} />
                 </div>
               </Card>
 
               {routeHistory.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <h3 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Price History</h3>
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('priceInsights.priceHistory')}</h3>
                   </CardHeader>
                   <div className="p-4">
                     <div className="flex items-end gap-1 h-40">
@@ -190,18 +192,18 @@ export default function PriceInsightsPage() {
           ) : (
             <Card>
               <CardHeader>
-                <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Top Routes by Volume</h2>
+                <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('priceInsights.topRoutesByVolume')}</h2>
               </CardHeader>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--ds-gray-300)' }}>
-                      <th className="text-left p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Route</th>
-                      <th className="text-left p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Vehicle</th>
-                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Avg €/km</th>
-                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Min</th>
-                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Max</th>
-                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>Samples</th>
+                      <th className="text-left p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.route')}</th>
+                      <th className="text-left p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.vehicle')}</th>
+                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.avgPricePerKm')}</th>
+                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.min')}</th>
+                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.max')}</th>
+                      <th className="text-right p-3 text-xs font-medium" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.samples')}</th>
                       <th className="p-3"></th>
                     </tr>
                   </thead>
@@ -227,7 +229,7 @@ export default function PriceInsightsPage() {
                           {route.sample_count}
                         </td>
                         <td className="p-3">
-                          <Button variant="secondary" size="sm" onClick={() => viewRouteDetail(route)}>Detail</Button>
+                          <Button variant="secondary" size="sm" onClick={() => viewRouteDetail(route)}>{t('priceInsights.detail')}</Button>
                         </td>
                       </tr>
                     ))}
@@ -244,20 +246,20 @@ export default function PriceInsightsPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Price Estimator</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('priceInsights.priceEstimator')}</h2>
             </CardHeader>
             <div className="p-4 space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Origin Country</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.originCountry')}</label>
                   <Input value={estOrigin} onChange={(e) => setEstOrigin(e.target.value.toUpperCase())} placeholder="DE" maxLength={2} />
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Destination Country</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.destinationCountry')}</label>
                   <Input value={estDestination} onChange={(e) => setEstDestination(e.target.value.toUpperCase())} placeholder="FR" maxLength={2} />
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Vehicle Type</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.vehicleType')}</label>
                   <Select value={estVehicle} onChange={(e) => setEstVehicle(e.target.value)}>
                     <option value="truck_40t">Truck 40t</option>
                     <option value="truck_24t">Truck 24t</option>
@@ -268,12 +270,12 @@ export default function PriceInsightsPage() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>Weight (tons)</label>
+                  <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--ds-gray-700)' }}>{t('priceInsights.weightTons')}</label>
                   <Input type="number" value={estWeight} onChange={(e) => setEstWeight(e.target.value)} placeholder="Optional" />
                 </div>
               </div>
               <Button onClick={handleEstimate} disabled={estimating || !estOrigin || !estDestination}>
-                {estimating ? 'Estimating...' : 'Get Estimate'}
+                {estimating ? t('priceInsights.estimating') : t('priceInsights.getEstimate')}
               </Button>
             </div>
           </Card>
@@ -282,13 +284,13 @@ export default function PriceInsightsPage() {
             <Card>
               <div className="p-4 space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <StatBox label="Estimated Price" value={formatCurrency(estimate.estimated_price || estimate.estimated_price_eur || 0, 'EUR')} highlight />
-                  <StatBox label="Price/km" value={formatCurrency(estimate.price_per_km || 0, 'EUR')} />
-                  <StatBox label="Confidence" value={String(estimate.confidence || '—').replace('_', ' ')} />
+                  <StatBox label={t('priceInsights.estimatedPrice')} value={formatCurrency(estimate.estimated_price || estimate.estimated_price_eur || 0, 'EUR')} highlight />
+                  <StatBox label={t('priceInsights.pricePerKm')} value={formatCurrency(estimate.price_per_km || 0, 'EUR')} />
+                  <StatBox label={t('priceInsights.confidence')} value={String(estimate.confidence || '—').replace('_', ' ')} />
                 </div>
                 {estimate.price_range && (
                   <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--ds-gray-700)' }}>
-                    <span>Range: {formatCurrency(estimate.price_range.min, 'EUR')} – {formatCurrency(estimate.price_range.max, 'EUR')}</span>
+                    <span>{t('priceInsights.range')}: {formatCurrency(estimate.price_range.min, 'EUR')} – {formatCurrency(estimate.price_range.max, 'EUR')}</span>
                   </div>
                 )}
               </div>
@@ -302,7 +304,7 @@ export default function PriceInsightsPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>Route Comparison</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>{t('priceInsights.routeComparison')}</h2>
             </CardHeader>
             <div className="p-4 space-y-3">
               {compareRoutes.map((r, i) => (
@@ -338,10 +340,10 @@ export default function PriceInsightsPage() {
               ))}
               <div className="flex gap-2">
                 <Button variant="secondary" size="sm" onClick={() => setCompareRoutes([...compareRoutes, { origin_country: '', destination_country: '' }])}>
-                  + Add Route
+                  + {t('priceInsights.addRoute')}
                 </Button>
                 <Button onClick={handleCompare} disabled={comparing}>
-                  {comparing ? 'Comparing...' : 'Compare'}
+                  {comparing ? t('common.loading') : t('priceInsights.compare')}
                 </Button>
               </div>
             </div>

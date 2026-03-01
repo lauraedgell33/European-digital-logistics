@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -16,6 +17,7 @@ import {
 import type { ReturnLoadSuggestion, EmptyLeg } from '@/types';
 
 export default function ReturnLoadsPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<'search' | 'emptyLegs'>('search');
   const [suggestions, setSuggestions] = useState<ReturnLoadSuggestion[]>([]);
   const [emptyLegs, setEmptyLegs] = useState<EmptyLeg[]>([]);
@@ -74,18 +76,18 @@ export default function ReturnLoadsPage() {
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--ds-gray-1000)' }}>
             <ArrowPathIcon className="inline h-7 w-7 mr-2" />
-            Return Loads
+            {t('returnLoads.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--ds-gray-700)' }}>
-            Reduce empty runs — find return loads and available freight near your destination
+            {t('returnLoads.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant={tab === 'search' ? 'primary' : 'secondary'} size="sm" onClick={() => setTab('search')}>
-            <TruckIcon className="h-4 w-4 mr-1" /> Find Loads
+            <TruckIcon className="h-4 w-4 mr-1" /> {t('returnLoads.findLoads')}
           </Button>
           <Button variant={tab === 'emptyLegs' ? 'primary' : 'secondary'} size="sm" onClick={() => setTab('emptyLegs')}>
-            <MapPinIcon className="h-4 w-4 mr-1" /> Empty Legs
+            <MapPinIcon className="h-4 w-4 mr-1" /> {t('returnLoads.emptyLegs')}
           </Button>
         </div>
       </div>
@@ -96,7 +98,7 @@ export default function ReturnLoadsPage() {
           <Card>
             <CardHeader>
               <h2 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-                Search for Return Loads
+                {t('returnLoads.searchReturnLoads')}
               </h2>
             </CardHeader>
             <div className="p-4 space-y-4">
@@ -128,7 +130,7 @@ export default function ReturnLoadsPage() {
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleSearch} disabled={loading || !originLat || !originLng}>
-                  {loading ? 'Searching...' : 'Find Return Loads'}
+                  {loading ? t('common.loading') : t('returnLoads.findReturnLoads')}
                 </Button>
                 <Button variant="secondary" onClick={() => {
                   if (navigator.geolocation) {
@@ -138,7 +140,7 @@ export default function ReturnLoadsPage() {
                     });
                   }
                 }}>
-                  📍 Use My Location
+                  📍 {t('returnLoads.useMyLocation')}
                 </Button>
               </div>
             </div>
@@ -211,7 +213,7 @@ export default function ReturnLoadsPage() {
           ) : emptyLegs.length > 0 ? (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold" style={{ color: 'var(--ds-gray-1000)' }}>
-                Empty Legs — Market Overview
+                {t('returnLoads.emptyLegsOverview')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {emptyLegs.map((leg, i) => (
@@ -241,7 +243,7 @@ export default function ReturnLoadsPage() {
                       </div>
                       <p className="text-[10px]" style={{ color: 'var(--ds-gray-700)' }}>
                         Supply/Demand: {leg.supply_demand_ratio?.toFixed(2)}
-                        {(leg.supply_demand_ratio || 0) > 1.5 ? ' — Oversupply' : (leg.supply_demand_ratio || 0) > 0.8 ? ' — Balanced' : ' — High Demand'}
+                        {(leg.supply_demand_ratio || 0) > 1.5 ? ` — ${t('returnLoads.oversupply')}` : (leg.supply_demand_ratio || 0) > 0.8 ? ` — ${t('returnLoads.balanced')}` : ` — ${t('returnLoads.highDemand')}`}
                       </p>
                     </div>
                   </Card>

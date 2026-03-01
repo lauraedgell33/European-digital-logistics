@@ -50,7 +50,7 @@ class TrackingController extends Controller
             ->whereNotIn('status', ['delivered'])
             ->with('transportOrder:id,order_number,pickup_city,delivery_city,shipper_id,carrier_id')
             ->orderBy('last_update', 'desc')
-            ->get();
+            ->paginate($request->input('per_page', 25));
 
         return ShipmentResource::collection($shipments)->response();
     }
@@ -83,7 +83,7 @@ class TrackingController extends Controller
 
         $positions = $shipment->positions()
             ->orderBy('recorded_at', 'asc')
-            ->get();
+            ->paginate($request->input('per_page', 100));
 
         return TrackingPositionResource::collection($positions)->response();
     }
@@ -97,7 +97,7 @@ class TrackingController extends Controller
 
         $events = $shipment->events()
             ->orderBy('occurred_at', 'desc')
-            ->get();
+            ->paginate($request->input('per_page', 50));
 
         return ShipmentEventResource::collection($events)->response();
     }

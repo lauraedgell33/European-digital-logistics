@@ -57,6 +57,29 @@ services:
     networks:
       - logistics
 
+  # ─── Elasticsearch 8 ──────────────────────────────────
+  elasticsearch:
+    image: elasticsearch:8.15.0
+    container_name: logistics-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.name=logistics-search
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 45s
+    networks:
+      - logistics
+
   # ─── Laravel Backend (PHP-FPM) ────────────────────────
   backend:
     build:
@@ -68,6 +91,7 @@ services:
     environment:
       DB_HOST: mysql
       REDIS_HOST: redis
+      ELASTICSEARCH_HOST: elasticsearch:9200
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
@@ -78,6 +102,8 @@ services:
       mysql:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     networks:
       - logistics
@@ -169,6 +195,8 @@ volumes:
   mysql_data:
     driver: local
   redis_data:
+    driver: local
+  elasticsearch_data:
     driver: local
   backend_storage:
     driver: local

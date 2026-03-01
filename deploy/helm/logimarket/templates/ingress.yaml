@@ -1,0 +1,47 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "logimarket.fullname" . }}
+  labels:
+    {{- include "logimarket.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - secretName: {{ .secretName }}
+      hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "logimarket.fullname" $ }}-{{ .service }}
+                port:
+                  {{- if eq .service "api" }}
+                  number: 9000
+                  {{- else if eq .service "frontend" }}
+                  number: {{ $.Values.frontend.service.port }}
+                  {{- else if eq .service "reverb" }}
+                  number: {{ $.Values.reverb.service.port }}
+                  {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}

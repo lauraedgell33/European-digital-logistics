@@ -175,14 +175,21 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
 
-        $conversations = Conversation::whereHas('participants', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->get();
-
-        $total = 0;
-        foreach ($conversations as $conv) {
-            $total += $conv->unreadCountFor($request->user());
-        }
+        // Single query: count messages created after user's last_read_at across all conversations
+        $total = \App\Models\Message::whereIn('conversation_id', function ($q) use ($userId) {
+            $q->select('conversation_id')
+                ->from('conversation_user')
+                ->where('user_id', $userId);
+        })
+            ->where('sender_id', '!=', $userId)
+            ->where('created_at', '>', function ($q) use ($userId) {
+                $q->select('last_read_at')
+                    ->from('conversation_user')
+                    ->whereColumn('conversation_user.conversation_id', 'messages.conversation_id')
+                    ->where('user_id', $userId)
+                    ->limit(1);
+            })
+            ->count();
 
         return response()->json(['unread_count' => $total]);
     }

@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
 import { COUNTRIES } from '@/lib/utils';
 import { TruckIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const registerFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -35,6 +36,7 @@ export default function RegisterPage() {
   const { register: authRegister, isLoading } = useAuthStore();
   const { execute: executeRecaptcha } = useRecaptcha();
   const [serverError, setServerError] = useState('');
+  const { t } = useTranslation();
 
   const {
     register,
@@ -103,10 +105,10 @@ export default function RegisterPage() {
             className="text-2xl font-bold tracking-tight"
             style={{ color: 'var(--ds-gray-1000)' }}
           >
-            Create your account
+            {t('auth.createYourAccount')}
           </h1>
           <p className="mt-2 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Join the European logistics marketplace
+            {t('auth.joinMarketplace')}
           </p>
         </div>
 
@@ -133,32 +135,32 @@ export default function RegisterPage() {
             )}
 
             {/* Personal info */}
-            <Field name="name" label="Full Name" placeholder="John Doe" required />
-            <Field name="email" label="Email Address" type="email" placeholder="you@company.com" required />
+            <Field name="name" label={t('auth.fullName')} placeholder="John Doe" required />
+            <Field name="email" label={t('auth.emailAddress')} type="email" placeholder="you@company.com" required />
 
             <div className="grid grid-cols-2 gap-3">
-              <Field name="password" label="Password" type="password" placeholder="Min 8 characters" required />
-              <Field name="password_confirmation" label="Confirm Password" type="password" placeholder="Re-enter password" required />
+              <Field name="password" label={t('auth.password')} type="password" placeholder="Min 8 characters" required />
+              <Field name="password_confirmation" label={t('auth.confirmPassword')} type="password" placeholder="Re-enter password" required />
             </div>
 
             <div className="divider-geist my-2" />
 
             {/* Company info */}
             <p className="text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
-              Company Information
+              {t('auth.companyInfo')}
             </p>
 
-            <Field name="company_name" label="Company Name" placeholder="Acme Logistics GmbH" required />
+            <Field name="company_name" label={t('auth.companyName')} placeholder="Acme Logistics GmbH" required />
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="block text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
-                  Company Type *
+                  {t('auth.companyType')} *
                 </label>
                 <select className="input-geist appearance-none" {...register('company_type')}>
-                  <option value="shipper">Shipper</option>
-                  <option value="carrier">Carrier</option>
-                  <option value="forwarder">Freight Forwarder</option>
+                  <option value="shipper">{t('auth.shipper')}</option>
+                  <option value="carrier">{t('auth.carrier')}</option>
+                  <option value="forwarder">{t('auth.freightForwarder')}</option>
                 </select>
                 {errors.company_type && (
                   <p className="text-[12px]" style={{ color: 'var(--ds-red-900)' }}>{errors.company_type.message}</p>
@@ -166,7 +168,7 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-[13px] font-medium" style={{ color: 'var(--ds-gray-1000)' }}>
-                  Country *
+                  {t('common.country')} *
                 </label>
                 <select className="input-geist appearance-none" {...register('country_code')}>
                   {countryOptions.map((c) => (
@@ -181,10 +183,10 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <Field name="vat_number" label="VAT Number" placeholder="DE123456789" required />
+            <Field name="vat_number" label={t('auth.vatNumber')} placeholder="DE123456789" required />
 
             <div className="grid grid-cols-2 gap-3">
-              <Field name="city" label="City" placeholder="Berlin" required />
+              <Field name="city" label={t('common.city')} placeholder="Berlin" required />
               <Field name="postal_code" label="Postal Code" placeholder="10115" required />
             </div>
 
@@ -201,7 +203,7 @@ export default function RegisterPage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                'Create Account'
+                t('auth.createAccount')
               )}
             </button>
           </form>
@@ -209,13 +211,13 @@ export default function RegisterPage() {
           <div className="divider-geist my-6" />
 
           <p className="text-center text-[13px]" style={{ color: 'var(--ds-gray-900)' }}>
-            Already have an account?{' '}
+            {t('auth.haveAccount')}{' '}
             <Link
               href="/login"
               className="font-medium no-underline hover:underline"
               style={{ color: 'var(--ds-gray-1000)' }}
             >
-              Sign in
+              {t('auth.login')}
             </Link>
           </p>
         </div>

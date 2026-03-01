@@ -14,9 +14,11 @@ import {
   TruckIcon,
   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { RouteOptimization } from '@/types';
 
 export default function RouteOptimizerPage() {
+  const { t } = useTranslation();
   const [origin, setOrigin] = useState({ lat: 52.52, lng: 13.405, name: 'Berlin' });
   const [destination, setDestination] = useState({ lat: 48.8566, lng: 2.3522, name: 'Paris' });
   const [waypoints, setWaypoints] = useState([
@@ -52,23 +54,23 @@ export default function RouteOptimizerPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <MapIcon className="h-7 w-7" style={{ color: 'var(--ds-green-500)' }} />
-          Route Optimizer
+          {t('routeOptimizer.title')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">TSP-optimized multi-stop routes with CO₂ & cost savings</p>
+        <p className="text-sm text-gray-500 mt-1">{t('routeOptimizer.tspDesc')}</p>
       </div>
 
       {/* Route Input */}
       <Card>
-        <CardHeader title="Plan Your Route" subtitle="Add stops and optimize the delivery order" />
+        <CardHeader title={t('routeOptimizer.planRoute')} subtitle={t('routeOptimizer.addStopsOptimize')} />
         <div className="p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Origin</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('routeOptimizer.origin')}</label>
               <input className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                 value={origin.name} onChange={e => setOrigin({ ...origin, name: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Destination</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('routeOptimizer.destination')}</label>
               <input className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
                 value={destination.name} onChange={e => setDestination({ ...destination, name: e.target.value })} />
             </div>
@@ -76,7 +78,7 @@ export default function RouteOptimizerPage() {
 
           {/* Waypoints */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-2">Stops ({waypoints.length})</label>
+            <label className="block text-xs font-medium text-gray-500 mb-2">{t('routeOptimizer.stops')} ({waypoints.length})</label>
             <div className="space-y-2">
               {waypoints.map((wp, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -91,18 +93,18 @@ export default function RouteOptimizerPage() {
             <div className="flex gap-2 mt-2">
               <input
                 className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm bg-white dark:bg-gray-800"
-                placeholder="Add stop..."
+                placeholder={t('routeOptimizer.addStopPlaceholder')}
                 value={newWp}
                 onChange={e => setNewWp(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addWaypoint()}
               />
-              <Button size="sm" variant="secondary" onClick={addWaypoint}>Add</Button>
+              <Button size="sm" variant="secondary" onClick={addWaypoint}>{t('routeOptimizer.add')}</Button>
             </div>
           </div>
 
           <Button onClick={() => optimizeMutation.mutate()} disabled={optimizeMutation.isPending} className="w-full sm:w-auto">
             {optimizeMutation.isPending ? <Spinner size="sm" /> : <ArrowPathIcon className="h-4 w-4 mr-2" />}
-            Optimize Route
+            {t('routeOptimizer.optimizeRoute')}
           </Button>
         </div>
       </Card>
@@ -110,33 +112,33 @@ export default function RouteOptimizerPage() {
       {/* Result */}
       {result && (
         <Card>
-          <CardHeader title="Optimized Route" subtitle="Reordered stops for minimum distance" />
+          <CardHeader title={t('routeOptimizer.optimizedRoute')} subtitle={t('routeOptimizer.reorderedStops')} />
           <div className="p-4 space-y-4">
             {/* Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                 <GlobeAltIcon className="h-5 w-5 mx-auto mb-1" style={{ color: 'var(--ds-blue-500)' }} />
                 <p className="text-lg font-bold">{Number(result.total_distance_km || 0).toFixed(0)} km</p>
-                <p className="text-xs text-gray-500">Total Distance</p>
+                <p className="text-xs text-gray-500">{t('routeOptimizer.totalDistance')}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                 <ClockIcon className="h-5 w-5 mx-auto mb-1" style={{ color: 'var(--ds-amber-500)' }} />
                 <p className="text-lg font-bold">{Number(result.estimated_duration_hours || 0).toFixed(1)}h</p>
-                <p className="text-xs text-gray-500">Duration</p>
+                <p className="text-xs text-gray-500">{t('routeOptimizer.duration')}</p>
               </div>
               <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--ds-green-50)' }}>
                 <p className="text-lg font-bold" style={{ color: 'var(--ds-green-700)' }}>-{Number(result.co2_savings_kg || 0).toFixed(0)} kg</p>
-                <p className="text-xs text-gray-500">CO₂ Savings</p>
+                <p className="text-xs text-gray-500">{t('routeOptimizer.co2Savings')}</p>
               </div>
               <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--ds-green-50)' }}>
                 <p className="text-lg font-bold" style={{ color: 'var(--ds-green-700)' }}>-€{Number(result.cost_savings_eur || 0).toFixed(0)}</p>
-                <p className="text-xs text-gray-500">Cost Savings</p>
+                <p className="text-xs text-gray-500">{t('routeOptimizer.costSavings')}</p>
               </div>
             </div>
 
             {/* Optimized Order */}
             <div>
-              <h3 className="text-sm font-medium mb-2">Optimized Stop Order</h3>
+              <h3 className="text-sm font-medium mb-2">{t('routeOptimizer.optimizedOrder')}</h3>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="green">{result.origin || origin.name}</Badge>
                 {(result.optimized_waypoints || []).map((wp: Record<string, unknown>, i: number) => (
@@ -153,7 +155,7 @@ export default function RouteOptimizerPage() {
             {/* Alternatives */}
             {result.alternatives && result.alternatives.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium mb-2">Alternative Routes</h3>
+                <h3 className="text-sm font-medium mb-2">{t('routeOptimizer.alternativeRoutes')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {(result.alternatives as Array<Record<string, unknown>>).map((alt, i: number) => (
                     <div key={i} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm">
@@ -170,13 +172,13 @@ export default function RouteOptimizerPage() {
 
       {/* History */}
       <Card>
-        <CardHeader title="Optimization History" subtitle="Previous route optimizations" />
+        <CardHeader title={t('routeOptimizer.optimizationHistory')} subtitle={t('routeOptimizer.previousOptimizations')} />
         {loadingHistory ? (
           <div className="flex justify-center p-8"><Spinner /></div>
         ) : (historyData || []).length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <MapIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-            <p>No previous optimizations.</p>
+            <p>{t('routeOptimizer.noOptimizations')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">

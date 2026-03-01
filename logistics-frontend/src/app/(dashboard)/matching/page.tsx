@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useRouter } from 'next/navigation';
 import { useFreightOffers, useMatching } from '@/hooks/useApi';
 import { Card, CardHeader } from '@/components/ui/Card';
@@ -47,6 +48,7 @@ function RatingStars({ rating }: { rating: number | null }) {
 }
 
 export default function MatchingPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [selectedFreightId, setSelectedFreightId] = useState<number | null>(null);
   const { data: freightData, isLoading: loadingFreight } = useFreightOffers({ status: 'active', per_page: 50 });
@@ -59,16 +61,16 @@ export default function MatchingPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--ds-gray-1000)' }}>
-          Smart Matching
+          {t('matching.title')}
         </h1>
         <p className="mt-1 text-[14px]" style={{ color: 'var(--ds-gray-900)' }}>
-          Find the best vehicle matches for your freight offers
+          {t('matching.subtitle')}
         </p>
       </div>
 
       {/* Freight Selection */}
       <Card>
-        <CardHeader title="Select Freight Offer" description="Choose a freight offer to find matching vehicles" />
+        <CardHeader title={t('matching.selectFreight')} description={t('matching.selectFreightDesc')} />
         <div className="mt-4">
           {loadingFreight ? (
             <div className="flex justify-center py-4"><Spinner /></div>
@@ -126,11 +128,11 @@ export default function MatchingPage() {
       {selectedFreightId && (
         <Card>
           <CardHeader
-            title="Matching Vehicles"
-            description="Ranked by compatibility score"
+            title={t('matching.matchingVehicles')}
+            description={t('matching.rankedBy')}
             action={
               loadingMatches ? <Spinner /> : (
-                <Badge variant="blue">{matches?.length ?? 0} matches found</Badge>
+                <Badge variant="blue">{matches?.length ?? 0} {t('matching.matchesFound')}</Badge>
               )
             }
           />
@@ -140,7 +142,7 @@ export default function MatchingPage() {
                 <div className="text-center">
                   <Spinner size="lg" />
                   <p className="text-[13px] mt-3" style={{ color: 'var(--ds-gray-700)' }}>
-                    Finding best matches...
+                    {t('matching.findingMatches')}
                   </p>
                 </div>
               </div>
@@ -148,10 +150,10 @@ export default function MatchingPage() {
               <div className="text-center py-12">
                 <TruckIcon className="h-10 w-10 mx-auto mb-3" style={{ color: 'var(--ds-gray-500)' }} />
                 <p className="text-[14px] font-medium" style={{ color: 'var(--ds-gray-900)' }}>
-                  No matching vehicles found
+                  {t('matching.noMatches')}
                 </p>
                 <p className="text-[13px] mt-1" style={{ color: 'var(--ds-gray-600)' }}>
-                  Try different dates or Route
+                  {t('matching.tryDifferent')}
                 </p>
               </div>
             ) : (
@@ -232,7 +234,7 @@ export default function MatchingPage() {
                             size="sm"
                             onClick={() => router.push(`/orders/new?vehicle_offer_id=${vehicle.id}`)}
                           >
-                            Create Order
+                            {t('matching.createOrder')}
                           </Button>
                         </div>
                       </div>

@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'gdpr.audit' => \App\Http\Middleware\GdprAuditLog::class,
             'rate.limit' => \App\Http\Middleware\RateLimitMiddleware::class,
+            'cache.response' => \App\Http\Middleware\CacheResponse::class,
+            'tenant.resolve' => \App\Http\Middleware\ResolveTenant::class,
+            'tenant.feature' => \App\Http\Middleware\CheckTenantFeature::class,
+            'tenant.limit' => \App\Http\Middleware\EnforceTenantLimit::class,
         ]);
 
         // Security headers on every response (web + api)
@@ -24,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // API-specific middleware stack
         $middleware->appendToGroup('api', [
+            \App\Http\Middleware\TrackPerformance::class,
             \App\Http\Middleware\SanitizeInput::class,
             \App\Http\Middleware\RateLimitMiddleware::class,
             \App\Http\Middleware\GdprAuditLog::class,
