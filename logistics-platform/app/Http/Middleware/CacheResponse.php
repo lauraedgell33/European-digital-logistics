@@ -30,7 +30,12 @@ class CacheResponse
 
         $cacheKey = $this->buildCacheKey($request, $scope);
 
-        $cached = Cache::store('redis')->get($cacheKey);
+        try {
+            $cached = Cache::store('redis')->get($cacheKey);
+        } catch (\Exception $e) {
+            // Redis unavailable — skip caching
+            return $next($request);
+        }
 
         if ($cached !== null) {
             $response = response($cached['body'], $cached['status'])
@@ -53,7 +58,11 @@ class CacheResponse
                 ],
             ];
 
-            Cache::store('redis')->put($cacheKey, $data, $ttl);
+            try {
+                Cache::store('redis')->put($cacheKey, $data, $ttl);
+            } catch (\Exception $e) {
+                // Redis unavailable — skip caching
+            }
 
             $response->headers->set('X-Cache', 'MISS');
             $response->headers->set('X-Cache-TTL', (string) $ttl);

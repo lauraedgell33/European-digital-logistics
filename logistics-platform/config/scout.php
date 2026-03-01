@@ -9,7 +9,7 @@ return [
     | Supported: "collection", "elasticsearch", "null"
     |
     */
-    'driver' => env('SCOUT_DRIVER', 'elasticsearch'),
+    'driver' => env('SCOUT_DRIVER', 'collection'),
 
     /*
     |--------------------------------------------------------------------------

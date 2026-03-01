@@ -23,31 +23,36 @@ class RateLimitMiddleware
      */
     public function handle(Request $request, Closure $next, string $type = 'api'): Response
     {
-        $key = $this->resolveKey($request, $type);
-        $maxAttempts = $this->resolveMaxAttempts($request, $type);
-        $decaySeconds = 60;
+        try {
+            $key = $this->resolveKey($request, $type);
+            $maxAttempts = $this->resolveMaxAttempts($request, $type);
+            $decaySeconds = 60;
 
-        if ($this->limiter->tooManyAttempts($key, $maxAttempts)) {
-            $retryAfter = $this->limiter->availableIn($key);
+            if ($this->limiter->tooManyAttempts($key, $maxAttempts)) {
+                $retryAfter = $this->limiter->availableIn($key);
 
-            return response()->json([
-                'message' => 'Too many requests. Please try again later.',
-                'retry_after' => $retryAfter,
-            ], Response::HTTP_TOO_MANY_REQUESTS)
-                ->header('Retry-After', $retryAfter)
-                ->header('X-RateLimit-Limit', $maxAttempts)
-                ->header('X-RateLimit-Remaining', 0);
+                return response()->json([
+                    'message' => 'Too many requests. Please try again later.',
+                    'retry_after' => $retryAfter,
+                ], Response::HTTP_TOO_MANY_REQUESTS)
+                    ->header('Retry-After', $retryAfter)
+                    ->header('X-RateLimit-Limit', $maxAttempts)
+                    ->header('X-RateLimit-Remaining', 0);
+            }
+
+            $this->limiter->hit($key, $decaySeconds);
+
+            $response = $next($request);
+
+            return $this->addRateLimitHeaders(
+                $response,
+                $maxAttempts,
+                $this->limiter->remaining($key, $maxAttempts)
+            );
+        } catch (\Exception $e) {
+            // Cache/Redis unavailable — skip rate limiting gracefully
+            return $next($request);
         }
-
-        $this->limiter->hit($key, $decaySeconds);
-
-        $response = $next($request);
-
-        return $this->addRateLimitHeaders(
-            $response,
-            $maxAttempts,
-            $this->limiter->remaining($key, $maxAttempts)
-        );
     }
 
     /**

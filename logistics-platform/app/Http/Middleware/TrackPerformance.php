@@ -24,8 +24,12 @@ class TrackPerformance
     {
         $start = microtime(true);
 
-        // Increment active requests
-        Redis::incr(self::METRICS_PREFIX . 'active_requests');
+        // Increment active requests (fail-safe if Redis is unavailable)
+        try {
+            Redis::incr(self::METRICS_PREFIX . 'active_requests');
+        } catch (\Exception $e) {
+            // Redis unavailable — skip metrics
+        }
 
         /** @var Response $response */
         $response = $next($request);
@@ -36,22 +40,23 @@ class TrackPerformance
         $status = $response->getStatusCode();
         $statusGroup = intdiv($status, 100) . 'xx';
 
-        // Decrement active requests
-        Redis::decr(self::METRICS_PREFIX . 'active_requests');
+        try {
+            // Decrement active requests
+            Redis::decr(self::METRICS_PREFIX . 'active_requests');
 
-        // Store metrics in Redis (atomic pipeline)
-        Redis::pipeline(function ($pipe) use ($method, $path, $status, $statusGroup, $duration) {
-            $key = self::METRICS_PREFIX . 'requests';
+            // Store metrics in Redis (atomic pipeline)
+            Redis::pipeline(function ($pipe) use ($method, $path, $status, $statusGroup, $duration) {
+                $key = self::METRICS_PREFIX . 'requests';
 
-            // Request count
-            $pipe->hincrby($key, "count:{$method}:{$path}:{$status}", 1);
-            $pipe->hincrby($key, "count_total", 1);
-            $pipe->hincrby($key, "count_{$statusGroup}", 1);
+                // Request count
+                $pipe->hincrby($key, "count:{$method}:{$path}:{$status}", 1);
+                $pipe->hincrby($key, "count_total", 1);
+                $pipe->hincrby($key, "count_{$statusGroup}", 1);
 
-            // Duration tracking (for averages, stored as sum + count)
-            $durationMs = round($duration * 1000, 2);
-            $pipe->hincrbyfloat($key, "duration_sum:{$method}:{$path}", $durationMs);
-            $pipe->hincrby($key, "duration_count:{$method}:{$path}", 1);
+                // Duration tracking (for averages, stored as sum + count)
+                $durationMs = round($duration * 1000, 2);
+                $pipe->hincrbyfloat($key, "duration_sum:{$method}:{$path}", $durationMs);
+                $pipe->hincrby($key, "duration_count:{$method}:{$path}", 1);
 
             // Duration histogram buckets (ms)
             $buckets = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
@@ -70,6 +75,9 @@ class TrackPerformance
             // Peak response time tracking
             $pipe->set(self::METRICS_PREFIX . 'last_request_ms', $durationMs);
         });
+        } catch (\Exception $e) {
+            // Redis unavailable — skip metrics silently
+        }
 
         // Add Server-Timing header for browser DevTools
         $durationMs = round($duration * 1000, 2);

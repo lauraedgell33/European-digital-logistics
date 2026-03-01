@@ -4,6 +4,10 @@
 
 cd /home/forge/european-digital-logistics-6ssyuep3.on-forge.com/current/logistics-platform
 
+# Ensure required env vars have safe defaults
+grep -q 'SCOUT_DRIVER' .env 2>/dev/null || echo 'SCOUT_DRIVER=collection' >> .env
+grep -q 'REDIS_HOST' .env 2>/dev/null || echo 'REDIS_HOST=127.0.0.1' >> .env
+
 # Install PHP dependencies
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
@@ -11,7 +15,7 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 php artisan migrate --force
 
 # Ensure permanent admin user exists
-php artisan admin:ensure
+php artisan admin:ensure || true
 
 # Cache configuration, routes, and views
 php artisan config:cache
